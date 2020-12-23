@@ -173,8 +173,67 @@ class Aggregation(AggregationInterface):
             for key, value in self.items(key_separator=key_separator, default=default)
         }
 
+    def to_dict_rows(self, default=None):
+        dic = self.to_dict(default=default)
+        aggs = self._aggregations()
+        rows = []
+        keys_set = set()
+        for keys, value in dic.items():
+            print(keys, value)
+            if not isinstance(keys, tuple):
+                keys = (keys, )
+
+            row = dict()
+            for agg, key in zip(aggs, keys):
+                row[agg.name] = key
+
+            if isinstance(value, dict):
+                row.update(value)
+            else:
+                row["value"] = value
+            rows.append(row)
+            keys_set |= set(row.keys())
+
+        keys_set = sorted(keys_set)
+        for row in rows:
+            for key in keys_set:
+                if key not in row:
+                    row[key] = None
+
+        return rows
+
+    def to_rows(self, header=True, default=None):
+        dict_rows = self.to_dict_rows(default=default)
+        rows = []
+        if not dict_rows:
+            return rows
+        header_keys = list(dict_rows[0].keys())
+        if header and dict_rows:
+            rows.append(header_keys)
+        for row in dict_rows:
+            rows.append([row[key] for key in header_keys])
+        return rows
+
     def dump_dict(self, key_separator="|", default=None, indent=2, file=None):
         print(json.dumps(self.to_dict(key_separator=key_separator, default=default), indent=indent), file=file)
+
+    def dump_table(self, header=True, default=None, file=None):
+        rows = self.to_rows(header=header, default=default)
+        if not rows:
+            return
+        column_width = [0] * len(rows[0])
+        for i, row in enumerate(rows):
+            rows[i] = [str(v) for v in row]
+            for x, v in enumerate(rows[i]):
+                column_width[x] = max(column_width[x], len(v))
+
+        format_str = " | ".join(
+            "{:%s}" % v
+            for v in column_width
+        )
+
+        for row in rows:
+            print(format_str.format(*row), file=file)
 
     def aggregation(self, *aggregation_name_type, **params):
         if len(aggregation_name_type) == 1:
