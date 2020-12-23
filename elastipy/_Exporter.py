@@ -41,7 +41,7 @@ class Exporter:
     def get_object_id(self, es_data):
         """
         Override this to return a single elasticsearch object's id
-        :param es_data: dict
+        :param es_data: dict, single object as returned by transform_object_data()
         :return: str, int etc..
         """
         raise NotImplementedError
@@ -116,6 +116,7 @@ class Exporter:
                     bulk_actions = []
 
         if bulk_actions:
+            # TODO: only returning last bulk call, if any..
             return bulk(self.client, bulk_actions)
 
     def get_index_params(self):

@@ -6,12 +6,25 @@ from ._Aggregation import Aggregation, AggregationInterface
 
 
 class Query(AggregationInterface):
+    """
+    Interface to elasticsearch /search.
+
+    All changes to a query create and return a copy.
+    Except for aggregations, which are attached to the query instance.
+
+    """
     def __init__(
             self,
             index=None,
             client=None,
             timestamp_field="timestamp",
     ):
+        """
+        Create a new Query instance.
+        :param index: str, optional index name/pattern, can also be set later via index()
+        :param client: elasticsearch.Client instance, if None elastipy.get_elastic_client() is used
+        :param timestamp_field: str, the default timestamp field used for date-ranges and date_histogram
+        """
         AggregationInterface.__init__(self, timestamp_field=timestamp_field)
         self._index = index
         self._client = client
@@ -149,6 +162,9 @@ class Query(AggregationInterface):
 
 
 class Response(dict):
+    """
+    Simple wrapper around a dict with some elasticsearch response helper functions
+    """
 
     @property
     def total_hits(self):

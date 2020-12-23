@@ -1,6 +1,7 @@
 import json
 
 
+# TODO: collect all the names and maybe even machine-readable parameter lists
 METRICS = {
     "avg",
     "cardinality",
@@ -13,14 +14,32 @@ METRICS = {
 
 
 class AggregationInterface:
-
+    """
+    Interface to create aggregations.
+    Used either on Query or on Aggregations themselves.
+    """
     def __init__(self, timestamp_field="timestamp"):
         self.timestamp_field = timestamp_field
 
     def aggregation(self, *aggregation_name_type, **params) -> 'Aggregation':
+        """
+        Creates an aggregation.
+
+        Either call
+            aggregation("sum", field=...) to create an automatic name
+        or call
+            aggregation("my_name", "sum", field=...) to set aggregation name explicitly
+
+        :param aggregation_name_type: one or two strings
+        :param params: all parameters of the aggregation function
+        :return: Aggregation instance
+        """
         raise NotImplementedError
 
     def agg(self, *aggregation_name_type, **params):
+        """
+        Alias for aggregation()
+        """
         return self.aggregation(*aggregation_name_type, **params)
 
     def agg_terms(self, *aggregation_name, field, size=10, shard_size=None, order=None, min_doc_count=0, show_term_doc_count_error=False):
@@ -40,6 +59,9 @@ class AggregationInterface:
         )
 
     def metric(self, *aggregation_name_type, **params):
+        """
+        Alias for aggregation()
+        """
         aggregation_type = aggregation_name_type[0] if len(aggregation_name_type) == 1 else aggregation_name_type[1]
         assert aggregation_type in METRICS, f"Metric '{aggregation_type}' not supported"
         return self.aggregation(*aggregation_name_type, **params)
@@ -59,7 +81,12 @@ class AggregationInterface:
 
 
 class Aggregation(AggregationInterface):
+    """
+    Aggregation definition and response parser.
 
+    Do not create instances yourself,
+    use the Query.aggregation() and Aggregation.aggregation() variants
+    """
     def __init__(self, query, name, type, params):
         AggregationInterface.__init__(self, timestamp_field=query.timestamp_field)
         self.query = query
@@ -82,6 +109,10 @@ class Aggregation(AggregationInterface):
         return self.type in METRICS
 
     def execute(self):
+        """
+        Executes the whole query with all aggregations
+        :return: self
+        """
         self.query.execute()
         return self
 
@@ -100,6 +131,16 @@ class Aggregation(AggregationInterface):
         return self.response["buckets"]
 
     def keys(self, key_separator=None):
+        """
+        Iterates through all keys of this aggregation.
+
+        For example, a top-level date_histogram would return all timestamps.
+
+        For nested bucket aggregations each key is a tuple of all parent keys as well.
+
+        :param key_separator: str, optional separator to concat multiple keys into one string
+        :return: generator
+        """
         if not self.parent:
             key_name = self._bucket_key_name()
             for b in self.buckets:
@@ -110,11 +151,40 @@ class Aggregation(AggregationInterface):
             yield self._key_to_key(k, key_separator=key_separator)
 
     def values(self, default=None):
+        """
+        Iterates through all values of this aggregation.
+        :param default: if not None any None-value will be replaced by this
+        :return: generator
+        """
         if not self.parent:
             yield from self._iter_values_from_bucket(self.response, default=default)
             return
 
         yield from self.root._iter_sub_values(self._aggregations(), default=default)
+
+    def items(self, key_separator=None, default=None):
+        """
+        Iterates through all key, value tuples.
+        :param key_separator: str, optional separator to concat multiple keys into one string
+        :param default: if not None any None-value will be replaced by this
+        :return: generator
+        """
+        yield from zip(self.keys(key_separator=key_separator), self.values(default=default))
+
+    def to_dict(self, key_separator=None, default=None):
+        """
+        Create a dictionary from all key/value pairs.
+        :param key_separator: str, optional separator to concat multiple keys into one string
+        :param default: if not None any None-value will be replaced by this
+        :return: dict
+        """
+        return {
+            key: value
+            for key, value in self.items(key_separator=key_separator, default=default)
+        }
+
+    def dump_dict(self, key_separator="|", default=None, indent=2, file=None):
+        print(json.dumps(self.to_dict(key_separator=key_separator, default=default), indent=indent), file=file)
 
     def aggregation(self, *aggregation_name_type, **params):
         if len(aggregation_name_type) == 1:
@@ -133,18 +203,6 @@ class Aggregation(AggregationInterface):
         self.query._aggregations.append(agg)
         self.query._add_body(f"{self._agg_path()}.aggregations.{name}.{aggregation_type}", agg.params)
         return agg
-
-    def items(self, key_separator=None, default=None):
-        yield from zip(self.keys(key_separator=key_separator), self.values(default=default))
-
-    def to_dict(self, key_separator=None, default=None):
-        return {
-            key: value
-            for key, value in self.items(key_separator=key_separator, default=default)
-        }
-
-    def dump_dict(self, key_separator="|", default=None, indent=2, file=None):
-        print(json.dumps(self.to_dict(key_separator=key_separator, default=default), indent=indent), file=file)
 
     def _key_to_key(self, key, key_separator=None):
         if isinstance(key, str):
