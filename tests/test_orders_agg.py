@@ -1,5 +1,5 @@
 import datetime
-import copy
+import json
 import time
 import unittest
 
@@ -102,6 +102,7 @@ class TestOrdersAggregations(unittest.TestCase):
             },
             agg_qty.to_dict()
         )
+        #agg_qty.dump_table()
 
     def test_orders_date_histogram(self):
         query = self.query()

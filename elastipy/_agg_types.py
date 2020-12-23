@@ -8,7 +8,7 @@ AGGREGATIONS = {
                 "missing": {"type": "any"},
                 "script": {"type": dict},
             },
-            "returns": {"value"},
+            "returns": ["value"],
         },
         "boxplot": {
             "doc": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-boxplot-aggregation.html",
@@ -74,7 +74,7 @@ AGGREGATIONS = {
                 "missing": {"type": "any"},
                 "script": {"type": dict},
             },
-            "returns": {"value"},
+            "returns": ["value"],
         },
         "median_absolute_deviation": {
             "doc": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-median-absolute-deviation-aggregation.html",
@@ -84,7 +84,7 @@ AGGREGATIONS = {
                 "missing": {"type": "any"},
                 "script": {"type": dict},
             },
-            "returns": {"value"},
+            "returns": ["value"],
         },
         "min": {
             "doc": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-min-aggregation.html",
@@ -93,7 +93,7 @@ AGGREGATIONS = {
                 "missing": {"type": "any"},
                 "script": {"type": dict},
             },
-            "returns": {"value"},
+            "returns": ["value"],
         },
         "percentile_ranks": {
             "doc": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-rank-aggregation.html",
@@ -105,7 +105,7 @@ AGGREGATIONS = {
                 "missing": {"type": "any"},
                 "script": {"type": dict},
             },
-            "returns": {"values"},
+            "returns": ["values"],
         },
         "percentiles": {
             "doc": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-aggregation.html",
@@ -118,7 +118,7 @@ AGGREGATIONS = {
                 "missing": {"type": "any"},
                 "script": {"type": dict},
             },
-            "returns": {"values"},
+            "returns": ["values"],
         },
         "rate": {
             "doc": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-rate-aggregation.html",
@@ -127,7 +127,7 @@ AGGREGATIONS = {
                 "field": {"type": str},
                 "script": {"type": dict},
             },
-            "returns": {"value"},
+            "returns": ["value"],
         },
         "scripted_metric": {
             "doc": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-scripted-metric-aggregation.html",
@@ -138,7 +138,7 @@ AGGREGATIONS = {
                 "reduce_script": {"type": str, "required": True},
                 "params": {"type": dict},
             },
-            "returns": {"value"},
+            "returns": ["value"],
         },
         "stats": {
             "doc": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-stats-aggregation.html",
@@ -146,7 +146,7 @@ AGGREGATIONS = {
                 "field": {"type": str, "required": True},
                 "missing": {"type": "any"},
             },
-            "returns": ["count", "min", "max", "sum", "count", "average"],
+            "returns": ["count", "min", "max", "sum", "count", "avg"],
         },
         "string_stats": {
             "doc": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-string-stats-aggregation.html",
@@ -164,7 +164,7 @@ AGGREGATIONS = {
                 "missing": {"type": "any"},
                 "script": {"type": dict},
             },
-            "returns": {"value"},
+            "returns": ["value"],
         },
         "t_test": {
             "doc": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-ttest-aggregation.html",
@@ -176,7 +176,7 @@ AGGREGATIONS = {
                 "type": {"type": str, "required": True},
                 "script": {"type": dict},
             },
-            "returns": {"value"},
+            "returns": ["value"],
         },
         "top_hits": {
             "doc": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-top-hits-aggregation.html",
@@ -186,7 +186,7 @@ AGGREGATIONS = {
                 "sort": {"type": dict},
                 "_source": {"type": dict},
             },
-            "returns": {"hits"},
+            "returns": ["hits"],
         },
         "top_metrics": {
             "doc": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-top-metrics.html",
@@ -194,7 +194,7 @@ AGGREGATIONS = {
                 "metrics": {"type": dict, "required": True},
                 "sort": {"type": dict},
             },
-            "returns": {"top"},
+            "returns": ["top"],
         },
         "value_count": {
             "doc": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-valuecount-aggregation.html",
@@ -202,7 +202,7 @@ AGGREGATIONS = {
                 "field": {"type": str, "required": True},
                 "script": {"type": dict},
             },
-            "returns": {"value"},
+            "returns": ["value"],
         },
         "weighted_avg": {
             "doc": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-weight-avg-aggregation.html",
@@ -215,7 +215,7 @@ AGGREGATIONS = {
                 "value_type": {"type": str},
                 "script": {"type": dict},
             },
-            "returns": {"value"},
+            "returns": ["value"],
         },
     }
 }

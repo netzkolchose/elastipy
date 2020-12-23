@@ -179,7 +179,6 @@ class Aggregation(AggregationInterface):
         rows = []
         keys_set = set()
         for keys, value in dic.items():
-            print(keys, value)
             if not isinstance(keys, tuple):
                 keys = (keys, )
 
@@ -188,9 +187,10 @@ class Aggregation(AggregationInterface):
                 row[agg.name] = key
 
             if isinstance(value, dict):
-                row.update(value)
+                for key, val in value.items():
+                    row[f"{self.name}_{key}"] = val
             else:
-                row["value"] = value
+                row[self.name] = value
             rows.append(row)
             keys_set |= set(row.keys())
 
@@ -301,10 +301,17 @@ class Aggregation(AggregationInterface):
 
     def _iter_values_from_bucket(self, bucket, default=None):
         if self.is_metric():
-            value = bucket["value"]
-            if default is not None and value is None:
-                value = default
-            yield value
+            return_keys = AGGREGATIONS["metric"].get(self.type, {}).get("returns", "value")
+            values = dict()
+            for key in return_keys:
+                if key in bucket:
+                    value = bucket[key]
+                    if default is not None and value is None:
+                        value = default
+                    values[key] = value
+            if not values:
+                raise ValueError(f"{self} should have returned fields {return_keys}, got {bucket}")
+            yield values if len(values) > 1 else values[list(values.keys())[0]]
         else:
             for b in bucket["buckets"]:
                 value = b["doc_count"]
