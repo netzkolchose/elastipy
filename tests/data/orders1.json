@@ -1,0 +1,75 @@
+[
+  {
+    "timestamp": "2000-01-01T00:00:00Z",
+    "channel": "the-shop",
+    "country": "DE",
+    "order_id": "1",
+    "items": [
+      {
+        "sku": "sku-1",
+        "quantity": 1
+      }
+    ]
+  },
+
+  {
+    "timestamp": "2000-01-01T08:00:00Z",
+    "channel": "the-shop",
+    "country": "GB",
+    "order_id": "2",
+    "items": [
+      {
+        "sku": "sku-1",
+        "quantity": 2
+      }
+    ]
+  },
+
+  {
+    "timestamp": "2000-01-02T00:00:00Z",
+    "channel": "the-shop",
+    "country": "DE",
+    "order_id": "3",
+    "items": [
+      {
+        "sku": "sku-2",
+        "quantity": 2
+      }
+    ]
+  },
+
+  {
+    "timestamp": "2000-01-03T00:00:00Z",
+    "channel": "the-sale",
+    "country": "DE",
+    "order_id": "4",
+    "items": [
+      {
+        "sku": "sku-1",
+        "quantity": 3
+      },
+      {
+        "sku": "sku-2",
+        "quantity": 1
+      }
+    ]
+  },
+
+  {
+    "timestamp": "2000-01-03T00:00:00Z",
+    "channel": "the-end",
+    "country": "GB",
+    "order_id": "5",
+    "items": [
+      {
+        "sku": "sku-1",
+        "quantity": 1
+      },
+      {
+        "sku": "sku-3",
+        "quantity": 5
+      }
+    ]
+  }
+
+]
