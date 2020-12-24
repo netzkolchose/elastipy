@@ -12,14 +12,16 @@ from . import data
 
 class TestOrdersAggregationsTable(unittest.TestCase):
 
-    def setUp(self):
-        self.maxDiff = int(1e5)
-        self.client = get_elastic_client()
-        data.export_data(data.orders.orders1, data.orders.OrderExporter, self.client)
-        time.sleep(1)
+    @classmethod
+    def setUpClass(cls):
+        cls.maxDiff = int(1e5)
+        cls.client = get_elastic_client()
+        data.export_data(data.orders.orders1, data.orders.OrderExporter, cls.client)
+        time.sleep(1.1)  # give time to update index
 
-    def tearDown(self):
-        data.orders.OrderExporter(client=self.client).delete_index()
+    @classmethod
+    def tearDownClass(cls):
+        data.orders.OrderExporter(client=cls.client).delete_index()
 
     def query(self):
         return Query(index=data.orders.OrderExporter.INDEX_NAME, client=self.client)
@@ -56,7 +58,7 @@ class TestOrdersAggregationsTable(unittest.TestCase):
 
         query.execute()
 
-        agg_stats.dump_table()
+        # agg_stats.dump_table()
         self.assertEqual(
             [
                 ["sku", "channel", "stats_count", "stats_min", "stats_max", "stats_sum", "stats_avg"],
