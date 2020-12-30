@@ -32,7 +32,7 @@ class AggregationInterface:
         """
         return self.aggregation(*aggregation_name_type, **params)
 
-    def agg_terms(self, *aggregation_name, field, size=10, shard_size=None, order=None, min_doc_count=0, show_term_doc_count_error=False):
+    def agg_terms(self, *aggregation_name, field, size=10, shard_size=None, order=None, min_doc_count=1, show_term_doc_count_error=False):
         return self.aggregation(
             *(aggregation_name + ("terms", )),
             field=field, size=size, min_doc_count=min_doc_count,
