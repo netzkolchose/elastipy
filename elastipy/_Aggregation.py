@@ -91,6 +91,7 @@ class Aggregation(AggregationInterface):
         self._response = None
         self.parent: Aggregation = None
         self.root: Aggregation = None
+        self._plot_text = None
 
     def __repr__(self):
         return f"{self.__class__.__name__}('{self.name}', '{self.type}')"
@@ -252,6 +253,13 @@ class Aggregation(AggregationInterface):
         self.query._aggregations.append(agg)
         self.query._add_body(f"{self._agg_path()}.aggregations.{name}.{aggregation_type}", agg.params)
         return agg
+
+    @property
+    def plot_text(self):
+        from .plot._TextPlotWrapper import TextPlotWrapper
+        if not self._plot_text:
+            self._plot_text = TextPlotWrapper(self)
+        return self._plot_text
 
     def _key_to_key(self, key, key_separator=None):
         if isinstance(key, str):
