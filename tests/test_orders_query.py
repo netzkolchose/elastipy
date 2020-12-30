@@ -5,7 +5,7 @@ import unittest
 
 import elasticsearch
 
-from elastipy import get_elastic_client, Query
+from elastipy import get_elastic_client, Search
 
 from . import data
 
@@ -24,7 +24,7 @@ class TestOrdersQuery(unittest.TestCase):
         data.orders.OrderExporter(client=cls.client).delete_index()
 
     def query(self):
-        return Query(index=data.orders.OrderExporter.INDEX_NAME, client=self.client)
+        return Search(index=data.orders.OrderExporter.INDEX_NAME, client=self.client)
 
     def test_total_hits(self):
         query = self.query()

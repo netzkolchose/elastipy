@@ -8,9 +8,9 @@ Actually i'm just learning this stuff and have the following requests:
 
 Right now it looks like this:
 ```python
-from elastipy import Query
+from elastipy import Search
 
-query = Query(index="world").match("topic", "yet-another-api")
+query = Search(index="world").match("topic", "yet-another-api")
 languages_per_country = query.agg_terms(field="country").agg_terms(field="language")
 
 response = query.execute()

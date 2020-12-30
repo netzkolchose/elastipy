@@ -5,7 +5,7 @@ from ._client import get_elastic_client
 from ._Aggregation import Aggregation, AggregationInterface
 
 
-class Query(AggregationInterface):
+class Search(AggregationInterface):
     """
     Interface to elasticsearch /search.
 
