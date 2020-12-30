@@ -9,8 +9,8 @@ class Search(AggregationInterface):
     """
     Interface to elasticsearch /search.
 
-    All changes to a query create and return a copy.
-    Except for aggregations, which are attached to the query instance.
+    All changes to a search object create and return a copy.
+    Except for aggregations, which are attached to the search instance.
 
     """
     def __init__(
@@ -20,7 +20,7 @@ class Search(AggregationInterface):
             timestamp_field="timestamp",
     ):
         """
-        Create a new Query instance.
+        Create a new Search instance.
         :param index: str, optional index name/pattern, can also be set later via index()
         :param client: elasticsearch.Client instance, if None elastipy.get_elastic_client() is used
         :param timestamp_field: str, the default timestamp field used for date-ranges and date_histogram
@@ -76,7 +76,6 @@ class Search(AggregationInterface):
     def match(self, field, value):
         es = self.copy()
         es._add_bool_filter({"match_phrase": {field: value}})
-        #es._add_body(f"query.bool.filter.{self._query_count}.match_phrase.{field}", value)
         return es
 
     def query_string(self, query):
@@ -87,19 +86,16 @@ class Search(AggregationInterface):
     def date_from(self, date):
         es = self.copy()
         es._add_bool_filter({"range": {self.timestamp_field: {"gte": date}}})
-        #es._add_body(f"query.bool.filter.{self._query_count}.range.{self.timestamp_field}.gte", date)
         return es
 
     def date_to(self, date):
         es = self.copy()
         es._add_bool_filter({"range": {self.timestamp_field: {"lte": date}}})
-        #es._add_body(f"query.bool.filter.{self._query_count}.range.{self.timestamp_field}.lte", date)
         return es
 
     def date_before(self, date):
         es = self.copy()
         es._add_bool_filter({"range": {self.timestamp_field: {"lt": date}}})
-        #es._add_body(f"query.bool.filter.{self._query_count}.range.{self.timestamp_field}.lt", date)
         return es
 
     def year(self, year):
