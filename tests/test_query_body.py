@@ -3,11 +3,10 @@ import json
 import time
 import unittest
 
-from elastipy import Search
-from elastipy.query import Query, MatchAll
+from elastipy import Search, query
 
 
-class TestQuery(unittest.TestCase):
+class TestQueryBody(unittest.TestCase):
 
     def query_test(self, name, func):
         """
@@ -18,7 +17,7 @@ class TestQuery(unittest.TestCase):
         """
         for i in range(2):
             if i == 0:
-                q = MatchAll()
+                q = query.MatchAll()
             else:
                 q = Search()
 
@@ -35,22 +34,8 @@ class TestQuery(unittest.TestCase):
                 f"\nIn function {repr(name)}"
             )
 
-    def test_compare(self):
-        self.assertEqual(
-            Query.query_factory("term", field="a"),
-            Query.query_factory("term", field="a"),
-        )
-        self.assertIn(
-            Query.query_factory("term", field="a"),
-            [Query.query_factory("term", field="a")],
-        )
-        self.assertNotEqual(
-            Query.query_factory("term", field="a"),
-            Query.query_factory("term", field="b"),
-        )
-
     def test_AND(self):
-        def test2(q: Query):
+        def test2(q: query.QueryInterface):
             q = q.term("a", "b").term("c", "d")
             return q, {
                 'bool': {'must': [
@@ -59,7 +44,7 @@ class TestQuery(unittest.TestCase):
                 ]}
             }
 
-        def test3(q: Query):
+        def test3(q: query.QueryInterface):
             q = q.term("a", "b").term("c", "d").term("e", "f")
             return q, {
                 'bool': {'must': [
@@ -74,7 +59,7 @@ class TestQuery(unittest.TestCase):
                 self.query_test(name, func)
 
     def test_OR(self):
-        def test2(q: Query):
+        def test2(q: query.QueryInterface):
             q = q.term("a", "b") | q.term("c", "d")
             return q, {
                 'bool': {'should': [
@@ -83,7 +68,7 @@ class TestQuery(unittest.TestCase):
                 ]}
             }
 
-        def test3(q: Query):
+        def test3(q: query.QueryInterface):
             q = q.term("a", "b") | q.term("c", "d") | q.term("e", "f")
             return q, {
                 'bool': {'should': [
@@ -98,7 +83,7 @@ class TestQuery(unittest.TestCase):
                 self.query_test(name, func)
 
     def test_AND_avoid_duplicates(self):
-        def test3(q: Query):
+        def test3(q: query.QueryInterface):
             q = q.term("a", "b")
             # both ANDed queries contain the a-b part from above
             q = q.term("c", "d") & q.term("e", "f")
@@ -110,6 +95,19 @@ class TestQuery(unittest.TestCase):
                 ]}
             }
 
+        for name, func in locals().items():
+            if callable(func) and name != "self":
+                self.query_test(name, func)
+
+    def test_bool_filter(self):
+        def test1(q: query.QueryInterface):
+            q = q.bool(filter=[query.Term("a", "b")])
+            return q, {
+                'bool': {'filter': [
+                    {'term': {'a': {'value': 'b'}}},
+                ]}
+            }
+    
         for name, func in locals().items():
             if callable(func) and name != "self":
                 self.query_test(name, func)

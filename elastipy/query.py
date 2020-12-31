@@ -5,13 +5,17 @@ from copy import copy, deepcopy
 CAMEL_CASE_RE = re.compile(r'(?<!^)(?=[A-Z])')
 
 
+def camel_to_snake(name):
+    return CAMEL_CASE_RE.sub('_', name).lower()
+
+
 def _to_query(query):
     if isinstance(getattr(query, "_query", None), QueryInterface):
         return query._query
     if isinstance(query, QueryInterface):
         return query
     raise ValueError(
-        f"Expected Query, got {repr(query)}"
+        f"Expected QueryInterface instance, got {repr(query)}"
     )
 
 
@@ -24,7 +28,7 @@ class QueryInterface:
 
     def new_query(self, name, **params) -> 'QueryInterface':
         raise NotImplementedError(
-            f"{self.__class__.__name__}.create_query() not implemented"
+            f"{self.__class__.__name__}.new_query() not implemented"
         )
 
     def exists(self, field):
@@ -44,9 +48,7 @@ class QueryInterface:
             "match",
             field=field,
             query=query,
-            _optional=dict(
-                analyzer=analyzer,
-            )
+            analyzer=analyzer,
         )
 
     def term(self, field, value, boost: float=None, case_insensitive: bool=None):
@@ -57,10 +59,8 @@ class QueryInterface:
             "term",
             field=field,
             value=value,
-            _optional=dict(
-                boost=boost,
-                case_insensitive=case_insensitive,
-            )
+            boost=boost,
+            case_insensitive=case_insensitive,
         )
 
     def range(self, field, gt=None, gte=None, lt=None, lte=None, format=None, relation=None, time_zone=None, boost=None):
@@ -70,13 +70,11 @@ class QueryInterface:
         return self.add_query(
             "match",
             field=field,
-            _optional=dict(
-                gt=gt, gte=gte, lt=lt, lte=lte,
-                format=format,
-                relation=relation,
-                time_zone=time_zone,
-                boost=boost,
-            )
+            gt=gt, gte=gte, lt=lt, lte=lte,
+            format=format,
+            relation=relation,
+            time_zone=time_zone,
+            boost=boost,
         )
 
     def boosting(self, positive: 'Query', negative: 'Query', negative_boost: float):
@@ -93,12 +91,10 @@ class QueryInterface:
     def bool(self, must=None, must_not=None, should=None, filter=None):
         return self.add_query(
             "bool",
-            _optional=dict(
-                must=must,
-                must_not=must_not,
-                should=should,
-                filter=filter,
-            )
+            must=must,
+            must_not=must_not,
+            should=should,
+            filter=filter,
         )
 
     def __and__(self, other):
@@ -118,12 +114,14 @@ class Query(QueryInterface):
 
     def __init_subclass__(cls, **kwargs):
         if "factory" not in kwargs or kwargs["factory"]:
-            name = CAMEL_CASE_RE.sub('_', cls.__name__).lower()
-            Query._factory_class_map[name] = cls
+            Query._factory_class_map[camel_to_snake(cls.__name__)] = cls
 
-    def __init__(self, name, _optional=None, **params):
-        self.name = name
+    def __init__(self, _optional=None, **params):
+        self.name = camel_to_snake(self.__class__.__name__)
         self.parameters = params
+        if _optional is not None:
+            if not isinstance(_optional, dict):
+                raise ValueError(f"_optional must be mapping, got {type(_optional).__name__}")
         self.optional_parameters = _optional or dict()
 
     def __repr__(self):
@@ -137,11 +135,12 @@ class Query(QueryInterface):
         return f"{self.__class__.__name__}({repr(self.name)}, {params})"
 
     def __copy__(self):
-        return self.__class__(
-            self.name,
-            _optional=deepcopy(self.optional_parameters),
-            **deepcopy(self.parameters),
-        )
+        params = deepcopy(self.parameters)
+        try:
+            params.update(deepcopy(self.optional_parameters))
+        except ValueError as e:
+            raise ValueError(f"{e} with {repr(self.optional_parameters)}")
+        return self.__class__(**params)
 
     def __eq__(self, other):
         return self.to_dict() == other.to_dict()
@@ -174,24 +173,30 @@ class Query(QueryInterface):
             return [Query._value_to_dict(v) if hasattr(v, "to_dict") else v for v in value]
         return value
 
-    @classmethod
-    def query_factory(cls, name, **params) -> 'Query':
-        if name in cls._factory_class_map:
-            return cls._factory_class_map[name](name, **params)
-        return Query(name, **params)
-
     def add_query(self, name, **params) -> 'Query':
-        query = self.query_factory(name, **params)
-        return self.query_factory("bool", must=[self, query])
+        query = factory(name, **params)
+        return factory("bool", must=[self, query])
 
     def new_query(self, name, **params) -> 'Query':
-        return self.query_factory(name, **params)
+        return factory(name, **params)
+
+
+def factory(name, **params) -> Query:
+    if name in Query._factory_class_map:
+        klass = Query._factory_class_map[name]
+        try:
+            return klass(**params)
+        except TypeError as e:
+            raise TypeError(f"{e} in class {klass.__name__}")
+
+    raise NotImplementedError(f"Query '{name}' not implemented")
+    #return Query(name, **params)
 
 
 class MatchAll(Query):
 
-    def __init__(self, name="match_all", **params):
-        super().__init__(name, **params)
+    def __init__(self):
+        super().__init__()
 
     def add_query(self, name, **params) -> 'Query':
         return self.new_query(name, **params)
@@ -201,6 +206,16 @@ class Bool(Query):
     """
     https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html
     """
+    def __init__(self, must=None, must_not=None, should=None, filter=None):
+        super().__init__(
+            _optional=dict(
+                must=must,
+                must_not=must_not,
+                should=should,
+                filter=filter,
+            )
+        )
+
     @property
     def must(self):
         return self._get_bool_param("must")
@@ -243,7 +258,7 @@ class Bool(Query):
             self.optional_parameters[name] = value
 
     def add_query(self, name, **params) -> 'Bool':
-        return self & self.query_factory(name, **params)
+        return self & factory(name, **params)
 
     def __and__(self, other):
         self_ = self
@@ -286,11 +301,32 @@ class QueryField(Query, factory=False):
 
 
 class Match(QueryField):
-    pass
+    def __init__(self, field, query, analyzer=None):
+        """
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html
+        """
+        super().__init__(
+            field=field,
+            query=query,
+            _optional=dict(
+                analyzer=analyzer,
+            )
+        )
 
 
 class Term(QueryField):
-    pass
+    def __init__(self, field, value, boost: float=None, case_insensitive: bool=None):
+        """
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-term-query.html
+        """
+        super().__init__(
+            field=field,
+            value=value,
+            _optional=dict(
+                boost=boost,
+                case_insensitive=case_insensitive,
+            )
+        )
 
 
 class Range(QueryField):
