@@ -1,11 +1,12 @@
 import json
-from copy import deepcopy
+from copy import copy, deepcopy
 
 from ._client import get_elastic_client
 from ._Aggregation import Aggregation, AggregationInterface
+from .query import QueryInterface, EmptyQuery
 
 
-class Search(AggregationInterface):
+class Search(QueryInterface, AggregationInterface):
     """
     Interface to elasticsearch /search.
 
@@ -28,24 +29,34 @@ class Search(AggregationInterface):
         AggregationInterface.__init__(self, timestamp_field=timestamp_field)
         self._index = index
         self._client = client
-        self.body = dict()
+        self._query = EmptyQuery()
         self._aggregations = []
+        self._body = dict()
         self.response = None
 
     def get_index(self):
         return self._index
 
+    def get_query(self):
+        return self._query
+
     def copy(self):
         es = self.__class__(index=self._index, client=self._client, timestamp_field=self.timestamp_field)
-        es.body = deepcopy(self.body)
+        es._body = deepcopy(self._body)
         es._aggregations = self._aggregations.copy()
+        es._query = self._query.copy()
         return es
 
-    def execute(self):
-        body = deepcopy(self.body)
-        if "query" not in body:
-            body["query"] = {"match_all": {}}
+    @property
+    def body(self):
+        body = copy(self._body)
+        query_dict = self._query.to_dict()
+        if "query" not in query_dict:
+            query_dict = {"query": query_dict}
+        body.update(query_dict)
+        return body
 
+    def execute(self):
         client = self._client
         close_client = False
         if client is None:
@@ -57,7 +68,7 @@ class Search(AggregationInterface):
             params={
                 "rest_total_hits_as_int": "true"
             },
-            body=body,
+            body=self.body,
         )
 
         if close_client:
@@ -73,6 +84,40 @@ class Search(AggregationInterface):
         es._index = index
         return es
 
+    def query(self, query):
+        es = self.copy()
+        es._query = query
+        return es
+
+    def add_query(self, name, **params):
+        es = self.copy()
+        es._query = es._query.add_query(name, **params)
+        return es
+
+    def new_query(self, name, **params):
+        es = self.copy()
+        es._query = es._query.new_query(name, **params)
+        return es
+
+    def query_to_dict(self):
+        return self._query.to_dict()
+
+    def __and__(self, other):
+        es = self.copy()
+        es._query &= _to_query(other)
+        return es
+
+    def __or__(self, other):
+        es = self.copy()
+        es._query |= _to_query(other)
+        return es
+
+    def __invert__(self):
+        es = self.copy()
+        es._query = ~es._query
+        return es
+
+    """
     def match(self, field, value):
         es = self.copy()
         es._add_bool_filter({"match_phrase": {field: value}})
@@ -107,6 +152,7 @@ class Search(AggregationInterface):
         else:
             year2, month2 = year + 1, 1
         return self.date_from(f"{year:04}-{month:02}-01T00:00:00Z").date_before(f"{year2}-{month2:02}-01T00:00:00Z")
+    """
 
     def aggregation(self, *aggregation_name_type, **params) -> Aggregation:
         from ._Aggregation import Aggregation
@@ -137,9 +183,9 @@ class Search(AggregationInterface):
         if isinstance(path, str):
             ppath = path.split(".")
         else:
-            ppath = path.copy()
+            ppath = copy(path)
 
-        body = self.body
+        body = self._body
         while ppath:
             key = ppath.pop(0)
             if not isinstance(body, dict):
@@ -179,3 +225,13 @@ class Response(dict):
 
     def dump(self, indent=2, file=None):
         print(json.dumps(self, indent=indent), file=file)
+
+
+def _to_query(query):
+    if isinstance(getattr(query, "_query", None), QueryInterface):
+        return query._query
+    if isinstance(query, QueryInterface):
+        return query
+    raise ValueError(
+        f"Expected Query, got {repr(query)}"
+    )
