@@ -22,7 +22,7 @@ class QueryInterface:
             f"{self.__class__.__name__}.add_query() not implemented"
         )
 
-    def create_query(self, name, **params) -> 'QueryInterface':
+    def new_query(self, name, **params) -> 'QueryInterface':
         raise NotImplementedError(
             f"{self.__class__.__name__}.create_query() not implemented"
         )
@@ -102,10 +102,13 @@ class QueryInterface:
         )
 
     def __and__(self, other):
-        return self.create_query("bool", must=[self, other])
+        return self.new_query("bool", must=[self, other])
 
     def __or__(self, other):
-        return self.create_query("bool", should=[self, other])
+        return self.new_query("bool", should=[self, other])
+
+    def __invert__(self):
+        return self.new_query("bool", must_not=[self])
 
 
 class Query(QueryInterface):
@@ -181,7 +184,7 @@ class Query(QueryInterface):
         query = self.query_factory(name, **params)
         return self.query_factory("bool", must=[self, query])
 
-    def create_query(self, name, **params) -> 'Query':
+    def new_query(self, name, **params) -> 'Query':
         return self.query_factory(name, **params)
 
 
@@ -191,7 +194,7 @@ class MatchAll(Query):
         super().__init__(name, **params)
 
     def add_query(self, name, **params) -> 'Query':
-        return self.create_query(name, **params)
+        return self.new_query(name, **params)
 
 
 class Bool(Query):

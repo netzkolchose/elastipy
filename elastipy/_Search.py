@@ -94,9 +94,9 @@ class Search(QueryInterface, AggregationInterface):
         es._query = es._query.add_query(name, **params)
         return es
 
-    def create_query(self, name, **params):
+    def new_query(self, name, **params):
         es = self.copy()
-        es._query = es._query.create_query(name, **params)
+        es._query = es._query.new_query(name, **params)
         return es
 
     def query_to_dict(self):
@@ -110,6 +110,11 @@ class Search(QueryInterface, AggregationInterface):
     def __or__(self, other):
         es = self.copy()
         es._query |= _to_query(other)
+        return es
+
+    def __invert__(self):
+        es = self.copy()
+        es._query = ~es._query
         return es
 
     """

@@ -100,6 +100,7 @@ class TestQuery(unittest.TestCase):
     def test_AND_avoid_duplicates(self):
         def test3(q: Query):
             q = q.term("a", "b")
+            # both ANDed queries contain the a-b part from above
             q = q.term("c", "d") & q.term("e", "f")
             return q, {
                 'bool': {'must': [

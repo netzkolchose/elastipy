@@ -46,6 +46,15 @@ class TestOrdersQuery(unittest.TestCase):
                 search.term("country", country).execute().total_hits
             )
 
+            self.assertEqual(
+                sum(
+                    len(o["items"])
+                    for o in data.orders.orders1
+                    if o["country"] != country
+                ),
+                (~search.term("country", country)).execute().total_hits
+            )
+
         self.assertEqual(3, search.term("channel", "the-shop").execute().total_hits)
         self.assertEqual(2, search.term("channel", "the-sale").execute().total_hits)
         self.assertEqual(2, search.term("channel", "the-end").execute().total_hits)
@@ -64,8 +73,6 @@ class TestOrdersQuery(unittest.TestCase):
 
     def test_total_hits_match_or(self):
         query = self.search()
-        print((query.match("channel", "the-shop") | query.match("country", "GB")).body)
-
         self.assertEqual(5, (query.match("channel", "the-shop") | query.match("country", "GB")).execute().total_hits)
 
 
