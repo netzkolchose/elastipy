@@ -108,7 +108,7 @@ class TestOrdersAggregations(unittest.TestCase):
 
     def test_orders_date_histogram(self):
         query = self.query()
-        items_per_day = query.agg_date_histogram(interval="1d")
+        items_per_day = query.agg_date_histogram(field="timestamp", calendar_interval="1d")
         orders_per_day = items_per_day.metric_cardinality(field="order_id")
         #query.dump_body()
         query.execute()#.dump()

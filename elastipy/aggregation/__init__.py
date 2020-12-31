@@ -1,3 +1,1 @@
-from .definition import AGGREGATIONS
-from .aggregation import AggregationInterface, Aggregation
-
+from .aggregation import Aggregation, AggregationInterface

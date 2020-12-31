@@ -155,8 +155,6 @@ class Search(QueryInterface, AggregationInterface):
     """
 
     def aggregation(self, *aggregation_name_type, **params) -> Aggregation:
-        from .aggregation import Aggregation
-
         if len(aggregation_name_type) == 1:
             name = f"a{len(self._aggregations)}"
             aggregation_type = aggregation_name_type[0]

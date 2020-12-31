@@ -41,5 +41,5 @@ one project to another so it shall be captured here and painted with unittests.
 The big steps to success are right now:
   - make sure that all the combinations of queries work as expected
   - wrap the query [online documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html)
-into the [definitions.py](elastipy/query/definitions.py) file so all required classes get generated 
+into the [definition.py](definition/query/definition.py) file so all required classes get generated 
   
