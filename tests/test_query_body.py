@@ -19,6 +19,7 @@ class TestQueryBody(unittest.TestCase):
             if i == 0:
                 q = query.EmptyQuery()
             else:
+                # Also run against Search as it wraps the query and does some tricks
                 q = Search()
 
             q, expected_body = func(q)
