@@ -1,8 +1,8 @@
 import json
 from copy import copy, deepcopy
 
-from ._client import get_elastic_client
-from ._Aggregation import Aggregation, AggregationInterface
+from .client import get_elastic_client
+from .aggregation import Aggregation, AggregationInterface
 from .query import QueryInterface, EmptyQuery
 
 
@@ -155,7 +155,7 @@ class Search(QueryInterface, AggregationInterface):
     """
 
     def aggregation(self, *aggregation_name_type, **params) -> Aggregation:
-        from ._Aggregation import Aggregation
+        from .aggregation import Aggregation
 
         if len(aggregation_name_type) == 1:
             name = f"a{len(self._aggregations)}"

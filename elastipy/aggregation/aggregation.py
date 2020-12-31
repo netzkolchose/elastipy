@@ -1,6 +1,6 @@
 import json
 
-from ._agg_types import AGGREGATIONS
+from elastipy.aggregation.definition import AGGREGATIONS
 
 
 class AggregationInterface:

@@ -5,7 +5,7 @@ import json
 from elasticsearch import ElasticsearchException, NotFoundError
 from elasticsearch.helpers import bulk
 
-from ._client import get_elastic_client
+from .client import get_elastic_client
 
 
 class Exporter:
