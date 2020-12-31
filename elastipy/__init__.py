@@ -4,3 +4,4 @@ from ._client import get_elastic_client
 from ._Exporter import Exporter
 from ._Search import Search, Response
 
+from . import query
