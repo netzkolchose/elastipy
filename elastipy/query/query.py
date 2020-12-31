@@ -19,16 +19,25 @@ class Query(QueryInterface):
             Query._factory_class_map[cls.name] = cls
 
     def __init__(self, **params):
+        """
+        The constructor stores all parameters which are required or are different
+        than the default values into the 'parameters' attribute.
+        :param params: any
+        """
         self.parameters = {
             key: value
             for key, value in params.items()
             if key not in self._optional_parameters or value != self._optional_parameters[key]
         }
+        if not self.name:
+            raise TypeError(
+                f"Can not create Query instances directly, use one of the derived classes"
+            )
 
     def __repr__(self):
         params = self.parameters
         params = ", ".join(f"{key}={repr(value)}" for key, value in params.items())
-        return f"{self.__class__.__name__}({repr(self.name)}, {params})"
+        return f"{self.__class__.__name__}({params})"
 
     def __copy__(self):
         params = deepcopy(self.parameters)

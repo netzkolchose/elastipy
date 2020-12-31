@@ -8,6 +8,10 @@ from elastipy import Search, query
 
 class TestQueryHousing(unittest.TestCase):
 
+    def test_no_query_instance(self):
+        with self.assertRaises(TypeError):
+            query.Query()
+
     def test_factory(self):
         self.assertEqual(
             query.Bool,
