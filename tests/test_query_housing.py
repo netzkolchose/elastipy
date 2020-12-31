@@ -8,6 +8,12 @@ from elastipy import Search, query
 
 class TestQueryHousing(unittest.TestCase):
 
+    def test_factory(self):
+        self.assertEqual(
+            query.Bool,
+            type(query.factory("bool"))
+        )
+
     def test_compare(self):
         self.assertEqual(
             query.Term("a", "b"),

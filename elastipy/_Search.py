@@ -3,7 +3,7 @@ from copy import copy, deepcopy
 
 from ._client import get_elastic_client
 from ._Aggregation import Aggregation, AggregationInterface
-from .query import QueryInterface, MatchAll
+from .query import QueryInterface, EmptyQuery
 
 
 class Search(QueryInterface, AggregationInterface):
@@ -29,7 +29,7 @@ class Search(QueryInterface, AggregationInterface):
         AggregationInterface.__init__(self, timestamp_field=timestamp_field)
         self._index = index
         self._client = client
-        self._query = MatchAll()
+        self._query = EmptyQuery()
         self._aggregations = []
         self._body = dict()
         self.response = None

@@ -17,7 +17,7 @@ class TestQueryBody(unittest.TestCase):
         """
         for i in range(2):
             if i == 0:
-                q = query.MatchAll()
+                q = query.EmptyQuery()
             else:
                 q = Search()
 

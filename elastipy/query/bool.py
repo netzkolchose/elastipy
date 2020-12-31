@@ -102,7 +102,6 @@ class Bool(Query):
         return self & factory(name, **params)
 
     def __and__(self, other) -> 'Bool':
-        print("AND", self, other)
         self_ = self
         if not isinstance(self_, Bool):
             self_, other = other, self_
