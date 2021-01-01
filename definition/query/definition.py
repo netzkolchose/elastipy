@@ -145,7 +145,7 @@ DEFINITION = {
                 """,
             },
             "query": {
-                "type": str, "required": True,
+                "type": [str, int, float, bool], "required": True,
                 "doc": """
                     Text, number, boolean value or date you wish to find in the provided <field>.
 

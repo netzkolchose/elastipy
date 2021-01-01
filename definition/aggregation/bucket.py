@@ -66,7 +66,7 @@ BUCKET = {
                     Setting the keyed flag to true associates a unique string key with each bucket and returns the ranges as a hash rather than an array.
                 """
             },
-            "missing": {"type": "any", "doc": """The missing parameter defines how documents that are missing a value should be treated. By default they will be ignored but it is also possible to treat them as if they had a value."""},
+            "missing": {"type": "Any", "doc": """The missing parameter defines how documents that are missing a value should be treated. By default they will be ignored but it is also possible to treat them as if they had a value."""},
             "script": {"type": dict, "doc": """Generating the terms using a script"""},
         }
     },
@@ -121,7 +121,7 @@ BUCKET = {
                     Setting the keyed flag to true associates a unique string key with each bucket and returns the ranges as a hash rather than an array.
                 """
             },
-            "missing": {"type": "any", "doc": """The missing parameter defines how documents that are missing a value should be treated. By default they will be ignored but it is also possible to treat them as if they had a value."""},
+            "missing": {"type": "Any", "doc": """The missing parameter defines how documents that are missing a value should be treated. By default they will be ignored but it is also possible to treat them as if they had a value."""},
             "script": {"type": dict, "doc": """Generating the terms using a script"""},
         }
     },
@@ -201,7 +201,7 @@ BUCKET = {
                     Warning: When NOT sorting on doc_count descending, high values of min_doc_count may return a number of buckets which is less than size because not enough data was gathered from the shards. Missing buckets can be back by increasing shard_size. Setting shard_min_doc_count too high will cause terms to be filtered out on a shard level. This value should be set much lower than min_doc_count/#shards.
                 """,
             },
-            "missing": {"type": "any", "doc": """The missing parameter defines how documents that are missing a value should be treated. By default they will be ignored but it is also possible to treat them as if they had a value."""},
+            "missing": {"type": "Any", "doc": """The missing parameter defines how documents that are missing a value should be treated. By default they will be ignored but it is also possible to treat them as if they had a value."""},
             "script": {"type": dict, "doc": """Generating the terms using a script"""},
         },
         "returns": ["value"],
