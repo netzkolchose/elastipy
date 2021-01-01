@@ -1,0 +1,11 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-matrix-stats-aggregation.html
+parameters:
+    fields:
+        type: list
+        required: True
+    mode:
+        type: str
+        default: avg
+    missing:
+        type: Any
+returns: ['fields']

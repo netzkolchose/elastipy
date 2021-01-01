@@ -1,0 +1,75 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html
+doc: |
+    Returns documents that match a provided text, number, date or boolean value. The provided text is analyzed before matching.
+    
+    The match query is the standard query for performing a full-text search, including options for fuzzy matching.
+parameters:
+    field:
+        type: str
+        required: True
+        top_level: True
+        doc: |
+            Field you wish to search.
+    query:
+        type: [str, int, float, bool]
+        required: True
+        doc: |
+            Text, number, boolean value or date you wish to find in the provided <field>.
+            
+            The match query analyzes any provided text before performing a search. This means the match query can search text fields for analyzed tokens rather than an exact term.
+    auto_generate_synonyms_phrase_query:
+        type: bool
+        default: True
+        doc: |
+            If true, match phrase queries are automatically created for multi-term synonyms. Defaults to true.
+    fuzziness:
+        type: str
+        doc: |
+            Maximum edit distance allowed for matching. See Fuzziness for valid values and more information. See Fuzziness in the match query for an example.
+    max_expansions:
+        type: int
+        default: 50
+        doc: |
+            Maximum number of terms to which the query will expand. Defaults to 50. 
+    prefix_length:
+        type: int
+        default: 0
+        doc: |
+            Number of beginning characters left unchanged for fuzzy matching. Defaults to 0. 
+    fuzzy_transpositions:
+        type: bool
+        default: True
+        doc: |
+            If true, edits for fuzzy matching include transpositions of two adjacent characters (ab → ba). Defaults to true.
+    fuzzy_rewrite:
+        type: str
+        doc: |
+            Method used to rewrite the query. See the rewrite parameter for valid values and more information.
+            
+            If the fuzziness parameter is not 0, the match query uses a fuzzy_rewrite method of top_terms_blended_freqs_${max_expansions} by default.
+    lenient:
+        type: bool
+        default: False
+        doc: |
+            If true, format-based errors, such as providing a text query value for a numeric field, are ignored. Defaults to false. 
+    operator:
+        type: str
+        doc: |
+            Boolean logic used to interpret text in the query value. Valid values are:
+                OR (Default)
+                    For example, a query value of capital of Hungary is interpreted as capital OR of OR Hungary. 
+                AND
+                    For example, a query value of capital of Hungary is interpreted as capital AND of AND Hungary. 
+    minimum_should_match:
+        type: str
+        doc: |
+            Minimum number of clauses that must match for a document to be returned. See the minimum_should_match parameter for valid values and more information.
+    zero_terms_query:
+        type: str
+        default: none
+        doc: |
+            Indicates whether no documents are returned if the analyzer removes all tokens, such as when using a stop filter. Valid values are:
+                none (Default)
+                    No documents are returned if the analyzer removes all tokens.
+                all
+                    Returns all documents, similar to a match_all query. 

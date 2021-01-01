@@ -1,0 +1,18 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-ttest-aggregation.html
+parameters:
+    a.field:
+        type: str
+        required: True
+    b.field:
+        type: str
+        required: True
+    type:
+        type: str
+        required: True
+    a.filter:
+        type: dict
+    b.filter:
+        type: dict
+    script:
+        type: dict
+returns: ['value']
