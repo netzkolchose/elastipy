@@ -114,7 +114,7 @@ class TestOrdersAggregations(unittest.TestCase):
         #query.dump_body()
         query.execute()#.dump()
 
-        #agg_qty.dump_table()
+        agg_qty.dump_table()
 
     def test_orders_filters(self):
         query = self.search()

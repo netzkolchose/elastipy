@@ -6,7 +6,7 @@ METRIC = {
         """,
         "parameters": {
             "field": {"type": str, "required": True},
-            "missing": {"type": "any"},
+            "missing": {"type": "Any"},
             "script": {"type": dict},
         },
         "returns": ["value"],
@@ -16,7 +16,7 @@ METRIC = {
         "parameters": {
             "field": {"type": str, "required": True},
             "compression": {"type": int, "default": 100},
-            "missing": {"type": "any"},
+            "missing": {"type": "Any"},
         },
         "returns": ["min", "max", "q1", "q2", "q3"],
     },
@@ -25,7 +25,7 @@ METRIC = {
         "parameters": {
             "field": {"type": str, "required": True},
             "precision_threshold": {"type": int, "default": 3000},
-            "missing": {"type": "any"},
+            "missing": {"type": "Any"},
             "script": {"type": dict},
         },
         "returns": ["value"],
@@ -35,7 +35,7 @@ METRIC = {
         "parameters": {
             "field": {"type": str, "required": True},
             "sigma": {"type": float, "default": 3.},
-            "missing": {"type": "any"},
+            "missing": {"type": "Any"},
             "script": {"type": dict},
         },
         "returns": [
@@ -64,7 +64,7 @@ METRIC = {
         "parameters": {
             "fields": {"type": list, "required": True},
             "mode": {"type": str, "default": "avg"},
-            "missing": {"type": "any"},
+            "missing": {"type": "Any"},
         },
         "returns": ["fields"],
     },
@@ -72,7 +72,7 @@ METRIC = {
         "url": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-max-aggregation.html",
         "parameters": {
             "field": {"type": str, "required": True},
-            "missing": {"type": "any"},
+            "missing": {"type": "Any"},
             "script": {"type": dict},
         },
         "returns": ["value"],
@@ -82,7 +82,7 @@ METRIC = {
         "parameters": {
             "field": {"type": str, "required": True},
             "compression": {"type": int, "default": 1000},
-            "missing": {"type": "any"},
+            "missing": {"type": "Any"},
             "script": {"type": dict},
         },
         "returns": ["value"],
@@ -91,7 +91,7 @@ METRIC = {
         "url": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-min-aggregation.html",
         "parameters": {
             "field": {"type": str, "required": True},
-            "missing": {"type": "any"},
+            "missing": {"type": "Any"},
             "script": {"type": dict},
         },
         "returns": ["value"],
@@ -103,7 +103,7 @@ METRIC = {
             "values": {"type": list, "required": True},
             "keyed": {"type": bool, "default": True},
             "hdr.number_of_significant_value_digits": {"type": int},
-            "missing": {"type": "any"},
+            "missing": {"type": "Any"},
             "script": {"type": dict},
         },
         "returns": ["values"],
@@ -116,7 +116,7 @@ METRIC = {
             "keyed": {"type": bool, "default": True},
             "tdigest.compression": {"type": int, "default": 100},
             "hdr.number_of_significant_value_digits": {"type": int},
-            "missing": {"type": "any"},
+            "missing": {"type": "Any"},
             "script": {"type": dict},
         },
         "returns": ["values"],
@@ -145,7 +145,7 @@ METRIC = {
         "url": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-stats-aggregation.html",
         "parameters": {
             "field": {"type": str, "required": True},
-            "missing": {"type": "any"},
+            "missing": {"type": "Any"},
         },
         "returns": ["count", "min", "max", "sum", "count", "avg"],
     },
@@ -154,7 +154,7 @@ METRIC = {
         "parameters": {
             "field": {"type": str, "required": True},
             "show_distribution": {"type": bool, "default": False},
-            "missing": {"type": "any"},
+            "missing": {"type": "Any"},
         },
         "returns": ["count", "min_length", "max_length", "avg_length", "entropy", "distribution"],
     },
@@ -162,7 +162,7 @@ METRIC = {
         "url": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-sum-aggregation.html",
         "parameters": {
             "field": {"type": str, "required": True},
-            "missing": {"type": "any"},
+            "missing": {"type": "Any"},
             "script": {"type": dict},
         },
         "returns": ["value"],
@@ -210,8 +210,8 @@ METRIC = {
         "parameters": {
             "value.field": {"type": str, "required": True},
             "weight.field": {"type": str, "required": True},
-            "value.missing": {"type": "any"},
-            "weight.missing": {"type": "any"},
+            "value.missing": {"type": "Any"},
+            "weight.missing": {"type": "Any"},
             "format": {"type": str},
             "value_type": {"type": str},
             "script": {"type": dict},

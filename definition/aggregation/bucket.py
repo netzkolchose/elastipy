@@ -132,7 +132,7 @@ BUCKET = {
             Defines a single bucket of all the documents in the current document set context that match a specified filter. Often this will be used to narrow down the current aggregation context to a specific set of documents.
         """,
         "parameters": {
-            "filter": {"type": "QueryInterface", "required": True},
+            "filter": {"type": "'QueryInterface'", "required": True},
         },
     },
 
@@ -142,7 +142,7 @@ BUCKET = {
             Defines a multi bucket aggregation where each bucket is associated with a filter. Each bucket will collect all documents that match its associated filter.
         """,
         "parameters": {
-            "filters": {"type": "Dict[str, 'QueryInterface']", "required": True},
+            "filters": {"type": "Mapping[str, 'QueryInterface']", "required": True},
         },
     },
 

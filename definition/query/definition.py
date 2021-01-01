@@ -10,25 +10,25 @@ DEFINITION = {
         """,
         "parameters": {
             "must": {
-                "type": "List['QueryInterface']",
+                "type": "Sequence['QueryInterface']",
                 "doc": """
                     The clause (query) must appear in matching documents and will contribute to the score.
                 """,
             },
             "must_not": {
-                "type": "List['QueryInterface']",
+                "type": "Sequence['QueryInterface']",
                 "doc": """
                     The clause (query) must not appear in the matching documents. Clauses are executed in filter context meaning that scoring is ignored and clauses are considered for caching. Because scoring is ignored, a score of 0 for all documents is returned.
                 """,
             },
             "should": {
-                "type": "List['QueryInterface']",
+                "type": "Sequence['QueryInterface']",
                 "doc": """
                     The clause (query) should appear in the matching document.
                 """,
             },
             "filter": {
-                "type": "List['QueryInterface']",
+                "type": "Sequence['QueryInterface']",
                 "doc": """
                     The clause (query) must appear in matching documents. However unlike must the score of the query will be ignored. Filter clauses are executed in filter context, meaning that scoring is ignored and clauses are considered for caching.
                 """,
