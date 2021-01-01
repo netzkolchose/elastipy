@@ -2,7 +2,7 @@ import json
 from copy import copy, deepcopy
 
 from .client import get_elastic_client
-from .aggregation import Aggregation, AggregationInterface
+from .aggregation import Aggregation, AggregationInterface, factory as agg_factory
 from .query import QueryInterface, EmptyQuery
 
 
@@ -163,11 +163,11 @@ class Search(QueryInterface, AggregationInterface):
         else:
             raise ValueError(f"Need to provide (aggregation_type) or (name, aggregation_type), got {aggregation_name_type}")
 
-        agg = Aggregation(
-            query=self, name=name, type=aggregation_type, params=params
+        agg = agg_factory(
+            search=self, name=name, type=aggregation_type, params=params
         )
         self._aggregations.append(agg)
-        self._add_body(f"aggregations.{name}.{aggregation_type}", agg.params)
+        self._add_body(f"aggregations.{name}.{aggregation_type}", agg.to_body())
         return agg
 
     def dump_body(self, indent=2, file=None):

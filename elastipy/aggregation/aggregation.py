@@ -1,6 +1,5 @@
 import json
 
-from .interface import AggregationInterfaceBase
 from .generated_interface import AggregationInterface
 
 
@@ -11,9 +10,16 @@ class Aggregation(AggregationInterface):
     Do not create instances yourself,
     use the Query.aggregation() and Aggregation.aggregation() variants
     """
-    def __init__(self, query, name, type, params):
-        AggregationInterface.__init__(self, timestamp_field=query.timestamp_field)
-        self.query = query
+
+    _factory_class_map = dict()
+
+    def __init_subclass__(cls, **kwargs):
+        if "factory" not in kwargs or kwargs["factory"]:
+            Aggregation._factory_class_map[cls._agg_type] = cls
+
+    def __init__(self, search, name, type, params):
+        AggregationInterface.__init__(self, timestamp_field=search.timestamp_field)
+        self.search = search
         self.name = name
         self.type = type
         self.definition = self.AGGREGATION_DEFINITION.get(self.type) or dict()
@@ -40,7 +46,7 @@ class Aggregation(AggregationInterface):
         Executes the whole query with all aggregations
         :return: self
         """
-        self.query.execute()
+        self.search.execute()
         return self
 
     @property
@@ -110,6 +116,13 @@ class Aggregation(AggregationInterface):
             for key, value in self.items(key_separator=key_separator, default=default)
         }
 
+    def to_body(self):
+        """
+        Returns the part of the elasticsearch body
+        :return: dict
+        """
+        return self.params
+
     def to_dict_rows(self, default=None):
         dic = self.to_dict(default=default)
         aggs = self._aggregations()
@@ -174,20 +187,20 @@ class Aggregation(AggregationInterface):
 
     def aggregation(self, *aggregation_name_type, **params) -> 'Aggregation':
         if len(aggregation_name_type) == 1:
-            name = f"a{len(self.query._aggregations)}"
+            name = f"a{len(self.search._aggregations)}"
             aggregation_type = aggregation_name_type[0]
         elif len(aggregation_name_type) == 2:
             name, aggregation_type = aggregation_name_type
         else:
             raise ValueError(f"Need to provide (aggregation_type) or (name, aggregation_type), got {aggregation_name_type}")
 
-        agg = Aggregation(
-            query=self.query, name=name, type=aggregation_type, params=params
+        agg = factory(
+            search=self.search, name=name, type=aggregation_type, params=params
         )
         agg.parent = self
         agg.root = self.root or self
-        self.query._aggregations.append(agg)
-        self.query._add_body(f"{self._agg_path()}.aggregations.{name}.{aggregation_type}", agg.params)
+        self.search._aggregations.append(agg)
+        self.search._add_body(f"{self._agg_path()}.aggregations.{name}.{aggregation_type}", agg.to_body())
         return agg
 
     def _key_to_key(self, key, key_separator=None):
@@ -199,10 +212,21 @@ class Aggregation(AggregationInterface):
 
     def _iter_sub_keys(self, aggs):
         assert self.name == aggs[0].name
-        key_name = aggs[0]._bucket_key_name()
-        for b in self.response["buckets"]:
-            keys = (b[key_name], )
+        for b_key, b in self._iter_bucket_items():
+            keys = (b_key, )
             yield from self._iter_sub_keys_rec(b, aggs[1:], keys)
+
+    def _iter_bucket_items(self, buckets=None):
+        if buckets is None:
+            buckets = self.response["buckets"]
+
+        if isinstance(buckets, list):
+            for b in buckets:
+                yield b[self._bucket_key_name()], b
+        elif isinstance(buckets, dict):
+            yield from buckets.items()
+        else:
+            raise NotImplementedError(f"Can not work with buckets of type {type(buckets).__name__}")
 
     def _iter_sub_keys_rec(self, bucket, aggs, keys):
         if not aggs[0].name in bucket:
@@ -224,7 +248,7 @@ class Aggregation(AggregationInterface):
 
     def _iter_sub_values(self, aggs, default=None):
         assert self.name == aggs[0].name
-        for b in self.response["buckets"]:
+        for _, b in self._iter_bucket_items():
             yield from self._iter_sub_values_rec(b, aggs[1:], default=default)
 
     def _iter_sub_values_rec(self, bucket, aggs, default=None):
@@ -281,3 +305,17 @@ class Aggregation(AggregationInterface):
             a = a.parent
         return aggs
 
+
+def factory(search, name, type, params) -> Aggregation:
+    """
+    Creates an instance of the matching Aggregation sub-class
+    :return: instance of (derived) Aggregation class
+    """
+    if type in Aggregation._factory_class_map:
+        klass = Aggregation._factory_class_map[type]
+        try:
+            return klass(search, name, type, params)
+        except TypeError as e:
+            raise TypeError(f"{e} in class {klass.__name__}")
+
+    return Aggregation(search, name, type, params)

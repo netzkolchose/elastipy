@@ -1,5 +1,5 @@
 from copy import copy, deepcopy
-from typing import List
+from typing import List, Dict
 
 from .query import Query, QueryInterface, factory
 

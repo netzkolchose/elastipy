@@ -8,7 +8,7 @@ class AggregationInterfaceBase:
     def __init__(self, timestamp_field="timestamp"):
         self.timestamp_field = timestamp_field
 
-    def aggregation(self, *aggregation_name_type, **params) -> 'Aggregation':
+    def aggregation(self, *aggregation_name_type, **params) -> 'AggregationInterfaceBase':
         """
         Creates an aggregation.
 

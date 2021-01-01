@@ -1,3 +1,9 @@
+# TODO: composite aggregation allows sub-aggregations as 'sources' list, not as nested 'aggs'
+#   https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-composite-aggregation.html
+
+# TODO: adjacency_matrix allows sub-aggregations as 'filters'
+#   https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-adjacency-matrix-aggregation.html
+
 BUCKET = {
     "date_histogram": {
         "url": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-datehistogram-aggregation.html",
@@ -46,6 +52,13 @@ BUCKET = {
                     You can specify time zones as an ISO 8601 UTC offset (e.g. +01:00 or -08:00) or as an IANA time zone ID, such as America/Los_Angeles.
                 """
             },
+            "format": {
+                "type": str,
+                "doc": """
+                    Specifies the format of the 'key_as_string' response.
+                    See: https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html
+                """
+            },
             # TODO: This would break the current Aggregation.keys/values logic
             "keyed": {
                 "type": bool, "default": False,
@@ -53,8 +66,84 @@ BUCKET = {
                     Setting the keyed flag to true associates a unique string key with each bucket and returns the ranges as a hash rather than an array.
                 """
             },
-
+            "missing": {"type": "any", "doc": """The missing parameter defines how documents that are missing a value should be treated. By default they will be ignored but it is also possible to treat them as if they had a value."""},
+            "script": {"type": dict, "doc": """Generating the terms using a script"""},
         }
+    },
+
+    "auto_date_histogram": {
+        "url": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-autodatehistogram-aggregation.html",
+        "doc": """
+            A multi-bucket aggregation similar to the Date histogram except instead of providing an interval to use as the width of each bucket, a target number of buckets is provided indicating the number of buckets needed and the interval of the buckets is automatically chosen to best achieve that target. The number of buckets returned will always be less than or equal to this target number.
+
+            The buckets field is optional, and will default to 10 buckets if not specified.
+        """,
+        "parameters": {
+            "field": {"type": str, "required": True},
+            "buckets": {
+                "type": int, "default": 10,
+                "doc": """
+                    The number of buckets that are to be returned.
+                """
+            },
+            "minimum_interval": {
+                "type": str,
+                "doc": """
+                    The minimum_interval allows the caller to specify the minimum rounding interval that should be used. This can make the collection process more efficient, as the aggregation will not attempt to round at any interval lower than minimum_interval.
+
+                    The accepted units for minimum_interval are:
+                        year, month, day, hour, minute, second
+                """
+            },
+            "time_zone": {
+                "type": str,
+                "doc": """
+                    Elasticsearch stores date-times in Coordinated Universal Time (UTC). By default, all bucketing and rounding is also done in UTC. Use the time_zone parameter to indicate that bucketing should use a different time zone.
+
+                    For example, if the interval is a calendar day and the time zone is America/New_York then 2020-01-03T01:00:01Z is : # Converted to 2020-01-02T18:00:01 # Rounded down to 2020-01-02T00:00:00 # Then converted back to UTC to produce 2020-01-02T05:00:00:00Z # Finally, when the bucket is turned into a string key it is printed in America/New_York so it’ll display as "2020-01-02T00:00:00"
+                    
+                    It looks like: bucket_key = localToUtc(Math.floor(utcToLocal(value) / interval) * interval))
+
+                    You can specify time zones as an ISO 8601 UTC offset (e.g. +01:00 or -08:00) or as an IANA time zone ID, such as America/Los_Angeles.
+                """
+            },
+            "format": {
+                "type": str,
+                "doc": """
+                    Specifies the format of the 'key_as_string' response.
+                    See: https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html
+                """
+            },
+            # TODO: This would break the current Aggregation.keys/values logic
+            "keyed": {
+                "type": bool, "default": False,
+                "doc": """
+                    Setting the keyed flag to true associates a unique string key with each bucket and returns the ranges as a hash rather than an array.
+                """
+            },
+            "missing": {"type": "any", "doc": """The missing parameter defines how documents that are missing a value should be treated. By default they will be ignored but it is also possible to treat them as if they had a value."""},
+            "script": {"type": dict, "doc": """Generating the terms using a script"""},
+        }
+    },
+
+    "filter": {
+        "url": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filter-aggregation.html",
+        "doc": """
+            Defines a single bucket of all the documents in the current document set context that match a specified filter. Often this will be used to narrow down the current aggregation context to a specific set of documents.
+        """,
+        "parameters": {
+            "filter": {"type": "QueryInterface", "required": True},
+        },
+    },
+
+    "filters": {
+        "url": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filters-aggregation.html",
+        "doc": """
+            Defines a multi bucket aggregation where each bucket is associated with a filter. Each bucket will collect all documents that match its associated filter.
+        """,
+        "parameters": {
+            "filters": {"type": "Dict[str, 'QueryInterface']", "required": True},
+        },
     },
 
     "terms": {
