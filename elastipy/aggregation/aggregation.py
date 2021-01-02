@@ -39,7 +39,7 @@ class Aggregation(AggregationInterface):
         return f"{self.__class__.__name__}('{self.name}', '{self.type}')"
 
     def is_metric(self):
-        return self.definition.get("type") == "metric"
+        return self.definition.get("group") == "metric"
 
     def execute(self):
         """
