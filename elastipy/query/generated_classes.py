@@ -5,7 +5,7 @@ from typing import Mapping, Sequence, Any, Union, Optional
 from .query import Query, QueryInterface
 
 
-class _Bool(Query):
+class _Bool(Query, factory=False):
 
     """
     A query that matches documents matching boolean combinations of other

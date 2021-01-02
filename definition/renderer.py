@@ -27,7 +27,10 @@ def type_to_str(param):
     return types[0]
 
 
-def render_function(function_name, parameters, doc, body, return_type=None, return_doc=None, indent=""):
+def render_function(
+        function_name, parameters, doc, body,
+        return_type=None, return_doc=None, annotate_return_type=True, indent=""
+):
     # -- definition --
 
     code = f"def {function_name}(\n"
@@ -42,7 +45,7 @@ def render_function(function_name, parameters, doc, body, return_type=None, retu
         code += f"{INDENT}{INDENT}{param_str},\n"
     code += f")"
 
-    if return_type is not None:
+    if return_type is not None and annotate_return_type:
         code += f" -> {type_to_str(return_type)}"
 
     code += ":\n"
@@ -55,7 +58,7 @@ def render_function(function_name, parameters, doc, body, return_type=None, retu
 
     for param_name, param in parameters.items():
         if param_name != "self":
-            code += f"\n{INDENT}:param {param_name}: {type_to_str(param)}\n"
+            code += f"\n{INDENT}:param {param_name.lstrip('*')}: {type_to_str(param)}\n"
             if param.get("doc"):
                 code += change_text_indent(param["doc"], INDENT*2, max_length=80) + "\n"
 

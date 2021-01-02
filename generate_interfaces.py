@@ -12,16 +12,16 @@ def generate_file(filename, text):
 if __name__ == "__main__":
     generate_file(
         os.path.join("elastipy", "query", "generated_interface.py"),
-        generator.generate_query_interface(),
+        generator.render_query_class(),
     )
 
     generate_file(
         os.path.join("elastipy", "query", "generated_classes.py"),
-        generator.generate_query_class_interface(),
+        generator.render_query_classes(),
     )
 
     generate_file(
         os.path.join("elastipy", "aggregation", "generated_interface.py"),
-        generator.generate_aggregation_interface(),
+        generator.render_aggregation_class(),
     )
 
