@@ -40,7 +40,7 @@ class TextPlotter:
             else:
                 bar_value = (value - values_min) * value_fac
             bar = UnicodeCharacters.hbar(bar_value, bar_width)
-            print(f"{key:{key_len}} | {value_str} | {bar}", file=file)
+            print(f"{key:{key_len}} | {value_str:{value_len}} | {bar}", file=file)
 
     def get_terminal_size(self):
         size = os.get_terminal_size()
