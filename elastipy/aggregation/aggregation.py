@@ -1,4 +1,5 @@
 import json
+from typing import Optional, List
 
 from .generated_interface import AggregationInterface
 
@@ -18,6 +19,7 @@ class Aggregation(AggregationInterface):
             Aggregation._factory_class_map[cls._agg_type] = cls
 
     def __init__(self, search, name, type, params):
+        from ..search import Response
         AggregationInterface.__init__(self, timestamp_field=search.timestamp_field)
         self.search = search
         self.name = name
@@ -31,9 +33,10 @@ class Aggregation(AggregationInterface):
                 or self.definition["parameters"][key].get("required") \
                 or self.definition["parameters"][key].get("default") != value
         }
-        self._response = None
-        self.parent: Aggregation = None
-        self.root: Aggregation = None
+        self._response: Optional[Response] = None
+        self.parent: Optional[Aggregation] = None
+        self.root: Optional[Aggregation] = None
+        self.children: List[Aggregation] = []
 
     def __repr__(self):
         return f"{self.__class__.__name__}('{self.name}', '{self.type}')"
@@ -199,6 +202,7 @@ class Aggregation(AggregationInterface):
         )
         agg.parent = self
         agg.root = self.root or self
+        self.children.append(agg)
         self.search._aggregations.append(agg)
         self.search._add_body(f"{self._agg_path()}.aggregations.{name}.{aggregation_type}", agg.to_body())
         return agg
