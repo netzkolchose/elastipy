@@ -121,7 +121,7 @@ class Aggregation(AggregationInterface):
         Returns the part of the elasticsearch body
         :return: dict
         """
-        return self.params
+        return json.loads(json.dumps(self.params, cls=BodyJsonEncoder))
 
     def to_dict_rows(self, default=None):
         dic = self.to_dict(default=default)
@@ -319,3 +319,12 @@ def factory(search, name, type, params) -> Aggregation:
             raise TypeError(f"{e} in class {klass.__name__}")
 
     return Aggregation(search, name, type, params)
+
+
+class BodyJsonEncoder(json.JSONEncoder):
+
+    def default(self, o):
+        from ..query import Query
+        if isinstance(o, Query):
+            return o.to_dict()
+        return o
