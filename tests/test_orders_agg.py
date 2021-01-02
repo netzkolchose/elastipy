@@ -106,15 +106,23 @@ class TestOrdersAggregations(unittest.TestCase):
         )
         #agg_qty.dump_table()
 
-    @unittest.expectedFailure
     def test_orders_filter(self):
-        q = self.search()
-        agg_sku = q.agg_filter(filter={"term": {"sku": "sku-1"}})
-        agg_qty = agg_sku.metric_sum("qty", field="quantity")
-        #q.dump_body()
-        q.execute()#.dump()
+        aggs = [
+            self.search().agg_filter(filter={"term": {"sku": "sku-1"}}).metric_sum("qty", field="quantity"),
+            self.search().agg_filter(filter=query.Term(field="sku", value="sku-1")).metric_sum("qty", field="quantity"),
+        ]
+        for agg in aggs:
+            #q.dump_body()
+            agg.execute()#.dump()
 
-        agg_qty.dump_table()
+            #agg.dump_table()
+            self.assertEqual(
+                [
+                    ["a0", "a0.doc_count", "qty"],
+                    ["a0", 4, 7]
+                ],
+                list(agg.rows())
+            )
 
     def test_orders_filters(self):
         q = self.search()
@@ -128,11 +136,11 @@ class TestOrdersAggregations(unittest.TestCase):
 
         self.assertEqual(
             [
-                ["group", "qty"],
-                ["group1", 7],
-                ["group2", 3],
+                ["group", "group.doc_count", "qty"],
+                ["group1", 4, 7],
+                ["group2", 2, 3],
             ],
-            agg_qty.to_rows()
+            list(agg_qty.rows())
         )
 
     def test_orders_filters_with_query(self):
@@ -147,11 +155,11 @@ class TestOrdersAggregations(unittest.TestCase):
 
         self.assertEqual(
             [
-                ["group", "qty"],
-                ["group1", 7],
-                ["group2", 3],
+                ["group", "group.doc_count", "qty"],
+                ["group1", 4, 7],
+                ["group2", 2, 3],
             ],
-            agg_qty.to_rows()
+            list(agg_qty.rows())
         )
 
     def test_orders_date_histogram(self):

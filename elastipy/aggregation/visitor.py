@@ -98,34 +98,36 @@ class AggregationVisitor:
         return aggs
 
     def _dict_rows(self, agg: Aggregation, response: dict):
-        if agg.is_bucket():
-            for bucket in response["buckets"]:
-                row = {
-                    agg.name: bucket[agg.key_name()],
-                    f"{agg.name}.doc_count": bucket["doc_count"],
-                }
-                for metric in agg.metrics():
-                    return_keys = metric.definition.get("returns", "value")
-                    if isinstance(return_keys, str):
-                        return_keys = [return_keys]
+        if not agg.is_bucket():
+            raise ValueError(f"Can not call dict_rows() on non-bucket aggregation {agg}")
 
-                    if len(return_keys) == 1:
-                        row[metric.name] = bucket[metric.name][return_keys[0]]
-                    else:
-                        for key in return_keys:
-                            row[f"{metric.name}.{key}"] = bucket[metric.name][key]
+        for b_key, bucket in self._iter_bucket_items(agg, response):
+            row = {
+                agg.name: bucket[b_key] if b_key in bucket else b_key,
+                f"{agg.name}.doc_count": bucket["doc_count"],
+            }
+            for metric in agg.metrics():
+                return_keys = metric.definition.get("returns", "value")
+                if isinstance(return_keys, str):
+                    return_keys = [return_keys]
 
-                has_sub_bucket = False
-                for bucket_agg in agg.children:
-                    if bucket_agg.is_bucket():
-                        has_sub_bucket = True
-                        for sub_rows in self._dict_rows(bucket_agg, bucket[bucket_agg.name]):
-                            sub_row = copy(row)
-                            sub_row.update(sub_rows)
-                            yield sub_row
+                if len(return_keys) == 1:
+                    row[metric.name] = bucket[metric.name][return_keys[0]]
+                else:
+                    for key in return_keys:
+                        row[f"{metric.name}.{key}"] = bucket[metric.name][key]
 
-                if not has_sub_bucket:
-                    yield row
+            has_sub_bucket = False
+            for bucket_agg in agg.children:
+                if bucket_agg.is_bucket():
+                    has_sub_bucket = True
+                    for sub_rows in self._dict_rows(bucket_agg, bucket[bucket_agg.name]):
+                        sub_row = copy(row)
+                        sub_row.update(sub_rows)
+                        yield sub_row
+
+            if not has_sub_bucket:
+                yield row
 
     def _concat_key(self, key: Union[str, Sequence], key_separator: Optional[str] = None):
         if isinstance(key, str):
@@ -134,15 +136,26 @@ class AggregationVisitor:
             return key_separator.join(key)
         return key if len(key) > 1 else key[0]
 
-    def _iter_bucket_items(self, agg: Aggregation):
-        buckets = agg.buckets
-        if isinstance(buckets, list):
-            for b in buckets:
-                yield b[agg.key_name()], b
-        elif isinstance(buckets, dict):
-            yield from buckets.items()
+    def _iter_bucket_items(self, agg: Aggregation, response=None):
+        assert agg.is_bucket()
+        # this could be a place to specialize by class
+        #if hasattr(agg, "_iter_bucket_items"):
+        #    yield from agg._iter_bucket_items(response)
+        #else:
+        if response is None:
+            response = agg.response
+        if "buckets" in response:
+            buckets = response["buckets"]
+            if isinstance(buckets, list):
+                for b in buckets:
+                    yield b[agg.key_name()], b
+            elif isinstance(buckets, dict):
+                yield from buckets.items()
+            else:
+                raise NotImplementedError(f"Can not work with buckets of type {type(buckets).__name__}")
         else:
-            raise NotImplementedError(f"Can not work with buckets of type {type(buckets).__name__}")
+            # single bucket aggregations
+            yield agg.name, response
 
     def _iter_sub_keys(self, aggs: Sequence[Aggregation]):
         for b_key, b in self._iter_bucket_items(aggs[0]):

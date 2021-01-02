@@ -82,6 +82,11 @@ class Aggregation(AggregationInterface):
             warn(f"Aggregation '{self.name}'/{self.type} has no definition, is_pipeline() is unknown")
         return self.definition.get("group") == "pipeline"
 
+    #def is_single_bucket(self):
+    #    if not self.definition:
+    #        warn(f"Aggregation '{self.name}'/{self.type} has no definition, is_single_bucket() is unknown")
+    #    return self.definition.get("single_bucket")
+
     def metrics(self):
         """
         Iterate through all contained metric aggregations

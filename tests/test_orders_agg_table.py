@@ -35,7 +35,7 @@ class TestOrdersAggregationsTable(unittest.TestCase):
 
         query.execute()
 
-        agg_qty.dump_table()
+        #agg_qty.dump_table()
         self.assertEqual(
             [
                 ["sku", "sku.doc_count", "channel", "channel.doc_count", "country", "country.doc_count", "quantity"],
