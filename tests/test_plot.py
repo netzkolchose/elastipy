@@ -1,7 +1,7 @@
 import time
 import unittest
 
-from elastipy import get_elastic_client, Query
+from elastipy import get_elastic_client, Search
 from elastipy.plot.text.characters import UnicodeCharacters
 
 from . import data
@@ -20,8 +20,8 @@ class TestOrdersAggregations(unittest.TestCase):
     def tearDownClass(cls):
         data.orders.OrderExporter(client=cls.client).delete_index()
 
-    def query(self):
-        return Query(index=data.orders.OrderExporter.INDEX_NAME, client=self.client)
+    def search(self):
+        return Search(index=data.orders.OrderExporter.INDEX_NAME, client=self.client)
 
     def test_unicode_bar(self):
         #for i in range(9):
@@ -57,7 +57,7 @@ class TestOrdersAggregations(unittest.TestCase):
         )
 
     def test_orders_terms_sku(self):
-        query = self.query()
+        query = self.search()
         agg_sku_count = query.agg_terms(field="sku")
         agg_sku_qty = agg_sku_count.metric("sum", field="quantity")
         query.execute()
@@ -70,7 +70,7 @@ class TestOrdersAggregations(unittest.TestCase):
             },
             agg_sku_qty.to_dict()
         )
-        agg_sku_qty.plot_text.hbar()
+        agg_sku_qty.plot.text.hbar()
 
 
 if __name__ == "__main__":
