@@ -1,4 +1,4 @@
-auto_generate: False
+base_class: True
 url: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html
 doc: |
     A query that matches documents matching boolean combinations of other queries. The bool query maps to Lucene BooleanQuery. It is built using one or more boolean clauses, each clause with a typed occurrence.
