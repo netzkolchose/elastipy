@@ -9,8 +9,8 @@ class Query(QueryInterface):
     Abstract base class for actual queries.
     """
     _factory_class_map = dict()
-    _top_level_parameter = None
 
+    _top_level_parameter = None
     _optional_parameters = {}
     name = None
 

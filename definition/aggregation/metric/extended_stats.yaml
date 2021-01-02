@@ -1,0 +1,13 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-extendedstats-aggregation.html
+parameters:
+    field:
+        type: str
+        required: True
+    sigma:
+        type: float
+        default: 3.0
+    missing:
+        type: Any
+    script:
+        type: dict
+returns: ['count', 'min', 'max', 'avg', 'sum', 'sum_of_squares', 'variance', 'variance_population', 'variance_sampling', 'std_deviation', 'std_deviation_population', 'std_deviation_sampling', 'std_deviation_bounds']

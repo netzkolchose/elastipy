@@ -1,0 +1,8 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-valuecount-aggregation.html
+parameters:
+    field:
+        type: str
+        required: True
+    script:
+        type: dict
+returns: ['value']

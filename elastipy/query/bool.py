@@ -1,61 +1,11 @@
 from copy import copy, deepcopy
-from typing import List
+from typing import Sequence, Mapping
 
 from .query import Query, QueryInterface, factory
+from .generated_classes import _Bool
 
 
-class Bool(Query):
-
-    name = "bool"
-    _optional_parameters = {
-        "must": None,
-        "must_not": None,
-        "should": None,
-        "filter": None,
-    }
-
-    def __init__(
-            self,
-            must: List[QueryInterface]=None,
-            must_not: List[QueryInterface]=None,
-            should: List[QueryInterface]=None,
-            filter: List[QueryInterface]=None,
-    ):
-        """
-        A query that matches documents matching boolean combinations of other
-        queries. The bool query maps to Lucene BooleanQuery. It is built using
-        one or more boolean clauses, each clause with a typed occurrence.
-
-        The bool query takes a more-matches-is-better approach, so the score
-        from each matching must or should clause will be added together to
-        provide the final _score for each document.
-
-        See: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html
-        :param must: QueryInterface
-            The clause (query) must appear in matching documents and will
-            contribute to the score.
-
-        :param must_not: QueryInterface
-            The clause (query) must not appear in the matching documents.
-            Clauses are executed in filter context meaning that scoring is
-            ignored and clauses are considered for caching. Because scoring is
-            ignored, a score of 0 for all documents is returned.
-
-        :param should: QueryInterface
-            The clause (query) should appear in the matching document.
-
-        :param filter: QueryInterface
-            The clause (query) must appear in matching documents. However unlike
-            must the score of the query will be ignored. Filter clauses are
-            executed in filter context, meaning that scoring is ignored and
-            clauses are considered for caching.
-        """
-        super().__init__(
-            must=must,
-            must_not=must_not,
-            should=should,
-            filter=filter,
-        )
+class Bool(_Bool):
 
     @property
     def must(self):

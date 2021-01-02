@@ -1,0 +1,21 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-aggregation.html
+parameters:
+    field:
+        type: str
+        required: True
+    percents:
+        type: list
+        default: (1, 5, 25, 50, 75, 95, 99)
+    keyed:
+        type: bool
+        default: True
+    tdigest.compression:
+        type: int
+        default: 100
+    hdr.number_of_significant_value_digits:
+        type: int
+    missing:
+        type: Any
+    script:
+        type: dict
+returns: ['values']

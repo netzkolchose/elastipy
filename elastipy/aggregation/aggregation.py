@@ -1,73 +1,6 @@
 import json
 
-from elastipy.aggregation.definition import AGGREGATIONS
-
-
-class AggregationInterface:
-    """
-    Interface to create aggregations.
-    Used either on Query or on Aggregations themselves.
-    """
-    def __init__(self, timestamp_field="timestamp"):
-        self.timestamp_field = timestamp_field
-
-    def aggregation(self, *aggregation_name_type, **params) -> 'Aggregation':
-        """
-        Creates an aggregation.
-
-        Either call
-            aggregation("sum", field=...) to create an automatic name
-        or call
-            aggregation("my_name", "sum", field=...) to set aggregation name explicitly
-
-        :param aggregation_name_type: one or two strings
-        :param params: all parameters of the aggregation function
-        :return: Aggregation instance
-        """
-        raise NotImplementedError
-
-    def agg(self, *aggregation_name_type, **params):
-        """
-        Alias for aggregation()
-        """
-        return self.aggregation(*aggregation_name_type, **params)
-
-    def agg_terms(self, *aggregation_name, field, size=10, shard_size=None, order=None, min_doc_count=1, show_term_doc_count_error=False):
-        return self.aggregation(
-            *(aggregation_name + ("terms", )),
-            field=field, size=size, min_doc_count=min_doc_count,
-            show_term_doc_count_error=show_term_doc_count_error,
-            _if_not_none=dict(shard_size=shard_size, order=order)
-        )
-
-    def agg_date_histogram(self, *aggregation_name, interval="1y", field=None, min_doc_count=0):
-        return self.aggregation(
-            *(aggregation_name + ("date_histogram", )),
-            calendar_interval=interval,
-            field=field or self.timestamp_field,
-            min_doc_count=min_doc_count,
-        )
-
-    def metric(self, *aggregation_name_type, **params):
-        """
-        Alias for aggregation()
-        """
-        aggregation_type = aggregation_name_type[0] if len(aggregation_name_type) == 1 else aggregation_name_type[1]
-        assert aggregation_type in AGGREGATIONS["metric"], f"'{aggregation_type}' is not a supported metric"
-        return self.aggregation(*aggregation_name_type, **params)
-
-    def metric_avg(self, *aggregation_name, field, missing=None, script=None):
-        return self.metric(
-            *(aggregation_name + ("avg", )),
-            field=field, _if_not_none=dict(missing=missing, script=script)
-        )
-
-    def metric_cardinality(self, *aggregation_name, field, precision_threshold=3000, missing=None, script=None):
-        return self.metric(
-            *(aggregation_name + ("cardinality", )),
-            field=field, precision_threshold=precision_threshold,
-            _if_not_none=dict(missing=missing, script=script),
-        )
+from .generated_interface import AggregationInterface
 
 
 class Aggregation(AggregationInterface):
@@ -77,17 +10,27 @@ class Aggregation(AggregationInterface):
     Do not create instances yourself,
     use the Query.aggregation() and Aggregation.aggregation() variants
     """
-    def __init__(self, query, name, type, params):
-        AggregationInterface.__init__(self, timestamp_field=query.timestamp_field)
-        self.query = query
+
+    _factory_class_map = dict()
+
+    def __init_subclass__(cls, **kwargs):
+        if "factory" not in kwargs or kwargs["factory"]:
+            Aggregation._factory_class_map[cls._agg_type] = cls
+
+    def __init__(self, search, name, type, params):
+        AggregationInterface.__init__(self, timestamp_field=search.timestamp_field)
+        self.search = search
         self.name = name
         self.type = type
-        self.params = params.copy()
-        if_not_none = self.params.pop("_if_not_none", None)
-        if if_not_none:
-            for key, value in if_not_none.items():
-                if value is not None:
-                    self.params[key] = value
+        self.definition = self.AGGREGATION_DEFINITION.get(self.type) or dict()
+        self.params = {
+            key: value
+            for key, value in params.items()
+            if not self.definition.get("parameters") \
+                or key not in self.definition["parameters"] \
+                or self.definition["parameters"][key].get("required") \
+                or self.definition["parameters"][key].get("default") != value
+        }
         self._response = None
         self.parent: Aggregation = None
         self.root: Aggregation = None
@@ -96,14 +39,14 @@ class Aggregation(AggregationInterface):
         return f"{self.__class__.__name__}('{self.name}', '{self.type}')"
 
     def is_metric(self):
-        return self.type in AGGREGATIONS["metric"]
+        return self.definition.get("group") == "metric"
 
     def execute(self):
         """
         Executes the whole query with all aggregations
         :return: self
         """
-        self.query.execute()
+        self.search.execute()
         return self
 
     @property
@@ -173,6 +116,13 @@ class Aggregation(AggregationInterface):
             for key, value in self.items(key_separator=key_separator, default=default)
         }
 
+    def to_body(self):
+        """
+        Returns the part of the elasticsearch body
+        :return: dict
+        """
+        return self.params
+
     def to_dict_rows(self, default=None):
         dic = self.to_dict(default=default)
         aggs = self._aggregations()
@@ -235,22 +185,22 @@ class Aggregation(AggregationInterface):
         for row in rows:
             print(format_str.format(*row), file=file)
 
-    def aggregation(self, *aggregation_name_type, **params):
+    def aggregation(self, *aggregation_name_type, **params) -> 'Aggregation':
         if len(aggregation_name_type) == 1:
-            name = f"a{len(self.query._aggregations)}"
+            name = f"a{len(self.search._aggregations)}"
             aggregation_type = aggregation_name_type[0]
         elif len(aggregation_name_type) == 2:
             name, aggregation_type = aggregation_name_type
         else:
             raise ValueError(f"Need to provide (aggregation_type) or (name, aggregation_type), got {aggregation_name_type}")
 
-        agg = Aggregation(
-            query=self.query, name=name, type=aggregation_type, params=params
+        agg = factory(
+            search=self.search, name=name, type=aggregation_type, params=params
         )
         agg.parent = self
         agg.root = self.root or self
-        self.query._aggregations.append(agg)
-        self.query._add_body(f"{self._agg_path()}.aggregations.{name}.{aggregation_type}", agg.params)
+        self.search._aggregations.append(agg)
+        self.search._add_body(f"{self._agg_path()}.aggregations.{name}.{aggregation_type}", agg.to_body())
         return agg
 
     def _key_to_key(self, key, key_separator=None):
@@ -262,10 +212,21 @@ class Aggregation(AggregationInterface):
 
     def _iter_sub_keys(self, aggs):
         assert self.name == aggs[0].name
-        key_name = aggs[0]._bucket_key_name()
-        for b in self.response["buckets"]:
-            keys = (b[key_name], )
+        for b_key, b in self._iter_bucket_items():
+            keys = (b_key, )
             yield from self._iter_sub_keys_rec(b, aggs[1:], keys)
+
+    def _iter_bucket_items(self, buckets=None):
+        if buckets is None:
+            buckets = self.response["buckets"]
+
+        if isinstance(buckets, list):
+            for b in buckets:
+                yield b[self._bucket_key_name()], b
+        elif isinstance(buckets, dict):
+            yield from buckets.items()
+        else:
+            raise NotImplementedError(f"Can not work with buckets of type {type(buckets).__name__}")
 
     def _iter_sub_keys_rec(self, bucket, aggs, keys):
         if not aggs[0].name in bucket:
@@ -287,7 +248,7 @@ class Aggregation(AggregationInterface):
 
     def _iter_sub_values(self, aggs, default=None):
         assert self.name == aggs[0].name
-        for b in self.response["buckets"]:
+        for _, b in self._iter_bucket_items():
             yield from self._iter_sub_values_rec(b, aggs[1:], default=default)
 
     def _iter_sub_values_rec(self, bucket, aggs, default=None):
@@ -301,7 +262,7 @@ class Aggregation(AggregationInterface):
 
     def _iter_values_from_bucket(self, bucket, default=None):
         if self.is_metric():
-            return_keys = AGGREGATIONS["metric"].get(self.type, {}).get("returns", "value")
+            return_keys = self.definition.get("returns", "value")
             values = dict()
             for key in return_keys:
                 if key in bucket:
@@ -345,3 +306,16 @@ class Aggregation(AggregationInterface):
         return aggs
 
 
+def factory(search, name, type, params) -> Aggregation:
+    """
+    Creates an instance of the matching Aggregation sub-class
+    :return: instance of (derived) Aggregation class
+    """
+    if type in Aggregation._factory_class_map:
+        klass = Aggregation._factory_class_map[type]
+        try:
+            return klass(search, name, type, params)
+        except TypeError as e:
+            raise TypeError(f"{e} in class {klass.__name__}")
+
+    return Aggregation(search, name, type, params)

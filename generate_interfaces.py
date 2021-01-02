@@ -1,11 +1,27 @@
 import os
 
-from elastipy.query import generator
+from definition import generator
 
 
-with open(os.path.join("elastipy", "query", "generated_interface.py"), "w") as fp:
-    generator.generate_interface(fp)
+def generate_file(filename, text):
+    with open(filename, "w") as fp:
+        fp.write(text)
+    print(f"written {len(text)//1024}kb to {filename}")
 
-with open(os.path.join("elastipy", "query", "generated_classes.py"), "w") as fp:
-    generator.generate_class_interface(fp)
+
+if __name__ == "__main__":
+    generate_file(
+        os.path.join("elastipy", "query", "generated_interface.py"),
+        generator.render_query_class(),
+    )
+
+    generate_file(
+        os.path.join("elastipy", "query", "generated_classes.py"),
+        generator.render_query_classes(),
+    )
+
+    generate_file(
+        os.path.join("elastipy", "aggregation", "generated_interface.py"),
+        generator.render_aggregation_class(),
+    )
 
