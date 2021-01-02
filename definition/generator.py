@@ -58,7 +58,7 @@ def render_query_classes():
         definition = QUERY_DEFINITION[query_name]
 
         class_name = "".join(p.title() for p in query_name.split("_"))
-        if definition.get("base_class"):
+        if definition.get("abstract"):
             class_name = f"_{class_name}"
 
         class_parameters = {
@@ -81,7 +81,7 @@ def render_query_classes():
 
         code += "\n" + render_class(
             class_name=class_name,
-            super_class_name="Query, factory=False" if definition.get("base_class") else "Query",
+            super_class_name="Query, factory=False" if definition.get("abstract") else "Query",
             class_parameters=class_parameters,
             doc=doc_with_url(definition),
             functions=[
