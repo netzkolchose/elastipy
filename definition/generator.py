@@ -7,7 +7,10 @@ from .renderer import render_function, render_class, change_text_indent
 
 INDENT = "    "
 HEADLINE = f"# auto-generated file - do not edit"
-TYPING_IMPORT = "from typing import Mapping, Sequence, Any, Union, Optional"
+TYPING_IMPORT = """
+from datetime import date, datetime
+from typing import Mapping, Sequence, Any, Union, Optional
+""".strip()
 
 
 def doc_with_url(definition):

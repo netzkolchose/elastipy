@@ -1,4 +1,5 @@
 # auto-generated file - do not edit
+from datetime import date, datetime
 from typing import Mapping, Sequence, Any, Union, Optional
 
 
@@ -247,6 +248,112 @@ class MatchNone(Query):
         https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-all-query.html
         """
         super().__init__(
+        )
+
+
+class Range(Query):
+
+    """
+    Returns documents that contain terms within a provided range.
+
+    When the <field> parameter is a date field data type, you can use date math
+    with the 'gt', 'gte', 'lt' and 'lte' parameters.
+    https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math
+
+    https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html
+    """
+
+    name = 'range'
+    _optional_parameters = {'gt': None, 'gte': None, 'lt': None, 'lte': None, 'format': None, 'relation': 'INTERSECTS', 'time_zone': None, 'boost': None}
+    _top_level_parameter = 'field'
+
+
+    def __init__(
+            self,
+            field: str,
+            gt: Optional[Union[str, int, float, date, datetime]] = None,
+            gte: Optional[Union[str, int, float, date, datetime]] = None,
+            lt: Optional[Union[str, int, float, date, datetime]] = None,
+            lte: Optional[Union[str, int, float, date, datetime]] = None,
+            format: Optional[str] = None,
+            relation: str = 'INTERSECTS',
+            time_zone: Optional[str] = None,
+            boost: Optional[float] = None,
+    ):
+        """
+        Returns documents that contain terms within a provided range.
+
+        When the <field> parameter is a date field data type, you can use date math
+        with the 'gt', 'gte', 'lt' and 'lte' parameters.
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html
+
+        :param field: str
+            Field you wish to search.
+
+        :param gt: Optional[Union[str, int, float, date, datetime]]
+            Greater than.
+
+        :param gte: Optional[Union[str, int, float, date, datetime]]
+            Greater than or equal to.
+
+        :param lt: Optional[Union[str, int, float, date, datetime]]
+            Less than.
+
+        :param lte: Optional[Union[str, int, float, date, datetime]]
+            Less than or equal to.
+
+        :param format: Optional[str]
+            Date format used to convert date values in the query.
+
+            By default, Elasticsearch uses the date format provided in the <field>'s
+            mapping. This value overrides that mapping format.
+
+            For valid syntax see
+            https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html
+
+        :param relation: str
+            Indicates how the range query matches values for range fields. Valid
+            values are:
+                INTERSECTS (Default)
+                    Matches documents with a range field value that intersects the
+                    query’s range.
+                CONTAINS
+                    Matches documents with a range field value that entirely
+                    contains the query’s range.
+                WITHIN
+                    Matches documents with a range field value entirely within the
+                    query’s range.
+
+        :param time_zone: Optional[str]
+            Coordinated Universal Time (UTC) offset or IANA time zone used to
+            convert date values in the query to UTC.
+
+            Valid values are ISO 8601 UTC offsets, such as +01:00 or -08:00, and
+            IANA time zone IDs, such as America/Los_Angeles.
+
+        :param boost: Optional[float]
+            Floating point number used to decrease or increase the relevance scores
+            of a query. Defaults to 1.0.
+
+            You can use the boost parameter to adjust relevance scores for searches
+            containing two or more queries.
+
+            Boost values are relative to the default value of 1.0. A boost value
+            between 0 and 1.0 decreases the relevance score. A value greater than
+            1.0 increases the relevance score.
+        """
+        super().__init__(
+            field=field,
+            gt=gt,
+            gte=gte,
+            lt=lt,
+            lte=lte,
+            format=format,
+            relation=relation,
+            time_zone=time_zone,
+            boost=boost,
         )
 
 
