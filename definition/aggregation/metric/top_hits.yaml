@@ -1,0 +1,10 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-top-hits-aggregation.html
+parameters:
+    size:
+        type: int
+        required: True
+    sort:
+        type: dict
+    _source:
+        type: dict
+returns: ['hits']

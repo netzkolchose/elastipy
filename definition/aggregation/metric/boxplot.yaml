@@ -1,0 +1,11 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-boxplot-aggregation.html
+parameters:
+    field:
+        type: str
+        required: True
+    compression:
+        type: int
+        default: 100
+    missing:
+        type: Any
+returns: ['min', 'max', 'q1', 'q2', 'q3']

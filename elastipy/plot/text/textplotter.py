@@ -1,6 +1,6 @@
 import os
 
-from ._UnicodePixels import UnicodeCharacters
+from .characters import UnicodeCharacters
 
 
 class TextPlotter:

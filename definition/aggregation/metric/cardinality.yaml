@@ -1,0 +1,13 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-cardinality-aggregation.html
+parameters:
+    field:
+        type: str
+        required: True
+    precision_threshold:
+        type: int
+        default: 3000
+    missing:
+        type: Any
+    script:
+        type: dict
+returns: ['value']

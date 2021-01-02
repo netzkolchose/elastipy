@@ -1,12 +1,8 @@
-import datetime
-import json
 import time
 import unittest
 
-import elasticsearch
-
 from elastipy import get_elastic_client, Query
-from elastipy.plot._UnicodePixels import UnicodeCharacters
+from elastipy.plot.text.characters import UnicodeCharacters
 
 from . import data
 

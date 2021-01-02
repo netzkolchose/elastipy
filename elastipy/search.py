@@ -1,16 +1,18 @@
 import json
-from copy import deepcopy
+from copy import copy, deepcopy
 
-from ._client import get_elastic_client
-from ._Aggregation import Aggregation, AggregationInterface
+from .client import get_elastic_client
+from .aggregation import Aggregation, AggregationInterface, factory as agg_factory
+from .query import QueryInterface, EmptyQuery
+from ._json import make_json_compatible
 
 
-class Query(AggregationInterface):
+class Search(QueryInterface, AggregationInterface):
     """
     Interface to elasticsearch /search.
 
-    All changes to a query create and return a copy.
-    Except for aggregations, which are attached to the query instance.
+    All changes to a search object create and return a copy.
+    Except for aggregations, which are attached to the search instance.
 
     """
     def __init__(
@@ -20,7 +22,7 @@ class Query(AggregationInterface):
             timestamp_field="timestamp",
     ):
         """
-        Create a new Query instance.
+        Create a new Search instance.
         :param index: str, optional index name/pattern, can also be set later via index()
         :param client: elasticsearch.Client instance, if None elastipy.get_elastic_client() is used
         :param timestamp_field: str, the default timestamp field used for date-ranges and date_histogram
@@ -28,24 +30,34 @@ class Query(AggregationInterface):
         AggregationInterface.__init__(self, timestamp_field=timestamp_field)
         self._index = index
         self._client = client
-        self.body = dict()
+        self._query = EmptyQuery()
         self._aggregations = []
+        self._body = dict()
         self.response = None
 
     def get_index(self):
         return self._index
 
+    def get_query(self):
+        return self._query
+
     def copy(self):
         es = self.__class__(index=self._index, client=self._client, timestamp_field=self.timestamp_field)
-        es.body = deepcopy(self.body)
+        es._body = deepcopy(self._body)
         es._aggregations = self._aggregations.copy()
+        es._query = self._query.copy()
         return es
 
-    def execute(self):
-        body = deepcopy(self.body)
-        if "query" not in body:
-            body["query"] = {"match_all": {}}
+    @property
+    def body(self):
+        body = copy(self._body)
+        query_dict = self._query.to_dict()
+        if "query" not in query_dict:
+            query_dict = {"query": query_dict}
+        body.update(query_dict)
+        return make_json_compatible(body)
 
+    def execute(self):
         client = self._client
         close_client = False
         if client is None:
@@ -57,7 +69,7 @@ class Query(AggregationInterface):
             params={
                 "rest_total_hits_as_int": "true"
             },
-            body=body,
+            body=self.body,
         )
 
         if close_client:
@@ -73,10 +85,43 @@ class Query(AggregationInterface):
         es._index = index
         return es
 
+    def query(self, query):
+        es = self.copy()
+        es._query = query
+        return es
+
+    def add_query(self, name, **params):
+        es = self.copy()
+        es._query = es._query.add_query(name, **params)
+        return es
+
+    def new_query(self, name, **params):
+        es = self.copy()
+        es._query = es._query.new_query(name, **params)
+        return es
+
+    def query_to_dict(self):
+        return self._query.to_dict()
+
+    def __and__(self, other):
+        es = self.copy()
+        es._query &= _to_query(other)
+        return es
+
+    def __or__(self, other):
+        es = self.copy()
+        es._query |= _to_query(other)
+        return es
+
+    def __invert__(self):
+        es = self.copy()
+        es._query = ~es._query
+        return es
+
+    """
     def match(self, field, value):
         es = self.copy()
         es._add_bool_filter({"match_phrase": {field: value}})
-        #es._add_body(f"query.bool.filter.{self._query_count}.match_phrase.{field}", value)
         return es
 
     def query_string(self, query):
@@ -87,19 +132,16 @@ class Query(AggregationInterface):
     def date_from(self, date):
         es = self.copy()
         es._add_bool_filter({"range": {self.timestamp_field: {"gte": date}}})
-        #es._add_body(f"query.bool.filter.{self._query_count}.range.{self.timestamp_field}.gte", date)
         return es
 
     def date_to(self, date):
         es = self.copy()
         es._add_bool_filter({"range": {self.timestamp_field: {"lte": date}}})
-        #es._add_body(f"query.bool.filter.{self._query_count}.range.{self.timestamp_field}.lte", date)
         return es
 
     def date_before(self, date):
         es = self.copy()
         es._add_bool_filter({"range": {self.timestamp_field: {"lt": date}}})
-        #es._add_body(f"query.bool.filter.{self._query_count}.range.{self.timestamp_field}.lt", date)
         return es
 
     def year(self, year):
@@ -111,10 +153,9 @@ class Query(AggregationInterface):
         else:
             year2, month2 = year + 1, 1
         return self.date_from(f"{year:04}-{month:02}-01T00:00:00Z").date_before(f"{year2}-{month2:02}-01T00:00:00Z")
+    """
 
     def aggregation(self, *aggregation_name_type, **params) -> Aggregation:
-        from ._Aggregation import Aggregation
-
         if len(aggregation_name_type) == 1:
             name = f"a{len(self._aggregations)}"
             aggregation_type = aggregation_name_type[0]
@@ -123,11 +164,11 @@ class Query(AggregationInterface):
         else:
             raise ValueError(f"Need to provide (aggregation_type) or (name, aggregation_type), got {aggregation_name_type}")
 
-        agg = Aggregation(
-            query=self, name=name, type=aggregation_type, params=params
+        agg = agg_factory(
+            search=self, name=name, type=aggregation_type, params=params
         )
         self._aggregations.append(agg)
-        self._add_body(f"aggregations.{name}.{aggregation_type}", agg.params)
+        self._add_body(f"aggregations.{name}.{aggregation_type}", agg.to_body())
         return agg
 
     def dump_body(self, indent=2, file=None):
@@ -141,9 +182,9 @@ class Query(AggregationInterface):
         if isinstance(path, str):
             ppath = path.split(".")
         else:
-            ppath = path.copy()
+            ppath = copy(path)
 
-        body = self.body
+        body = self._body
         while ppath:
             key = ppath.pop(0)
             if not isinstance(body, dict):
@@ -183,3 +224,13 @@ class Response(dict):
 
     def dump(self, indent=2, file=None):
         print(json.dumps(self, indent=indent), file=file)
+
+
+def _to_query(query):
+    if isinstance(getattr(query, "_query", None), QueryInterface):
+        return query._query
+    if isinstance(query, QueryInterface):
+        return query
+    raise ValueError(
+        f"Expected Query, got {repr(query)}"
+    )

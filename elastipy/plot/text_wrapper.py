@@ -1,13 +1,11 @@
-import os
-
-from .._Aggregation import Aggregation
-from ._TextPlotter import TextPlotter
+from ..aggregation import Aggregation
+from .text.textplotter import TextPlotter
 
 
 class TextPlotWrapper:
 
-    def __init__(self, source):
-        self.source: Aggregation = source
+    def __init__(self, source: Aggregation):
+        self.source = source
         self.plotter = TextPlotter()
 
     def hbar(self, width=None, zero_based=True, digits=3, file=None):

@@ -1,0 +1,10 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-rate-aggregation.html
+parameters:
+    unit:
+        type: str
+        required: True
+    field:
+        type: str
+    script:
+        type: dict
+returns: ['value']

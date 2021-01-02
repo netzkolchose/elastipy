@@ -1,0 +1,19 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-weight-avg-aggregation.html
+parameters:
+    value.field:
+        type: str
+        required: True
+    weight.field:
+        type: str
+        required: True
+    value.missing:
+        type: Any
+    weight.missing:
+        type: Any
+    format:
+        type: str
+    value_type:
+        type: str
+    script:
+        type: dict
+returns: ['value']

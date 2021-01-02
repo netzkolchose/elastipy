@@ -254,13 +254,6 @@ class Aggregation(AggregationInterface):
         self.query._add_body(f"{self._agg_path()}.aggregations.{name}.{aggregation_type}", agg.params)
         return agg
 
-    @property
-    def plot_text(self):
-        from .plot._TextPlotWrapper import TextPlotWrapper
-        if not self._plot_text:
-            self._plot_text = TextPlotWrapper(self)
-        return self._plot_text
-
     def _key_to_key(self, key, key_separator=None):
         if isinstance(key, str):
             return key

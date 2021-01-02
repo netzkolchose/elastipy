@@ -5,7 +5,7 @@ import unittest
 
 import elasticsearch
 
-from elastipy import get_elastic_client, Query
+from elastipy import get_elastic_client, Search, query
 
 from . import data
 
@@ -23,16 +23,16 @@ class TestOrdersAggregations(unittest.TestCase):
     def tearDownClass(cls):
         data.orders.OrderExporter(client=cls.client).delete_index()
 
-    def query(self):
-        return Query(index=data.orders.OrderExporter.INDEX_NAME, client=self.client)
+    def search(self):
+        return Search(index=data.orders.OrderExporter.INDEX_NAME, client=self.client)
 
     def test_orders_terms_sku(self):
-        query = self.query()
-        agg_sku_count = query.agg_terms(field="sku")
-        agg_sku_qty = agg_sku_count.metric("sum", field="quantity")
+        q = self.search()
+        agg_sku_count = q.agg_terms(field="sku")
+        agg_sku_qty = agg_sku_count.metric_sum(field="quantity")
 
-        #query.dump_body()
-        query.execute()#.dump()
+        #q.dump_body()
+        q.execute()#.dump()
 
         self.assertEqual(
             {
@@ -52,12 +52,12 @@ class TestOrdersAggregations(unittest.TestCase):
         )
 
     def test_orders_terms_sku_terms_channel(self):
-        query = self.query()
-        agg_sku = query.agg_terms(field="sku")
-        agg_channel = agg_sku.aggregation("terms", field="channel")
-        agg_qty = agg_channel.aggregation("sum", field="quantity")
+        q = self.search()
+        agg_sku = q.agg_terms(field="sku")
+        agg_channel = agg_sku.agg_terms(field="channel")
+        agg_qty = agg_channel.metric_sum(field="quantity")
 
-        query.execute()# .dump()
+        q.execute()# .dump()
 
         self.assertEqual(
             {
@@ -84,13 +84,13 @@ class TestOrdersAggregations(unittest.TestCase):
         )
 
     def test_orders_terms_sku_terms_channel_terms_country(self):
-        query = self.query()
-        agg_sku = query.agg_terms(field="sku")
+        q = self.search()
+        agg_sku = q.agg_terms(field="sku")
         agg_channel = agg_sku.aggregation("terms", field="channel")
         agg_country = agg_channel.aggregation("terms", field="country")
         agg_qty = agg_country.metric("sum", field="quantity")
 
-        query.execute()# .dump()
+        q.execute()#.dump()
 
         self.assertEqual(
             {
@@ -106,12 +106,68 @@ class TestOrdersAggregations(unittest.TestCase):
         )
         #agg_qty.dump_table()
 
+    def test_orders_filter(self):
+        aggs = [
+            self.search().agg_filter(filter={"term": {"sku": "sku-1"}}).metric_sum("qty", field="quantity"),
+            self.search().agg_filter(filter=query.Term(field="sku", value="sku-1")).metric_sum("qty", field="quantity"),
+        ]
+        for agg in aggs:
+            #q.dump_body()
+            agg.execute()#.dump()
+
+            #agg.dump_table()
+            self.assertEqual(
+                [
+                    ["a0", "a0.doc_count", "qty"],
+                    ["a0", 4, 7]
+                ],
+                list(agg.rows())
+            )
+
+    def test_orders_filters(self):
+        q = self.search()
+        agg_sku = q.agg_filters("group", filters={
+            "group1": {"term": {"sku": "sku-1"}},
+            "group2": {"term": {"sku": "sku-2"}},
+        })
+        agg_qty = agg_sku.metric_sum("qty", field="quantity")
+        #q.dump_body()
+        q.execute()# .dump()
+
+        self.assertEqual(
+            [
+                ["group", "group.doc_count", "qty"],
+                ["group1", 4, 7],
+                ["group2", 2, 3],
+            ],
+            list(agg_qty.rows())
+        )
+
+    def test_orders_filters_with_query(self):
+        q = self.search()
+        agg_sku = q.agg_filters("group", filters={
+            "group1": query.Term("sku", "sku-1"),
+            "group2": query.Bool(must=[query.Term("sku", "sku-2")]),
+        })
+        agg_qty = agg_sku.metric_sum("qty", field="quantity")
+        #q.dump_body()
+        q.execute()# .dump()
+
+        self.assertEqual(
+            [
+                ["group", "group.doc_count", "qty"],
+                ["group1", 4, 7],
+                ["group2", 2, 3],
+            ],
+            list(agg_qty.rows())
+        )
+
     def test_orders_date_histogram(self):
-        query = self.query()
-        items_per_day = query.agg_date_histogram(interval="1d")
+        q = self.search()
+        items_per_day = q.agg_date_histogram(field="timestamp", calendar_interval="1d")
         orders_per_day = items_per_day.metric_cardinality(field="order_id")
-        #query.dump_body()
-        query.execute()#.dump()
+        #q.dump_body()
+        q.execute()#.dump()
 
         self.assertEqual(
             {
