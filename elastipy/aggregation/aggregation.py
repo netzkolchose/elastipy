@@ -1,6 +1,8 @@
 import json
+import datetime
 from typing import Optional, List
 
+from .. import make_json_compatible
 from .generated_interface import AggregationInterface
 
 
@@ -55,8 +57,10 @@ class Aggregation(AggregationInterface):
     @property
     def response(self):
         if self.parent:
-            raise ValueError(f"Can not get response of sub-aggregation '{self.name}' (type {self.type})")
-
+            raise ValueError(f"Can not get response of sub-aggregation '{self.name}' ({self.type})")
+        if not self._response:
+            raise ValueError(f"Can not get response of aggregation '{self.name}' ({self.type}), "
+                             f"search has not been executed")
         return self._response.aggregations[self.name]
 
     @property
@@ -124,7 +128,7 @@ class Aggregation(AggregationInterface):
         Returns the part of the elasticsearch body
         :return: dict
         """
-        return json.loads(json.dumps(self.params, cls=BodyJsonEncoder))
+        return make_json_compatible(self.params)
 
     def to_dict_rows(self, default=None):
         dic = self.to_dict(default=default)
@@ -323,12 +327,3 @@ def factory(search, name, type, params) -> Aggregation:
             raise TypeError(f"{e} in class {klass.__name__}")
 
     return Aggregation(search, name, type, params)
-
-
-class BodyJsonEncoder(json.JSONEncoder):
-
-    def default(self, o):
-        from ..query import Query
-        if isinstance(o, Query):
-            return o.to_dict()
-        return o

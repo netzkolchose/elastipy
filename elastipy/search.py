@@ -4,6 +4,7 @@ from copy import copy, deepcopy
 from .client import get_elastic_client
 from .aggregation import Aggregation, AggregationInterface, factory as agg_factory
 from .query import QueryInterface, EmptyQuery
+from ._json import make_json_compatible
 
 
 class Search(QueryInterface, AggregationInterface):
@@ -54,7 +55,7 @@ class Search(QueryInterface, AggregationInterface):
         if "query" not in query_dict:
             query_dict = {"query": query_dict}
         body.update(query_dict)
-        return body
+        return make_json_compatible(body)
 
     def execute(self):
         client = self._client
