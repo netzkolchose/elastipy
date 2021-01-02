@@ -1,0 +1,23 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-avg-bucket-aggregation.html
+doc: |
+    A sibling pipeline aggregation which calculates the (mean) average value of a specified metric in a sibling aggregation. The specified metric must be numeric and the sibling aggregation must be a multi-bucket aggregation.
+parameters:
+    buckets_path:
+        type: str
+        required: True
+        doc: |
+            The path to the buckets we wish to find the average for.
+
+            https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#buckets-path-syntax
+    gap_policy:
+        type: str
+        default: skip
+        doc: |
+            The policy to apply when gaps are found in the data.
+
+            https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#gap-policy
+    format:
+        type: str
+        doc: |
+            Format to apply to the output value of this aggregation
+returns: ['value']

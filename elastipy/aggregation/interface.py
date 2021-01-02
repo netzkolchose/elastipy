@@ -37,33 +37,8 @@ class AggregationInterfaceBase:
         # assert aggregation_type in DEFINITION["metric"], f"'{aggregation_type}' is not a supported metric"
         return self.aggregation(*aggregation_name_type, **params)
 
-    """
-    def agg_terms(self, *aggregation_name, field, size=10, shard_size=None, order=None, min_doc_count=1, show_term_doc_count_error=False):
-        return self.aggregation(
-            *(aggregation_name + ("terms", )),
-            field=field, size=size, min_doc_count=min_doc_count,
-            show_term_doc_count_error=show_term_doc_count_error,
-            _if_not_none=dict(shard_size=shard_size, order=order)
-        )
-
-    def agg_date_histogram(self, *aggregation_name, interval="1y", field=None, min_doc_count=0):
-        return self.aggregation(
-            *(aggregation_name + ("date_histogram", )),
-            calendar_interval=interval,
-            field=field or self.timestamp_field,
-            min_doc_count=min_doc_count,
-        )
-
-    def metric_avg(self, *aggregation_name, field, missing=None, script=None):
-        return self.metric(
-            *(aggregation_name + ("avg", )),
-            field=field, _if_not_none=dict(missing=missing, script=script)
-        )
-
-    def metric_cardinality(self, *aggregation_name, field, precision_threshold=3000, missing=None, script=None):
-        return self.metric(
-            *(aggregation_name + ("cardinality", )),
-            field=field, precision_threshold=precision_threshold,
-            _if_not_none=dict(missing=missing, script=script),
-        )
-    """
+    def pipeline(self, *aggregation_name_type, **params):
+        """
+        Alias for aggregation()
+        """
+        return self.aggregation(*aggregation_name_type, **params)
