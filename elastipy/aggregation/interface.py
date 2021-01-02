@@ -17,7 +17,7 @@ class AggregationInterfaceBase:
         or call
             aggregation("my_name", "sum", field=...) to set aggregation name explicitly
 
-        :param aggregation_name_type: one or two strings
+        :param aggregation_name_type: one or two strings, meaning either "type" or "name", "type"
         :param params: all parameters of the aggregation function
         :return: Aggregation instance
         """
