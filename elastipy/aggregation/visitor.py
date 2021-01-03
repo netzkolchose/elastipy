@@ -5,7 +5,7 @@ from elastipy.aggregation import Aggregation
 from elastipy._print import print_dict_rows, dict_rows_to_list_rows
 
 
-class AggregationVisitor:
+class Visitor:
     """
     Helper to access the results of aggregations
     """

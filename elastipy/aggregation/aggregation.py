@@ -23,7 +23,6 @@ class Aggregation(AggregationInterface):
 
     def __init__(self, search, name, type, params):
         from ..search import Response
-        from .visitor import AggregationVisitor
         AggregationInterface.__init__(self, timestamp_field=search.timestamp_field)
         self.search = search
         self.name = name
@@ -34,21 +33,18 @@ class Aggregation(AggregationInterface):
         self.parent: Optional[Aggregation] = None
         self.root: Aggregation = self
         self.children: List[Aggregation] = []
-        self._visitor: Optional[AggregationVisitor] = None
 
     def __repr__(self):
         return f"{self.__class__.__name__}('{self.name}', '{self.type}')"
 
     @property
-    def visitor(self):
+    def print(self):
         """
-        Returns an AggregationVisitor attached to this aggregation
-        :return: AggregationVisitor instance
+        Access to printing interface
+        :return: PrintWrapper instance
         """
-        from .visitor import AggregationVisitor
-        if self._visitor is None:
-            self._visitor = AggregationVisitor(self)
-        return self._visitor
+        from .print_wrapper import PrintWrapper
+        return PrintWrapper(self)
 
     @property
     def group(self) -> str:
@@ -172,7 +168,8 @@ class Aggregation(AggregationInterface):
         :param key_separator: str, optional separator to concat multiple keys into one string
         :return: generator
         """
-        return self.visitor.keys(key_separator=key_separator)
+        from .visitor import Visitor
+        return Visitor(self).keys(key_separator=key_separator)
 
     def values(self, default=None):
         """
@@ -180,7 +177,8 @@ class Aggregation(AggregationInterface):
         :param default: if not None any None-value will be replaced by this
         :return: generator
         """
-        return self.visitor.values(default=default)
+        from .visitor import Visitor
+        return Visitor(self).values(default=default)
 
     def items(self, key_separator=None, default=None) -> Iterable[Tuple]:
         """
@@ -200,10 +198,12 @@ class Aggregation(AggregationInterface):
 
         :return: generator of dict
         """
-        return self.visitor.dict_rows()
+        from .visitor import Visitor
+        return Visitor(self).dict_rows()
 
     def rows(self, header=True) -> Iterable[Sequence]:
-        return self.visitor.rows(header=header)
+        from .visitor import Visitor
+        return Visitor(self).rows(header=header)
 
     def to_dict(self, key_separator=None, default=None) -> dict:
         """
@@ -216,18 +216,6 @@ class Aggregation(AggregationInterface):
             key: value
             for key, value in self.items(key_separator=key_separator, default=default)
         }
-
-    def dump_dict(self, key_separator="|", default=None, indent=2, file=None):
-        print(json.dumps(self.to_dict(key_separator=key_separator, default=default), indent=indent), file=file)
-
-    def dump_table(self, header: bool = True, digits: Optional[int] = None, file: TextIO = None):
-        """
-        Print the result of the dict_rows() function as table to console.
-        :param header: bool, if True, include the names in the first row
-        :param digits: int, optional number of digits for rounding
-        :param file: optional text stream to print to
-        """
-        self.visitor.dump_table(header=header, digits=digits, file=file)
 
     def key_name(self) -> str:
         """
