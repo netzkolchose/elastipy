@@ -71,8 +71,13 @@ class Visitor:
         :return: generator of str, int or float
         """
         if not self.agg.parent:
-            for b in self.agg.buckets:
-                yield self._concat_key(b[self.agg.key_name()], key_separator=key_separator)
+            if "buckets" in self.agg.response:
+                for b in self.agg.buckets:
+                    # wrap into concat in case it does something more at some point
+                    yield self._concat_key(b[self.agg.key_name()], key_separator=key_separator)
+            else:
+                # wrap into concat in case it does something more at some point
+                yield self._concat_key(self.agg.name, key_separator=key_separator)
             return
 
         for k in self._iter_sub_keys(self.root_branch()):
@@ -113,10 +118,14 @@ class Visitor:
                     return_keys = [return_keys]
 
                 if len(return_keys) == 1:
-                    row[metric.name] = bucket[metric.name][return_keys[0]]
+                    values = {metric.name: bucket[metric.name][return_keys[0]]}
                 else:
+                    values = dict()
                     for key in return_keys:
-                        row[f"{metric.name}.{key}"] = bucket[metric.name][key]
+                        if key in bucket[metric.name]:
+                            values[f"{metric.name}.{key}"] = bucket[metric.name][key]
+
+                row.update(self._expand_value(values))
 
             has_sub_bucket = False
             for bucket_agg in agg.children:
@@ -129,6 +138,19 @@ class Visitor:
 
             if not has_sub_bucket:
                 yield row
+
+    def _expand_value(self, value, prefix=None):
+        if isinstance(value, dict):
+            def _iter_items(dic, prefix):
+                for key, value in dic.items():
+                    deep_key = f"{prefix}.{key}" if prefix else key
+                    if isinstance(value, dict):
+                        yield from _iter_items(value, deep_key)
+                    else:
+                        yield deep_key, value
+            return {k: v for k, v in _iter_items(value, prefix)}
+        else:
+            return value
 
     def _concat_key(self, key: Union[str, Sequence], key_separator: Optional[str] = None):
         if isinstance(key, str):
@@ -195,21 +217,26 @@ class Visitor:
                 yield from self._iter_sub_values_rec(b, aggs, default=default)
 
     def _iter_values_from_bucket(self, agg: Aggregation, bucket: dict, default=None):
+        def _make_default(value):
+            if default is not None and value is None:
+                value = default
+            return value
+
         if agg.is_metric():
             return_keys = agg.definition.get("returns", "value")
             values = dict()
             for key in return_keys:
                 if key in bucket:
                     value = bucket[key]
-                    if default is not None and value is None:
-                        value = default
-                    values[key] = value
+                    values[key] = _make_default(value)
             if not values:
                 raise ValueError(f"{self} should have returned fields {return_keys}, got {bucket}")
-            yield values if len(values) > 1 else values[list(values.keys())[0]]
+            yield values if len(values) > 1 else values.popitem()[1]
         else:
-            for b in bucket["buckets"]:
-                value = b["doc_count"]
-                if default is not None and value is None:
-                    value = default
-                yield value
+            if "buckets" in bucket:
+                for b in bucket["buckets"]:
+                    value = b["doc_count"]
+                    yield _make_default(value)
+            else:
+                value = bucket["doc_count"]
+                yield _make_default(value)

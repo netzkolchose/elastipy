@@ -107,9 +107,13 @@ class TestOrdersAggregations(unittest.TestCase):
         #agg_qty.dump_table()
 
     def test_orders_filter(self):
+        # The filter agg has a special format and it's response is single-bucket style
+        # and we test for support of Queries as parameters
         aggs = [
-            self.search().agg_filter(filter={"term": {"sku": "sku-1"}}).metric_sum("qty", field="quantity"),
-            self.search().agg_filter(filter=query.Term(field="sku", value="sku-1")).metric_sum("qty", field="quantity"),
+            self.search().agg_filter(filter={"term": {"sku": "sku-1"}})
+                .metric_sum("qty", field="quantity", return_self=True),
+            self.search().agg_filter(filter=query.Term(field="sku", value="sku-1"))
+                .metric_sum("qty", field="quantity", return_self=True),
         ]
         for agg in aggs:
             #q.dump_body()
@@ -123,44 +127,44 @@ class TestOrdersAggregations(unittest.TestCase):
                 ],
                 list(agg.rows())
             )
+            self.assertEqual(
+                {
+                    "a0": 7,
+                },
+                agg.to_dict()
+            )
 
     def test_orders_filters(self):
-        q = self.search()
-        agg_sku = q.agg_filters("group", filters={
-            "group1": {"term": {"sku": "sku-1"}},
-            "group2": {"term": {"sku": "sku-2"}},
-        })
-        agg_qty = agg_sku.metric_sum("qty", field="quantity")
-        #q.dump_body()
-        q.execute()# .dump()
+        # filters also support Query parameters
+        # and it's bucket response is not list but dict
+        aggregations = [
+            self.search().agg_filters("group", filters={
+                "group1": {"term": {"sku": "sku-1"}},
+                "group2": {"term": {"sku": "sku-2"}},
+            }).metric_sum("qty", field="quantity", return_self=True),
+            self.search().agg_filters("group", filters={
+                "group1": query.Term("sku", "sku-1"),
+                "group2": query.Bool(must=[query.Term("sku", "sku-2")]),
+            }).metric_sum("qty", field="quantity", return_self=True),
+        ]
+        for agg in aggregations:
+            agg.execute()
 
-        self.assertEqual(
-            [
-                ["group", "group.doc_count", "qty"],
-                ["group1", 4, 7],
-                ["group2", 2, 3],
-            ],
-            list(agg_qty.rows())
-        )
-
-    def test_orders_filters_with_query(self):
-        q = self.search()
-        agg_sku = q.agg_filters("group", filters={
-            "group1": query.Term("sku", "sku-1"),
-            "group2": query.Bool(must=[query.Term("sku", "sku-2")]),
-        })
-        agg_qty = agg_sku.metric_sum("qty", field="quantity")
-        #q.dump_body()
-        q.execute()# .dump()
-
-        self.assertEqual(
-            [
-                ["group", "group.doc_count", "qty"],
-                ["group1", 4, 7],
-                ["group2", 2, 3],
-            ],
-            list(agg_qty.rows())
-        )
+            self.assertEqual(
+                [
+                    ["group", "group.doc_count", "qty"],
+                    ["group1", 4, 7],
+                    ["group2", 2, 3],
+                ],
+                list(agg.rows())
+            )
+            self.assertEqual(
+                {
+                    "group1": 7,
+                    "group2": 3,
+                },
+                agg.to_dict()
+            )
 
     def test_orders_date_histogram(self):
         q = self.search()

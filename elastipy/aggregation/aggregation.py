@@ -71,6 +71,7 @@ class Aggregation(AggregationInterface):
             warn(f"Aggregation '{self.name}'/{self.type} has no definition, is_pipeline() is unknown")
         return self.definition.get("group") == "pipeline"
 
+    # Not defined in yamls and not used yet
     #def is_single_bucket(self):
     #    if not self.definition:
     #        warn(f"Aggregation '{self.name}'/{self.type} has no definition, is_single_bucket() is unknown")
