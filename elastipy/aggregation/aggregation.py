@@ -250,8 +250,10 @@ class Aggregation(AggregationInterface):
         """
         ret_params = dict()
         for key, value in params.items():
-            if self.definition.get("parameters") and key in self.definition["parameters"]:
-                param_def = self.definition["parameters"][key]
+
+            param_key = key.replace("__", ".")
+            if self.definition.get("parameters") and param_key in self.definition["parameters"]:
+                param_def = self.definition["parameters"][param_key]
                 # not required and matches default value
                 if not param_def.get("required") and param_def.get("default") == value:
                     if param_def.get("timestamp"):
@@ -259,7 +261,15 @@ class Aggregation(AggregationInterface):
                     else:
                         continue
 
-            ret_params[key] = value
+            if "__" in key:
+                # TODO: this will break for sub-sub-keys but it's anyway not a good approach..
+                root_key, sub_key = key.split("__")
+                if root_key not in ret_params:
+                    ret_params[root_key] = dict()
+                ret_params[root_key][sub_key] = value
+            else:
+                ret_params[key] = value
+
         return ret_params
 
 
