@@ -6,7 +6,7 @@ doc: |
 parameters:
     field:
         type: str
-        required: True
+        timestamp: True
     buckets:
         type: int
         default: 10

@@ -59,8 +59,9 @@ def render_function(
     for param_name, param in parameters.items():
         if param_name != "self":
             code += f"\n{INDENT}:param {param_name.lstrip('*')}: {type_to_str(param)}\n"
-            if param.get("doc"):
-                code += change_text_indent(param["doc"], INDENT*2, max_length=80) + "\n"
+            param_doc = get_param_doc(param)
+            if param_doc:
+                code += change_text_indent(param_doc, INDENT*2, max_length=80) + "\n"
 
     if return_type:
         code += f"\n{INDENT}:returns: {type_to_str(return_type)}\n"
@@ -179,6 +180,14 @@ def break_line(pre, line, max_length):
     return text
 
 
+def get_param_doc(param):
+    doc = param.get("doc") or ""
+    if param.get("timestamp"):
+        if doc:
+            doc += "\n\n"
+        doc += """If no field is specified it will default to the 'timestamp_field' of the Search class.\n"""
+
+    return doc.rstrip() + "\n"
 
 
 if __name__ == "__main__":
