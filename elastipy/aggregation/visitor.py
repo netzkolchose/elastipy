@@ -1,5 +1,5 @@
 from copy import copy, deepcopy
-from typing import Sequence, Union, Optional, Iterable, Tuple, TextIO
+from typing import Sequence, Union, Optional, Iterable, Tuple, TextIO, Any
 
 from elastipy.aggregation import Aggregation
 from elastipy._print import print_dict_rows, dict_rows_to_list_rows
@@ -185,7 +185,7 @@ class Visitor:
             keys = (b_key, )
             yield from self._iter_sub_keys_rec(b, aggs[1:], keys)
 
-    def _iter_sub_keys_rec(self, bucket: dict, aggs: Sequence[Aggregation], keys: Tuple[str]):
+    def _iter_sub_keys_rec(self, bucket: dict, aggs: Sequence[Aggregation], keys: Tuple[Any, ...]):
         if not aggs[0].name in bucket:
             raise ValueError(f"Expected agg '{aggs[0].name}' in bucket {bucket}")
 
@@ -199,9 +199,12 @@ class Visitor:
                 for b in sub_bucket["buckets"]:
                     yield keys + (b[key_name], )
         else:
-            aggs = aggs[1:]
-            for b in sub_bucket["buckets"]:
-                yield from self._iter_sub_keys_rec(b, aggs, keys + (b[key_name], ))
+            for b_key, b in self._iter_bucket_items(aggs[0], sub_bucket):
+                if key_name in b:
+                    next_key = b[key_name]
+                else:
+                    next_key = b_key
+                yield from self._iter_sub_keys_rec(b, aggs[1:], keys + (next_key, ))
 
     def _iter_sub_values(self, aggs: Sequence[Aggregation], default=None):
         for _, b in self._iter_bucket_items(aggs[0]):
@@ -212,9 +215,8 @@ class Visitor:
         if len(aggs) == 1:
             yield from self._iter_values_from_bucket(aggs[0], sub_bucket, default=default)
         else:
-            aggs = aggs[1:]
-            for b in sub_bucket["buckets"]:
-                yield from self._iter_sub_values_rec(b, aggs, default=default)
+            for b_key, b in self._iter_bucket_items(aggs[0], sub_bucket):
+                yield from self._iter_sub_values_rec(b, aggs[1:], default=default)
 
     def _iter_values_from_bucket(self, agg: Aggregation, bucket: dict, default=None):
         def _make_default(value):

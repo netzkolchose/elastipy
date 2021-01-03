@@ -166,6 +166,42 @@ class TestOrdersAggregations(unittest.TestCase):
                 agg.to_dict()
             )
 
+    def test_orders_filters_sub(self):
+        # filters also support Query parameters
+        # and it's bucket response is not list but dict
+        aggregations = [
+            self.search().agg_terms("country", field="country").agg_filters("group", filters={
+                "group1": {"term": {"sku": "sku-1"}},
+                "group2": {"term": {"sku": "sku-2"}},
+            }).metric_sum("qty", field="quantity", return_self=True),
+            self.search().agg_terms("country", field="country").agg_filters("group", filters={
+                "group1": query.Term("sku", "sku-1"),
+                "group2": query.Bool(must=[query.Term("sku", "sku-2")]),
+            }).metric_sum("qty", field="quantity", return_self=True),
+        ]
+        for agg in aggregations:
+            agg.execute()#.print.dict()#.search.dump_body()
+
+            self.assertEqual(
+                [
+                    ["country", "country.doc_count", "group", "group.doc_count", "qty"],
+                    ["DE", 4, "group1", 2, 4],
+                    ["DE", 4, "group2", 2, 3],
+                    ["GB", 3, "group1", 2, 3],
+                    ["GB", 3, "group2", 0, 0],
+                ],
+                list(agg.rows())
+            )
+            self.assertEqual(
+                {
+                    ("DE", "group1"): 4,
+                    ("DE", "group2"): 3,
+                    ("GB", "group1"): 3,
+                    ("GB", "group2"): 0,
+                },
+                agg.to_dict()
+            )
+
     def test_orders_date_histogram(self):
         q = self.search()
         items_per_day = q.agg_date_histogram(field="timestamp", calendar_interval="1d")
@@ -190,6 +226,13 @@ class TestOrdersAggregations(unittest.TestCase):
             },
             orders_per_day.to_dict()
         )
+
+    def test_orders_string_stats(self):
+        q = self.search()
+        agg = q.agg_terms(field="country").metric_string_stats(field="sku", show_distribution=True, return_self=True)
+        q.execute()#.dump()
+        list(agg.dict_rows())
+        list(agg.items())
 
 
 if __name__ == "__main__":
