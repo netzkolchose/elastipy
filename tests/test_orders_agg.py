@@ -107,7 +107,7 @@ class TestOrdersAggregations(unittest.TestCase):
         #agg_qty.dump_table()
 
     def test_orders_filter(self):
-        # The filter agg has a special format and it's response is single-bucket style
+        # The filter agg has a special request format and it's response is single-bucket style
         # and we test for support of Queries as parameters
         aggs = [
             self.search().agg_filter(filter={"term": {"sku": "sku-1"}})
@@ -135,6 +135,38 @@ class TestOrdersAggregations(unittest.TestCase):
             )
 
     def test_orders_filters(self):
+        # filters also support Query parameters
+        # and it's bucket response is not list but dict
+        aggregations = [
+            self.search().agg_filters("group", filters={
+                "group1": {"term": {"sku": "sku-1"}},
+                "group2": {"term": {"sku": "sku-2"}},
+            }),
+            self.search().agg_filters("group", filters={
+                "group1": query.Term("sku", "sku-1"),
+                "group2": query.Bool(must=[query.Term("sku", "sku-2")]),
+            }),
+        ]
+        for agg in aggregations:
+            agg.execute()
+
+            self.assertEqual(
+                [
+                    ["group", "group.doc_count"],
+                    ["group1", 4],
+                    ["group2", 2],
+                ],
+                list(agg.rows())
+            )
+            self.assertEqual(
+                {
+                    "group1": 4,
+                    "group2": 2,
+                },
+                agg.to_dict()
+            )
+
+    def test_orders_filters_metric(self):
         # filters also support Query parameters
         # and it's bucket response is not list but dict
         aggregations = [

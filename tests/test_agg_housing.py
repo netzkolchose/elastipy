@@ -8,6 +8,15 @@ from elastipy import Search, aggregation
 
 class TestAggregationHousing(unittest.TestCase):
 
+    def test_name_type(self):
+        agg = Search().aggregation("terms")
+        self.assertEqual("terms", agg.type)
+        self.assertEqual("a0", agg.name)
+
+        agg = Search().aggregation("boris", "terms")
+        self.assertEqual("terms", agg.type)
+        self.assertEqual("boris", agg.name)
+
     def test_factory(self):
         self.assertEqual(
             aggregation.special.Filter,

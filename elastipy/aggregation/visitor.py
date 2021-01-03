@@ -72,9 +72,13 @@ class Visitor:
         """
         if not self.agg.parent:
             if "buckets" in self.agg.response:
-                for b in self.agg.buckets:
+                for b_key, b in self._iter_bucket_items(self.agg):
+                    if b_key not in b:
+                        key = b_key
+                    else:
+                        key = b[b_key]
                     # wrap into concat in case it does something more at some point
-                    yield self._concat_key(b[self.agg.key_name()], key_separator=key_separator)
+                    yield self._concat_key(key, key_separator=key_separator)
             else:
                 # wrap into concat in case it does something more at some point
                 yield self._concat_key(self.agg.name, key_separator=key_separator)
@@ -152,12 +156,12 @@ class Visitor:
         else:
             return value
 
-    def _concat_key(self, key: Union[str, Sequence], key_separator: Optional[str] = None):
-        if isinstance(key, str):
-            return key
-        if key_separator:
-            return key_separator.join(key)
-        return key if len(key) > 1 else key[0]
+    def _concat_key(self, key: Union[Any, Sequence], key_separator: Optional[str] = None):
+        if isinstance(key, Sequence):
+            if key_separator:
+                return key_separator.join(str(i) for i in key)
+            return key if len(key) > 1 else key[0]
+        return key
 
     def _iter_bucket_items(self, agg: Aggregation, response=None):
         assert agg.is_bucket()
@@ -236,7 +240,7 @@ class Visitor:
             yield values if len(values) > 1 else values.popitem()[1]
         else:
             if "buckets" in bucket:
-                for b in bucket["buckets"]:
+                for b_key, b in self._iter_bucket_items(agg, bucket):
                     value = b["doc_count"]
                     yield _make_default(value)
             else:

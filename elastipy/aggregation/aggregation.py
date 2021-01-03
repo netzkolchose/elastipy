@@ -271,6 +271,12 @@ class Aggregation(AggregationInterface):
             else:
                 ret_params[key] = value
 
+        if self.definition.get("parameters"):
+            for name, param in self.definition["parameters"].items():
+                # case when creating through generic .aggregation() function
+                if param.get("timestamp") and name not in ret_params:
+                    ret_params[name] = self.search.timestamp_field
+
         return ret_params
 
 
