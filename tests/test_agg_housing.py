@@ -16,7 +16,7 @@ class TestAggregationHousing(unittest.TestCase):
 
     def test_is_metric(self):
         self.assertTrue(
-            Search().metric_sum(field="a").is_metric()
+            Search().metric_sum(field="a", return_self=True).is_metric()
         )
 
     def test_default_timestamp(self):

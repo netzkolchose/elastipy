@@ -144,14 +144,34 @@ def render_aggregation_class():
 
         # --- call generic function ---
 
-        do_return_parent = False  #definition["group"] == "metric"
+        do_return_parent = definition["group"] in ("metric", "pipeline")
 
+        extra_parameters = {}
+        return_doc = "A new instance is created and returned"
+        if do_return_parent:
+            return_doc = "A new instance is created and attached to the parent and the parent is returned, " \
+                         "unless 'return_self' is True, in which case the new instance is returned."
+            extra_parameters["return_self"] = {
+                "type": "bool",
+                "default": False,
+                "doc": f"If True, this call returns the created "
+                       f"{definition['group']}, otherwise the parent is returned.",
+            }
+            for key in extra_parameters:
+                assert key not in definition["parameters"], \
+                    f"Unfortunately, the elastipy parameter '{key}' is already present in the parameters of " \
+                    f"aggregation '{agg_name}'"
+
+        # -- method body --
         body = f"agg = self.{agg_type}(\n"
         body += f"{INDENT}*(aggregation_name + (\"{agg_name}\", )),\n"
         for param_name, param in definition["parameters"].items():
             body += f"{INDENT}{param_name}={param_name},\n"
         body += f")\n"
-        body += "return self\n" if do_return_parent else "return agg\n"
+        if do_return_parent:
+            body += "return agg if return_self else self\n"
+        else:
+            body += "return agg\n"
 
         code += render_function(
             function_name=f"{agg_type}_{agg_name}",
@@ -159,14 +179,13 @@ def render_aggregation_class():
                 "self": {},
                 "*aggregation_name": {"type": "str", "doc": "Optional name of the aggregation. "
                                                             "Otherwise it will be auto-generated."},
-                **definition["parameters"]
+                **definition["parameters"],
+                **extra_parameters,
             },
             doc=doc_with_url(definition),
             body=body,
             return_type="AggregationInterface",
-            return_doc="A new instance is created and attached to the parent, the %s is returned." % (
-                "parent" if do_return_parent else "new instance"
-            ),
+            return_doc=return_doc,
             annotate_return_type=False,
             indent=INDENT,
         ) + "\n"

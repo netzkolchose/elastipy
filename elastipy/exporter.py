@@ -83,6 +83,7 @@ class Exporter:
         """
         bulk_actions = []
 
+        num_exported = 0
         for object_data in object_list:
 
             es_data_array = self.transform_object_data(object_data)
@@ -111,7 +112,10 @@ class Exporter:
                         }
                     )
 
+                num_exported += 1
+
                 if len(bulk_actions) >= bulk_size:
+                    print(f"exporting {num_exported}/{len(object_list)}")
                     bulk(self.client, bulk_actions)
                     bulk_actions = []
 

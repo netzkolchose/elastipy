@@ -1,5 +1,8 @@
 import json
 from copy import copy, deepcopy
+from typing import Optional, Union, Mapping, Callable
+
+from elasticsearch import Elasticsearch
 
 from .client import get_elastic_client
 from .aggregation import Aggregation, AggregationInterface, factory as agg_factory
@@ -17,9 +20,9 @@ class Search(QueryInterface, AggregationInterface):
     """
     def __init__(
             self,
-            index=None,
-            client=None,
-            timestamp_field="timestamp",
+            index: str = None,
+            client: Union[Elasticsearch, Callable] = None,
+            timestamp_field: str = "timestamp",
     ):
         """
         Create a new Search instance.
@@ -33,7 +36,7 @@ class Search(QueryInterface, AggregationInterface):
         self._query = EmptyQuery()
         self._aggregations = []
         self._body = dict()
-        self.response = None
+        self._response: Optional[dict] = None
 
     def get_index(self):
         return self._index
@@ -57,6 +60,14 @@ class Search(QueryInterface, AggregationInterface):
         body.update(query_dict)
         return make_json_compatible(body)
 
+    @property
+    def response(self):
+        if self._response is None:
+            raise ValueError(
+                f"Can not access Search.response, search has not been executed."
+            )
+        return self._response
+
     def execute(self):
         client = self._client
         close_client = False
@@ -75,10 +86,21 @@ class Search(QueryInterface, AggregationInterface):
         if close_client:
             client.close()
 
-        self.response = Response(**response)
+        self.set_response(response)
+        return self._response
+
+    def set_response(self, response: Mapping):
+        """
+        Sets the elasticsearch API response.
+
+        Use this if you need other means of passing the API response to the Search instance.
+        :param response: Mapping, the complete response from /search/ endpoint
+        :return: self
+        """
+        self._response = Response(**response)
         for agg in self._aggregations:
             agg._response = self.response
-        return self.response
+        return self
 
     def index(self, index):
         es = self.copy()

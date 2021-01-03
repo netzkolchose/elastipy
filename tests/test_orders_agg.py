@@ -29,7 +29,7 @@ class TestOrdersAggregations(unittest.TestCase):
     def test_orders_terms_sku(self):
         q = self.search()
         agg_sku_count = q.agg_terms(field="sku")
-        agg_sku_qty = agg_sku_count.metric_sum(field="quantity")
+        agg_sku_qty = agg_sku_count.metric_sum(field="quantity", return_self=True)
 
         #q.dump_body()
         q.execute()#.dump()
@@ -55,7 +55,7 @@ class TestOrdersAggregations(unittest.TestCase):
         q = self.search()
         agg_sku = q.agg_terms(field="sku")
         agg_channel = agg_sku.agg_terms(field="channel")
-        agg_qty = agg_channel.metric_sum(field="quantity")
+        agg_qty = agg_channel.metric_sum(field="quantity", return_self=True)
 
         q.execute()# .dump()
 
@@ -165,7 +165,7 @@ class TestOrdersAggregations(unittest.TestCase):
     def test_orders_date_histogram(self):
         q = self.search()
         items_per_day = q.agg_date_histogram(field="timestamp", calendar_interval="1d")
-        orders_per_day = items_per_day.metric_cardinality(field="order_id")
+        orders_per_day = items_per_day.metric_cardinality(field="order_id", return_self=True)
         #q.dump_body()
         q.execute()#.dump()
 

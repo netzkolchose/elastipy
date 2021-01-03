@@ -90,8 +90,7 @@ class AggregationInterface(AggregationInterfaceBase):
             Generating the terms using a script
 
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
-            is returned.
+            A new instance is created and returned
         """
         agg = self.agg(
             *(aggregation_name + ("auto_date_histogram", )),
@@ -112,6 +111,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field: str,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         A single-value metrics aggregation that computes the average of numeric
@@ -130,8 +130,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -140,7 +145,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def pipeline_avg_bucket(
             self,
@@ -148,6 +153,7 @@ class AggregationInterface(AggregationInterfaceBase):
             buckets_path: str,
             gap_policy: str = 'skip',
             format: Optional[str] = None,
+            return_self: bool = False,
     ):
         """
         A sibling pipeline aggregation which calculates the (mean) average value of
@@ -172,8 +178,13 @@ class AggregationInterface(AggregationInterfaceBase):
         :param format: Optional[str]
             Format to apply to the output value of this aggregation
 
+        :param return_self: bool
+            If True, this call returns the created pipeline, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.pipeline(
@@ -182,7 +193,7 @@ class AggregationInterface(AggregationInterfaceBase):
             gap_policy=gap_policy,
             format=format,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_boxplot(
             self,
@@ -190,6 +201,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field: str,
             compression: int = 100,
             missing: Optional[Any] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-boxplot-aggregation.html
@@ -203,8 +215,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param missing: Optional[Any]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -213,7 +230,7 @@ class AggregationInterface(AggregationInterfaceBase):
             compression=compression,
             missing=missing,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_cardinality(
             self,
@@ -222,6 +239,7 @@ class AggregationInterface(AggregationInterfaceBase):
             precision_threshold: int = 3000,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-cardinality-aggregation.html
@@ -237,8 +255,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -248,7 +271,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def agg_date_histogram(
             self,
@@ -350,8 +373,7 @@ class AggregationInterface(AggregationInterfaceBase):
             Generating the terms using a script
 
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
-            is returned.
+            A new instance is created and returned
         """
         agg = self.agg(
             *(aggregation_name + ("date_histogram", )),
@@ -375,6 +397,7 @@ class AggregationInterface(AggregationInterfaceBase):
             gap_policy: str = 'skip',
             format: Optional[str] = None,
             units: Optional[str] = None,
+            return_self: bool = False,
     ):
         """
         A parent pipeline aggregation which calculates the derivative of a specified
@@ -406,8 +429,13 @@ class AggregationInterface(AggregationInterfaceBase):
             normalized_value which reports the derivative value in the desired
             x-axis units.
 
+        :param return_self: bool
+            If True, this call returns the created pipeline, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.pipeline(
@@ -417,7 +445,7 @@ class AggregationInterface(AggregationInterfaceBase):
             format=format,
             units=units,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_extended_stats(
             self,
@@ -426,6 +454,7 @@ class AggregationInterface(AggregationInterfaceBase):
             sigma: float = 3.0,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-extendedstats-aggregation.html
@@ -441,8 +470,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -452,7 +486,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def agg_filter(
             self,
@@ -472,8 +506,7 @@ class AggregationInterface(AggregationInterfaceBase):
         :param filter: 'QueryInterface'
 
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
-            is returned.
+            A new instance is created and returned
         """
         agg = self.agg(
             *(aggregation_name + ("filter", )),
@@ -499,8 +532,7 @@ class AggregationInterface(AggregationInterfaceBase):
         :param filters: Mapping[str, 'QueryInterface']
 
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
-            is returned.
+            A new instance is created and returned
         """
         agg = self.agg(
             *(aggregation_name + ("filters", )),
@@ -513,6 +545,7 @@ class AggregationInterface(AggregationInterfaceBase):
             *aggregation_name: Optional[str],
             field: str,
             wrap_longitude: bool = True,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-geobounds-aggregation.html
@@ -524,8 +557,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param wrap_longitude: bool
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -533,12 +571,13 @@ class AggregationInterface(AggregationInterfaceBase):
             field=field,
             wrap_longitude=wrap_longitude,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_geo_centroid(
             self,
             *aggregation_name: Optional[str],
             field: str,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-geocentroid-aggregation.html
@@ -548,15 +587,20 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param field: str
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
             *(aggregation_name + ("geo_centroid", )),
             field=field,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_matrix_stats(
             self,
@@ -564,6 +608,7 @@ class AggregationInterface(AggregationInterfaceBase):
             fields: list,
             mode: str = 'avg',
             missing: Optional[Any] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-matrix-stats-aggregation.html
@@ -577,8 +622,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param missing: Optional[Any]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -587,7 +637,7 @@ class AggregationInterface(AggregationInterfaceBase):
             mode=mode,
             missing=missing,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_max(
             self,
@@ -595,6 +645,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field: str,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-max-aggregation.html
@@ -608,8 +659,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -618,7 +674,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_median_absolute_deviation(
             self,
@@ -627,6 +683,7 @@ class AggregationInterface(AggregationInterfaceBase):
             compression: int = 1000,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-median-absolute-deviation-aggregation.html
@@ -642,8 +699,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -653,7 +715,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_min(
             self,
@@ -661,6 +723,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field: str,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-min-aggregation.html
@@ -674,8 +737,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -684,7 +752,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_percentile_ranks(
             self,
@@ -695,6 +763,7 @@ class AggregationInterface(AggregationInterfaceBase):
             hdr__number_of_significant_value_digits: Optional[int] = None,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-rank-aggregation.html
@@ -714,8 +783,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -727,7 +801,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_percentiles(
             self,
@@ -739,6 +813,7 @@ class AggregationInterface(AggregationInterfaceBase):
             hdr__number_of_significant_value_digits: Optional[int] = None,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-aggregation.html
@@ -760,8 +835,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -774,7 +854,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_rate(
             self,
@@ -782,6 +862,7 @@ class AggregationInterface(AggregationInterfaceBase):
             unit: str,
             field: Optional[str] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-rate-aggregation.html
@@ -795,8 +876,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -805,7 +891,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field=field,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_scripted_metric(
             self,
@@ -815,6 +901,7 @@ class AggregationInterface(AggregationInterfaceBase):
             reduce_script: str,
             init_script: Optional[str] = None,
             params: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-scripted-metric-aggregation.html
@@ -832,8 +919,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param params: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -844,13 +936,14 @@ class AggregationInterface(AggregationInterfaceBase):
             init_script=init_script,
             params=params,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_stats(
             self,
             *aggregation_name: Optional[str],
             field: str,
             missing: Optional[Any] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-stats-aggregation.html
@@ -862,8 +955,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param missing: Optional[Any]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -871,7 +969,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field=field,
             missing=missing,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_string_stats(
             self,
@@ -879,6 +977,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field: str,
             show_distribution: bool = False,
             missing: Optional[Any] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-string-stats-aggregation.html
@@ -892,8 +991,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param missing: Optional[Any]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -902,7 +1006,7 @@ class AggregationInterface(AggregationInterfaceBase):
             show_distribution=show_distribution,
             missing=missing,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_sum(
             self,
@@ -910,6 +1014,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field: str,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-sum-aggregation.html
@@ -923,8 +1028,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -933,7 +1043,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_t_test(
             self,
@@ -944,6 +1054,7 @@ class AggregationInterface(AggregationInterfaceBase):
             a__filter: Optional[dict] = None,
             b__filter: Optional[dict] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-ttest-aggregation.html
@@ -963,8 +1074,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -976,7 +1092,7 @@ class AggregationInterface(AggregationInterfaceBase):
             b__filter=b__filter,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def agg_terms(
             self,
@@ -1112,8 +1228,7 @@ class AggregationInterface(AggregationInterfaceBase):
             Generating the terms using a script
 
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
-            is returned.
+            A new instance is created and returned
         """
         agg = self.agg(
             *(aggregation_name + ("terms", )),
@@ -1135,6 +1250,7 @@ class AggregationInterface(AggregationInterfaceBase):
             size: int,
             sort: Optional[dict] = None,
             _source: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-top-hits-aggregation.html
@@ -1148,8 +1264,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param _source: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -1158,13 +1279,14 @@ class AggregationInterface(AggregationInterfaceBase):
             sort=sort,
             _source=_source,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_top_metrics(
             self,
             *aggregation_name: Optional[str],
             metrics: dict,
             sort: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-top-metrics.html
@@ -1176,8 +1298,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param sort: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -1185,13 +1312,14 @@ class AggregationInterface(AggregationInterfaceBase):
             metrics=metrics,
             sort=sort,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_value_count(
             self,
             *aggregation_name: Optional[str],
             field: str,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-valuecount-aggregation.html
@@ -1203,8 +1331,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -1212,7 +1345,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field=field,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_weighted_avg(
             self,
@@ -1224,6 +1357,7 @@ class AggregationInterface(AggregationInterfaceBase):
             format: Optional[str] = None,
             value_type: Optional[str] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-weight-avg-aggregation.html
@@ -1245,8 +1379,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -1259,4 +1398,4 @@ class AggregationInterface(AggregationInterfaceBase):
             value_type=value_type,
             script=script,
         )
-        return agg
+        return agg if return_self else self
