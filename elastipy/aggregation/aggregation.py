@@ -220,13 +220,14 @@ class Aggregation(AggregationInterface):
     def dump_dict(self, key_separator="|", default=None, indent=2, file=None):
         print(json.dumps(self.to_dict(key_separator=key_separator, default=default), indent=indent), file=file)
 
-    def dump_table(self, header: bool = True, file: TextIO = None):
+    def dump_table(self, header: bool = True, digits: Optional[int] = None, file: TextIO = None):
         """
         Print the result of the dict_rows() function as table to console.
         :param header: bool, if True, include the names in the first row
+        :param digits: int, optional number of digits for rounding
         :param file: optional text stream to print to
         """
-        self.visitor.dump_table(header=header, file=file)
+        self.visitor.dump_table(header=header, digits=digits, file=file)
 
     def key_name(self) -> str:
         """

@@ -1,20 +1,34 @@
-from typing import Sequence, Iterable, Mapping
+from typing import Sequence, Iterable, Mapping, TextIO
 
 
-def print_dict_rows(dict_rows, header=True, file=None):
-    print_rows(dict_rows_to_list_rows(dict_rows, header=header), file=file)
+def print_dict_rows(dict_rows, header=True, digits=None, file=None):
+    print_rows(dict_rows_to_list_rows(dict_rows, header=header), digits=digits, file=file)
 
 
-def print_rows(rows: Iterable[Sequence], file=None):
+def print_rows(rows: Iterable[Sequence], digits: int = None, file: TextIO = None):
+    """
+    Print a somewhat formatted table from rows of lists
+    :param rows: list[list]
+    :param digits: int, optional number of digits for rounding
+    :param file: optional io stream to write to
+    """
     if not isinstance(rows, Sequence):
         rows = list(rows)
 
     if not rows:
         return
 
+    def _to_str(v):
+        if digits is not None:
+            try:
+                v = round(v, digits)
+            except (TypeError, ValueError):
+                pass
+        return str(v)
+
     column_width = [0] * len(rows[0])
     for i, row in enumerate(rows):
-        rows[i] = [str(v) for v in row]
+        rows[i] = [_to_str(v) for v in row]
         for x, v in enumerate(rows[i]):
             column_width[x] = max(column_width[x], len(v))
 

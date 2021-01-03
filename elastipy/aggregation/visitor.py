@@ -21,13 +21,14 @@ class AggregationVisitor:
     def children(self, depth_first: bool = True):
         yield from self._child_aggregations(self.agg, depth_first=depth_first)
 
-    def dump_table(self, header: bool = True, file: TextIO = None):
+    def dump_table(self, header: bool = True, digits: Optional[int] = None, file: TextIO = None):
         """
         Print the result of the dict_rows() function as table to console.
         :param header: bool, if True, include the names in the first row
+        :param digits: int, optional number of digits for rounding
         :param file: optional text stream to print to
         """
-        print_dict_rows(self.dict_rows(), header=header, file=file)
+        print_dict_rows(self.dict_rows(), header=header, digits=digits, file=file)
 
     def _child_aggregations(self, agg: Aggregation, filter=None, depth_first: bool = True):
         if depth_first:
