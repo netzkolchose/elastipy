@@ -41,18 +41,26 @@ def print_rows(rows: Iterable[Sequence], digits: int = None, file: TextIO = None
         print(format_str.format(*row), file=file)
 
 
-def dict_rows_to_list_rows(dict_rows: Iterable[Mapping], header: bool = False) -> Iterable[Sequence]:
+def dict_rows_to_list_rows(dict_rows: Iterable[Mapping], default=None, header: bool = False) -> Iterable[Sequence]:
     if not isinstance(dict_rows, Sequence):
         dict_rows = list(dict_rows)
 
     rows = []
 
-    if header and dict_rows:
-        rows.append(list(dict_rows[0].keys()))
-
     if not dict_rows:
         return rows
-    header_keys = list(dict_rows[0].keys())
+
+    # gather all keys but keep order
+    column_keys = list(dict_rows[0].keys())
     for row in dict_rows:
-        rows.append([row[key] for key in header_keys])
+        for key in row:
+            if key not in column_keys:
+                column_keys.append(key)
+
+    if header:
+        rows.append(column_keys)
+
+    for row in dict_rows:
+        rows.append([row.get(key, default) for key in column_keys])
+
     return rows
