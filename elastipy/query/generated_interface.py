@@ -297,7 +297,7 @@ class QueryInterface(QueryInterfaceBase):
     def term(
             self,
             field: str,
-            value: str,
+            value: Union[str, int, float, bool, datetime],
             boost: Optional[float] = None,
             case_insensitive: Optional[bool] = None,
     ) -> 'QueryInterface':
@@ -312,7 +312,7 @@ class QueryInterface(QueryInterfaceBase):
         :param field: str
             Field you wish to search.
 
-        :param value: str
+        :param value: Union[str, int, float, bool, datetime]
             Term you wish to find in the provided <field>. To return a document, the
             term must exactly match the field value, including whitespace and
             capitalization.
@@ -347,7 +347,7 @@ class QueryInterface(QueryInterfaceBase):
     def terms(
             self,
             field: str,
-            value: Sequence[str],
+            value: Sequence[Union[str, int, float, bool, datetime]],
             boost: Optional[float] = None,
     ) -> 'QueryInterface':
         """
@@ -361,7 +361,7 @@ class QueryInterface(QueryInterfaceBase):
         :param field: str
             Field you wish to search.
 
-        :param value: Sequence[str]
+        :param value: Sequence[Union[str, int, float, bool, datetime]]
             The value of this parameter is an array of terms you wish to find in the
             provided field. To return a document, one or more terms must exactly
             match a field value, including whitespace and capitalization.
