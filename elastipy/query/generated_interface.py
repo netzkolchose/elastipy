@@ -100,11 +100,11 @@ class QueryInterface(QueryInterfaceBase):
             example.
 
         :param max_expansions: int
-            Maximum number of terms to which the query will expand. Defaults to 50. 
+            Maximum number of terms to which the query will expand. Defaults to 50.
 
         :param prefix_length: int
             Number of beginning characters left unchanged for fuzzy matching.
-            Defaults to 0. 
+            Defaults to 0.
 
         :param fuzzy_transpositions: bool
             If true, edits for fuzzy matching include transpositions of two adjacent
@@ -120,7 +120,7 @@ class QueryInterface(QueryInterfaceBase):
 
         :param lenient: bool
             If true, format-based errors, such as providing a text query value for a
-            numeric field, are ignored. Defaults to false. 
+            numeric field, are ignored. Defaults to false.
 
         :param operator: Optional[str]
             Boolean logic used to interpret text in the query value. Valid values
@@ -130,7 +130,7 @@ class QueryInterface(QueryInterfaceBase):
                     as capital OR of OR Hungary. 
                 AND
                     For example, a query value of capital of Hungary is interpreted
-                    as capital AND of AND Hungary. 
+                    as capital AND of AND Hungary.
 
         :param minimum_should_match: Optional[str]
             Minimum number of clauses that must match for a document to be returned.
@@ -143,7 +143,7 @@ class QueryInterface(QueryInterfaceBase):
                 none (Default)
                     No documents are returned if the analyzer removes all tokens.
                 all
-                    Returns all documents, similar to a match_all query. 
+                    Returns all documents, similar to a match_all query.
 
         :returns: 'QueryInterface'
             A new instance is created

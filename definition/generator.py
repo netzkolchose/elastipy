@@ -121,7 +121,7 @@ def render_aggregation_class():
             short_param = {
                 "type": param["type"],
             }
-            for key in ("required", "default"):
+            for key in ("required", "default", "timestamp"):
                 if key in param:
                     short_param[key] = param[key]
             short_agg["parameters"][param_name] = short_param

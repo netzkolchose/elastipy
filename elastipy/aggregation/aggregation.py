@@ -1,6 +1,6 @@
 import json
 import datetime
-from typing import Optional, List, Iterable, Union, Tuple, TextIO, Sequence
+from typing import Optional, List, Iterable, Union, Tuple, TextIO, Sequence, Mapping
 from warnings import warn
 
 from .. import make_json_compatible
@@ -29,14 +29,7 @@ class Aggregation(AggregationInterface):
         self.name = name
         self.type = type
         self.definition = self.AGGREGATION_DEFINITION.get(self.type) or dict()
-        self.params = {
-            key: value
-            for key, value in params.items()
-            if not self.definition.get("parameters") \
-                or key not in self.definition["parameters"] \
-                or self.definition["parameters"][key].get("required") \
-                or self.definition["parameters"][key].get("default") != value
-        }
+        self.params = self._get_parameters(params)
         self._response: Optional[Response] = None
         self.parent: Optional[Aggregation] = None
         self.root: Aggregation = self
@@ -47,7 +40,7 @@ class Aggregation(AggregationInterface):
         return f"{self.__class__.__name__}('{self.name}', '{self.type}')"
 
     @property
-    def visitor(self) -> 'AggregationVisitor':
+    def visitor(self):
         """
         Returns an AggregationVisitor attached to this aggregation
         :return: AggregationVisitor instance
@@ -259,6 +252,26 @@ class Aggregation(AggregationInterface):
             return f"aggregations.{self.name}"
         else:
             return f"{self.parent.body_path()}.aggregations.{self.name}"
+
+    def _get_parameters(self, params: Mapping) -> Mapping:
+        """
+        Convert the constructor parameters to aggregation parameters.
+        It basically just removes the default parameters that are not changed.
+        :return: dict
+        """
+        ret_params = dict()
+        for key, value in params.items():
+            if self.definition.get("parameters") and key in self.definition["parameters"]:
+                param_def = self.definition["parameters"][key]
+                # not required and matches default value
+                if not param_def.get("required") and param_def.get("default") == value:
+                    if param_def.get("timestamp"):
+                        value = self.search.timestamp_field
+                    else:
+                        continue
+
+            ret_params[key] = value
+        return ret_params
 
 
 def factory(search, name, type, params) -> Aggregation:

@@ -25,7 +25,7 @@ class Search(QueryInterface, AggregationInterface):
         Create a new Search instance.
         :param index: str, optional index name/pattern, can also be set later via index()
         :param client: elasticsearch.Client instance, if None elastipy.get_elastic_client() is used
-        :param timestamp_field: str, the default timestamp field used for date-ranges and date_histogram
+        :param timestamp_field: str, the default timestamp field used for fields that require dates
         """
         AggregationInterface.__init__(self, timestamp_field=timestamp_field)
         self._index = index
