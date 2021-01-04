@@ -1,3 +1,6 @@
+"""
+Run accidents_export.py first and then have fun with this script
+"""
 from helper import Search, query
 from accidents_export import AccidentExporter
 

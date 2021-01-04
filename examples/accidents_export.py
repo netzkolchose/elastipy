@@ -5,7 +5,7 @@ Data is from https://unfallatlas.statistikportal.de/_opendata2020.html
     "Unfallatlas | Kartenanwendung der Statistischen Ämter des Bundes und der Länder"
 
 You may excuse this geological restriction. I just live there and it's always
-more interesting to look at data involving you everyday life.
+more interesting to look at data involving your everyday life.
 
 """
 
@@ -92,7 +92,7 @@ STREET_CONDITIONS = (
 )
 
 
-# we subclass the Exporter and define all the fields
+# --- subclass the Exporter and define all the fields
 
 class AccidentExporter(Exporter):
     INDEX_NAME = "elastipy-example-car-accidents"
@@ -184,7 +184,9 @@ def load_data():
 def export_data():
     data = load_data()
     exporter = AccidentExporter()
+    # create the index or update it's mapping
     exporter.update_index()
+    # export everything
     exporter.export_list(data)
 
 
