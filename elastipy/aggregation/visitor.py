@@ -157,6 +157,8 @@ class Visitor:
             return value
 
     def _concat_key(self, key: Union[Any, Sequence], key_separator: Optional[str] = None):
+        if isinstance(key, str):
+            return key
         if isinstance(key, Sequence):
             if key_separator:
                 return key_separator.join(str(i) for i in key)
