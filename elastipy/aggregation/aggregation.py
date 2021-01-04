@@ -262,9 +262,9 @@ class Aggregation(AggregationInterface):
                     else:
                         continue
 
-            if "__" in key:
+            if "__" in key or "." in key:
                 # TODO: this will break for sub-sub-keys but it's anyway not a good approach..
-                root_key, sub_key = key.split("__")
+                root_key, sub_key = key.split("__") if "__" in key else key.split(".")
                 if root_key not in ret_params:
                     ret_params[root_key] = dict()
                 ret_params[root_key][sub_key] = value

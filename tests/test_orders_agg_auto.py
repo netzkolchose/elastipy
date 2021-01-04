@@ -1,9 +1,13 @@
+"""
+This tries out all defined aggregations
+and runs the .to_dict() and .dict_rows() methods to see if the visitor can walk the tree
+"""
+import re
 import datetime
 import json
 import time
 import unittest
-
-import elasticsearch
+import warnings
 
 from elastipy import get_elastic_client, Search, query
 from definition.data import AGGREGATION_DEFINITION
@@ -32,6 +36,40 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
             if definition["group"] == group:
                 yield agg_type, definition
 
+    def iter_searches(self, search):
+        # all metrics at top-level
+        for agg_type, definition in self.iter_aggs("metric"):
+            s = search.copy()
+            self.create_agg(s, agg_type)
+            yield s
+
+        # all buckets at top-level
+        for agg_type, definition in self.iter_aggs("bucket"):
+            s = search.copy()
+            self.create_agg(s, agg_type)
+            yield s
+
+        # buckets with metrics on top
+        for agg_type, definition in self.iter_aggs("bucket"):
+            for agg_type2, definition2 in self.iter_aggs("metric"):
+                s = search.copy()
+                agg = self.create_agg(s, agg_type)
+                if not agg:
+                    continue
+                self.create_agg(agg, agg_type2)
+                yield s
+
+        # nested buckets with metrics on top
+        for agg_type1, _ in self.iter_aggs("bucket"):
+            for agg_type2, _ in self.iter_aggs("bucket"):
+                for agg_type3, _ in self.iter_aggs("metric"):
+                    s = agg = search.copy()
+                    for agg_type in (agg_type1, agg_type2, agg_type3):
+                        agg = self.create_agg(agg, agg_type)
+                        if not agg:
+                            continue
+                    yield s
+
     def create_agg(self, parent, agg_type):
         definition = AGGREGATION_DEFINITION[agg_type]
 
@@ -44,10 +82,47 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
         if agg_type == "filters":
             params["filters"] = {"a": query.Term(field="sku", value="sku-1"), "b": query.Term(field="sku", value="sku-2")}
 
+        if agg_type == "matrix_stats":
+            params["fields"] = ["quantity", "item_line_index"]
+        if agg_type == "percentile_ranks":
+            params["values"] = [1, 50, 99]
+        if agg_type == "rate":
+            params["unit"] = "d"
+        if agg_type == "scripted_metric":
+            params.update({
+                "init_script": "state.something = 0",
+                "map_script": "state.something += 1",
+                "combine_script": "return state.something",
+                "reduce_script": "double something = 0; for (s in states) { something += s} return something",
+            })
+        if agg_type == "string_stats":
+            params["field"] = "sku"
+        if agg_type == "t_test":
+            params.update({
+                "a.field": "quantity",
+                "b.field": "item_line_index",
+                "type": "paired",
+            })
+        if agg_type == "top_metrics":
+            params["metrics"] = {"field": "quantity"}
+        if agg_type == "weighted_avg":
+            params.update({
+                "value.field": "quantity",
+                "weight.field": "item_line_index",
+            })
+
         for name, param in definition["parameters"].items():
             if param.get("required") and name not in params:
                 if name == "field":
-                    value = "sku"
+                    if "geo_" in agg_type:
+                        warnings.warn(f"{agg_type} tests currently not supported")
+                        return
+                    elif definition["group"] == "metric":
+                        value = "quantity"
+                    else:
+                        value = "sku"
+                elif name == "size":
+                    value = 10
                 else:
                     raise NotImplementedError(f"No value for {agg_type}.{name}")
 
@@ -56,20 +131,44 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
         return parent.aggregation(agg_type, **params)
 
     def test_all(self):
-        for agg_type, definition in self.iter_aggs("bucket"):
-            search = self.search()
+        for search in self.iter_searches(self.search()):
+            if not search._aggregations:
+                continue
 
-            agg = self.create_agg(search, agg_type)
-
+            # TODO: actually we need some interface for that
+            agg = search._aggregations[-1]
+            #print(search._aggregations)
             try:
                 search.execute()
 
                 list(agg.items())
-                list(agg.dict_rows())
+                if not agg.is_metric() or agg.parent:
+                    list(agg.dict_rows())
 
             except BaseException as e:
+                match = re.match(r".*unable to parse BaseAggregationBuilder with name \[(.*)\].*", str(e))
+                if match:
+                    warnings.warn(f"aggregation '{match.groups()[0]}' not supported by elasticsearch backend")
+                    continue
+
+                agg_types = list(map(lambda a: a.type, search._aggregations))
+                if "scripted_metric" in agg_types:
+                    if (
+                            "date_histogram" in agg_types or "auto_date_histogram" in agg_types
+                    ) or (
+                            "filter" in agg_types or "filters" in agg_types
+                    ):
+                        warnings.warn(f"TODO: scripted_metric execution fails on top of date_histograms "
+                                      f"and most filter/filters combinations")
+                        continue
+
+
+                print("-"*10)
+                if search._response:
+                    search.dump_response()
+                print("-"*10)
                 search.dump_body()
-                print("AGG TYPE", agg_type)
+                print("AGGREGATIONS", search._aggregations)
                 raise
                 #raise AssertionError(
                 #    f"{type(e).__name__}: {e} / aggregation type {agg_type}"

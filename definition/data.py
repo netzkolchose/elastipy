@@ -12,7 +12,10 @@ def import_yamls(main_dir: str):
                 yaml_data["group"] = group_path.name
                 data.update({yaml_file.name[:-5]: yaml_data})
 
-    return data
+    return {
+        key: data[key]
+        for key in sorted(data)
+    }
 
 
 QUERY_DEFINITION = import_yamls("query")

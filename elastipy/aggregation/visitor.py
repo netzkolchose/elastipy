@@ -122,7 +122,7 @@ class Visitor:
                     return_keys = [return_keys]
 
                 if len(return_keys) == 1:
-                    values = {metric.name: bucket[metric.name][return_keys[0]]}
+                    values = {metric.name: bucket[metric.name].get(return_keys[0])}
                 else:
                     values = dict()
                     for key in return_keys:
@@ -200,8 +200,12 @@ class Visitor:
             if aggs[0].is_metric():
                 yield keys
             else:
-                for b in sub_bucket["buckets"]:
-                    yield keys + (b[key_name], )
+                for b_key, b in self._iter_bucket_items(aggs[0], sub_bucket):
+                    if key_name in b:
+                        next_key = b[key_name]
+                    else:
+                        next_key = b_key
+                    yield keys + (next_key, )
         else:
             for b_key, b in self._iter_bucket_items(aggs[0], sub_bucket):
                 if key_name in b:
@@ -235,9 +239,16 @@ class Visitor:
                 if key in bucket:
                     value = bucket[key]
                     values[key] = _make_default(value)
-            if not values:
-                raise ValueError(f"{self} should have returned fields {return_keys}, got {bucket}")
-            yield values if len(values) > 1 else values.popitem()[1]
+
+            # TODO: it might be empty for some aggregations..
+            #if not values:
+            #    raise ValueError(f"{self} should have returned fields {return_keys}, got {bucket}")
+            if len(values) > 1:
+                yield values
+            elif len(values) == 1:
+                yield values.popitem()[1]
+            else:
+                yield _make_default(None)
         else:
             if "buckets" in bucket:
                 for b_key, b in self._iter_bucket_items(agg, bucket):
