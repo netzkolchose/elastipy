@@ -1,0 +1,92 @@
+from helper import Search, query
+from accidents_export import AccidentExporter
+
+
+# search in this elasticsearch index
+def search():
+    return Search(index=AccidentExporter().index_name())
+
+
+def accidents_by_state():
+    # get a search instance
+    s = search()
+    # add an aggregation
+    agg = s.agg_terms("state", field="state", size=16)
+    # call the REST api
+    s.execute()
+
+    # print all received data points
+    print("\n### Accidents by state")
+    agg.print.table()
+
+
+# a function to add some metrics to an aggregation
+def add_vehicle_metrics(agg):
+    # Since the boolean flags for the vehicle type are integer values
+    #   we can just count the average and get the ratio between 0 and 1.
+    # The agg.print.table() as well as the agg.dict_rows() methods
+    #   return all values including contained metrics
+    agg.metric_avg("with trucks", field="truck")
+    agg.metric_avg("with cars", field="car")
+    agg.metric_avg("with motorcycles", field="motorcycle")
+    agg.metric_avg("with bicycles", field="bicycle")
+    agg.metric_avg("with pedestrians", field="foot")
+    agg.metric_avg("with other", field="other")
+
+
+def accidents_by_state_more_precise():
+    s = search()
+
+    # query each category separately
+    for category in (None, "lightly", "seriously", "deadly"):
+        if category:
+            s2 = s.term(field="category", value=category)
+        else:
+            # make a copy to not mess up the original Search instance
+            s2 = s.copy()
+
+        agg = s2.agg_terms("state", field="state", size=16)
+        add_vehicle_metrics(agg)
+
+        s2.execute()
+
+        print("\n### Accidents by state (category: %s)" % ("all" if not category else category))
+        agg.print.table(digits=3)
+
+
+def accidents_by_weekday():
+    s = search()
+
+    # one still has to know the syntax of the order parameter
+    #   maybe i'll wrap it up in a class as well..
+    agg = s.agg_terms("weekday", field="weekday", order={"_key": "asc"})
+    add_vehicle_metrics(agg)
+
+    s.execute()
+
+    print("\n### Accidents by weekday")
+    agg.print.table(digits=3)
+
+
+def accidents_by_condition():
+    s = search()
+    # nested aggregations can be joined
+    agg = s \
+        .agg_terms("light", field="light") \
+        .agg_terms("street", field="street_condition")
+
+    s.execute()
+
+    print("\n### Accidents by condition")
+    agg.print.table()
+
+    # the to_dict method returns the values of the chosen aggregation
+    #   but all keys that lead to it
+    data = agg.to_dict()
+    print("number of accidents on slick roads in the dark", data[("darkness", "slick")])
+
+
+#accidents_by_state()
+accidents_by_state_more_precise()
+accidents_by_weekday()
+accidents_by_condition()
