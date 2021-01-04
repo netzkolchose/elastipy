@@ -51,6 +51,8 @@ There is some housekeeping and glue code for the basics. The methods for queries
 well as the query classes are auto-generated from [yaml files](definition). They include all parameters,
 default values and documentation.
 
+Have a look at the [examples](examples).
+
 
 #### The big steps to success
 
