@@ -89,7 +89,26 @@ def accidents_by_condition():
     print("number of accidents on slick roads in the dark", data[("darkness", "slick")])
 
 
+def accidents_by_vehicle_combination():
+    s = search()
+    agg = s \
+        .agg_adjacency_matrix(filters={
+            "truck": query.Term(field="truck", value=1),
+            "car": query.Term(field="car", value=1),
+            "motorcycle": query.Term(field="motorcycle", value=1),
+            "bicycle": query.Term(field="bicycle", value=1),
+            "pedestrian": query.Term(field="pedestrian", value=1),
+            "other": query.Term(field="other", value=1),
+        })
+
+    s.execute()
+
+    print("\n### Accidents by vehicle combination")
+    agg.print.table()
+
+
 #accidents_by_state()
 accidents_by_state_more_precise()
 accidents_by_weekday()
 accidents_by_condition()
+accidents_by_vehicle_combination()
