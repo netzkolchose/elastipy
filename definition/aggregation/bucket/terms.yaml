@@ -51,4 +51,3 @@ parameters:
         type: dict
         doc: |
             Generating the terms using a script
-returns: ['value']
