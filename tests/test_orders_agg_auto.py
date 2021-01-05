@@ -71,7 +71,7 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
 
         # nested buckets with metrics on top
         for agg_type1, _ in self.iter_aggs("bucket"):
-            for agg_type2, _ in self.iter_aggs("bucket"):
+            for agg_type2, _ in self.iter_aggs("bucket", exclude=("global", )):
                 for agg_type3, _ in self.iter_aggs("metric"):
                     s = agg = search.copy()
                     if agg:
@@ -91,19 +91,19 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
             warnings.warn(f"{agg_type} tests currently not supported")
             return
 
+        if agg_type == "histogram":
+            params["field"] = "quantity"
+            params["interval"] = 1
         if agg_type == "date_histogram":
             params["calendar_interval"] = "1d"
         if agg_type == "geo_distance":
             params.update({
-                "field": "location",
                 "origin": {"lat": 52, "lon": 12},
                 "ranges": [
                     {"to": 10000},
                     {"from": 10000},
                 ]
             })
-        if agg_type == "geohash_grid":
-            params["field"] = "location"
         if agg_type == "filter":
             params["filter"] = query.Term(field="sku", value="sku-1")
         if agg_type in ("filters", "adjacency_matrix"):
@@ -160,7 +160,9 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
         for name, param in definition["parameters"].items():
             if param.get("required") and name not in params:
                 if name == "field":
-                    if definition["group"] == "metric":
+                    if agg_type.startswith("geo"):
+                        value = "location"
+                    elif definition["group"] == "metric":
                         value = "quantity"
                     else:
                         value = "sku"
@@ -209,11 +211,10 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
                     for agg_type in agg_types:
                         if agg_type in (
                                 "date_histogram", "auto_date_histogram", "date_range", "filter", "filters",
-                                "geo_distance"
+                                "geo_distance", "histogram"
                         ):
-                            # probably needs a min_doc_count=0
                             warnings.warn(
-                                f"TODO: scripted_metric execution fails on top of date and filter aggregations"
+                                f"TODO: scripted_metric execution fails on top of empty buckets"
                             )
                             do_raise = False
                             break

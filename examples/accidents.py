@@ -71,6 +71,18 @@ def accidents_by_weekday():
     agg.print.table(digits=3)
 
 
+def accidents_by_hour():
+    s = search()
+
+    agg = s.agg_histogram("hour", field="hour", interval=1, order={"_key": "asc"})
+    add_vehicle_metrics(agg)
+
+    s.execute()
+
+    print("\n### Accidents by hour\n")
+    agg.print.table(digits=3)
+
+
 def accidents_by_condition():
     s = search()
     # nested aggregations can be joined
@@ -145,8 +157,10 @@ def accidents_geotile_grid():
 #accidents_by_state()
 accidents_by_state_more_precise()
 accidents_by_weekday()
+accidents_by_hour()
 accidents_by_condition()
 accidents_by_vehicle_combination()
 accidents_geo_centroid_per_state()
 accidents_geo_bounds_per_state()
 accidents_geotile_grid()
+
