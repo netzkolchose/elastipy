@@ -102,6 +102,8 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
                     {"from": 10000},
                 ]
             })
+        if agg_type == "geohash_grid":
+            params["field"] = "location"
         if agg_type == "filter":
             params["filter"] = query.Term(field="sku", value="sku-1")
         if agg_type in ("filters", "adjacency_matrix"):
