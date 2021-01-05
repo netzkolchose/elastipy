@@ -118,13 +118,11 @@ def render_aggregation_class():
             if key in agg:
                 short_agg[key] = agg[key]
         for param_name, param in agg["parameters"].items():
-            short_param = {
-                "type": param["type"],
+            short_agg["parameters"][param_name] = {
+                key: value
+                for key, value in param.items()
+                if key != "doc"
             }
-            for key in ("required", "default", "timestamp"):
-                if key in param:
-                    short_param[key] = param[key]
-            short_agg["parameters"][param_name] = short_param
         short_definition[agg_name] = short_agg
 
     code += f"{INDENT}AGGREGATION_DEFINITION = {repr(short_definition)}\n\n"

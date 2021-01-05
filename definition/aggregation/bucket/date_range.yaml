@@ -1,15 +1,25 @@
-# TODO: a single range could be simplified with a function wrapper like: date_range(field, from, to)
 url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html
 doc: |
     A range aggregation that is dedicated for date values. The main difference between this aggregation and the normal [range](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html) aggregation is that the from and to values can be expressed in [Date Math](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math) expressions, and it is also possible to specify a date format by which the from and to response fields will be returned. Note that this aggregation includes the from value and excludes the to value for each range.
 parameters:
     ranges:
-        type: Sequence[Mapping]
+        type: Sequence[Union[Mapping[str, str], str]]
         required: True
+        ranges: True
         doc: |
-            List of ranges
+            List of ranges to define the buckets
 
-            TODO: more proper description
+            Example:
+                [
+                    {"to": "1970-01-01"},
+                    {"from": "1970-01-01", "to": "1980-01-01"},
+                    {"from": "1980-01-01"},
+                ]
+
+            Instead of date values any [Date Math](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math) expression can be used as well.
+
+            Alternatively this parameter can be a list of strings. The above example can be rewritten as:
+                ["1970-01-01", "1980-01-01"]
 
             Note: This aggregation includes the from value and excludes the to value for each range.
     field:

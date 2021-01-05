@@ -266,6 +266,40 @@ class TestOrdersAggregations(unittest.TestCase):
         list(agg.dict_rows())
         list(agg.items())
 
+    def test_orders_date_range(self):
+        q = self.search()
+        agg = q.agg_date_range(ranges=[{"to": "2000-01-02"}, {"from": "2000-01-02", "to": "2000-01-03"}, {"from": "2000-01-03"}])
+        # alternative form
+        agg2 = q.agg_date_range(ranges=["2000-01-02", "2000-01-03"])
+        q.execute()
+        for a in (agg, agg2):
+            self.assertEqual(
+                [2, 1, 4],
+                list(a.values()),
+            )
+
+    def test_orders_geo_distance(self):
+        q = self.search()
+        agg = q.agg_geo_distance(
+            field="location",
+            origin={"lat": 50.9, "lon": 11.5},
+            unit="km",
+            ranges=[{"to": 100}, {"from": 100, "to": 500}, {"from": 500}]
+        )
+        # alternative form
+        agg2 = q.agg_geo_distance(
+            field="location",
+            origin={"lat": 50.9, "lon": 11.5},
+            unit="km",
+            ranges=[100, 500]
+        )
+        q.execute()
+        for a in (agg, agg2):
+            self.assertEqual(
+                [2, 2, 3],
+                list(a.values()),
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -91,7 +91,13 @@ class Aggregation(AggregationInterface):
         Returns the part of the elasticsearch request body
         :return: dict
         """
-        return make_json_compatible(self.params)
+        params = make_json_compatible(self.params)
+        if self.definition.get("parameters"):
+            for key, defi in self.definition["parameters"].items():
+                # convert 'ranges' lists to dict
+                if defi.get("ranges") and params.get("ranges"):
+                    params["ranges"] = _convert_ranges_param(self, params["ranges"])
+        return params
 
     def aggregation(self, *aggregation_name_type, **params) -> 'Aggregation':
         """
@@ -293,3 +299,25 @@ def factory(search, name, type, params) -> Aggregation:
             raise TypeError(f"{e} in class {klass.__name__}")
 
     return Aggregation(search, name, type, params)
+
+
+def _convert_ranges_param(agg, ranges):
+    if not isinstance(ranges, Sequence):
+        raise TypeError(f"{agg} 'ranges' parameter must be list or dict")
+
+    ret = []
+    prev_value = None
+    for i, r in enumerate(ranges):
+        if isinstance(r, Mapping):
+            ret.append(r)
+            if "to" in r:
+                prev_value = r
+        else:
+            if prev_value is None:
+                ret.append({"to": r})
+            else:
+                ret.append({"from": prev_value, "to": r})
+                if i == len(ranges) - 1:
+                    ret.append({"from": r})
+            prev_value = r
+    return ret

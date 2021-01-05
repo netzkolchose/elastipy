@@ -8,8 +8,9 @@ parameters:
         doc: |
             The specified field must be of type geo_point (which can only be set explicitly in the mappings). And it can also hold an array of geo_point fields, in which case all will be taken into account during aggregation.
     ranges:
-        type: Sequence[Mapping[str, float]]
+        type: Sequence[Union[Mapping[str, float], float]]
         required: True
+        ranges: True
         doc: |
             A list of ranges that define the separate buckets, e.g:
                 [
@@ -17,6 +18,9 @@ parameters:
                     { "from": 100000, "to": 300000 },
                     { "from": 300000 }
                 ]
+
+            Alternatively this parameter can be a list of numbers. The above example can be rewritten as:
+                [100000, 300000]
     origin:
         type: Union[str, Mapping[str, float], Sequence[float]]
         required: True
