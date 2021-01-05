@@ -16,7 +16,10 @@ from . import data
 
 
 class TestOrdersAggregationsAuto(unittest.TestCase):
-
+    """
+    Auto-generates all combinations of aggregations (which are defined in the yaml files)
+    and tests the Aggregation.to_dict() and dict_rows() methods
+    """
     @classmethod
     def setUpClass(cls):
         cls.maxDiff = int(1e5)
@@ -37,6 +40,12 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
                 yield agg_type, definition
 
     def iter_searches(self, search):
+        """
+        generate all Search instances we want to test
+
+        :param search:
+        :return:
+        """
         # all metrics at top-level
         for agg_type, definition in self.iter_aggs("metric"):
             s = search.copy()
@@ -64,23 +73,40 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
             for agg_type2, _ in self.iter_aggs("bucket"):
                 for agg_type3, _ in self.iter_aggs("metric"):
                     s = agg = search.copy()
-                    for agg_type in (agg_type1, agg_type2, agg_type3):
-                        agg = self.create_agg(agg, agg_type)
-                        if not agg:
-                            continue
-                    yield s
+                    if agg:
+                        for agg_type in (agg_type1, agg_type2, agg_type3):
+                            if agg:
+                                agg = self.create_agg(agg, agg_type)
+                        yield s
 
     def create_agg(self, parent, agg_type):
         definition = AGGREGATION_DEFINITION[agg_type]
 
         params = dict()
 
+        if agg_type in ("geo_bounds", "geo_centroid", "children"):
+            warnings.warn(f"{agg_type} tests currently not supported")
+            return
+
         if agg_type == "date_histogram":
             params["calendar_interval"] = "1d"
         if agg_type == "filter":
             params["filter"] = query.Term(field="sku", value="sku-1")
-        if agg_type == "filters":
+        if agg_type in ("filters", "adjacency_matrix"):
             params["filters"] = {"a": query.Term(field="sku", value="sku-1"), "b": query.Term(field="sku", value="sku-2")}
+        if agg_type == "composite":
+            params["sources"] = [
+                {"sku": {"terms": {"field": "sku"}}},
+                {"country": {"terms": {"field": "country"}}},
+            ]
+            # TODO: currently breaks the visitor because bucket keys are dictionaries
+            warnings.warn(f"{agg_type} tests currently not supported")
+            return
+        if agg_type == "date_range":
+            params["ranges"] = [
+                {"from": "now-1M/M"},
+                {"to": "now/M"},
+            ]
 
         if agg_type == "matrix_stats":
             params["fields"] = ["quantity", "item_line_index"]
@@ -114,10 +140,7 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
         for name, param in definition["parameters"].items():
             if param.get("required") and name not in params:
                 if name == "field":
-                    if "geo_" in agg_type:
-                        warnings.warn(f"{agg_type} tests currently not supported")
-                        return
-                    elif definition["group"] == "metric":
+                    if definition["group"] == "metric":
                         value = "quantity"
                     else:
                         value = "sku"
@@ -151,17 +174,21 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
                     warnings.warn(f"aggregation '{match.groups()[0]}' not supported by elasticsearch backend")
                     continue
 
+                do_raise = True
                 agg_types = list(map(lambda a: a.type, search._aggregations))
                 if "scripted_metric" in agg_types:
-                    if (
-                            "date_histogram" in agg_types or "auto_date_histogram" in agg_types
-                    ) or (
-                            "filter" in agg_types or "filters" in agg_types
-                    ):
-                        warnings.warn(f"TODO: scripted_metric execution fails on top of date_histograms "
-                                      f"and most filter/filters combinations")
-                        continue
-
+                    for agg_type in agg_types:
+                        if agg_type in (
+                                "date_histogram", "auto_date_histogram", "date_range", "filter", "filters"
+                        ):
+                            # probably needs a min_doc_count=0
+                            warnings.warn(
+                                f"TODO: scripted_metric execution fails on top of date and filter aggregations"
+                            )
+                            do_raise = False
+                            break
+                if not do_raise:
+                    continue
 
                 print("-"*10)
                 if search._response:
