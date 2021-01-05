@@ -1,0 +1,30 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-iprange-aggregation.html
+doc: |
+    Just like the dedicated [date range](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html) aggregation, there is also a dedicated range aggregation for IP typed fields:
+parameters:
+    field:
+        type: str
+        required: True
+        doc: |
+            The IPv4 field
+    ranges:
+        type: Sequence[Union[Mapping[str, str], str]]
+        required: True
+        ranges: True
+        doc: |
+            List of ranges to define the buckets, either as straight IPv4 or as CIDR masks.
+
+            Example:
+                [
+                    {"to": "10.0.0.5"},
+                    {"from": "10.0.0.5", "to": "10.0.0.127"},
+                    {"from": "10.0.0.127"},
+                ]
+
+            Alternatively this parameter can be a list of strings. The above example can be rewritten as:
+                ["10.0.0.5", "10.0.0.127"]
+    keyed:
+        type: bool
+        default: False
+        doc: |
+            Setting the keyed flag to true associates a unique string key with each bucket and returns the ranges as a hash rather than an array.
