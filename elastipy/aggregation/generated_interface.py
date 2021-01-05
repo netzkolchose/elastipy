@@ -7,7 +7,7 @@ from .interface import AggregationInterfaceBase
 
 class AggregationInterface(AggregationInterfaceBase):
 
-    AGGREGATION_DEFINITION = {'adjacency_matrix': {'group': 'bucket', 'parameters': {'filters': {'type': "Mapping[str, Union[Mapping, 'QueryInterface']]", 'required': True}, 'separator': {'type': 'str'}}}, 'auto_date_histogram': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'timestamp': True}, 'buckets': {'type': 'int', 'default': 10}, 'minimum_interval': {'type': 'str'}, 'time_zone': {'type': 'str'}, 'format': {'type': 'str'}, 'keyed': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}}, 'avg': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'avg_bucket': {'group': 'pipeline', 'parameters': {'buckets_path': {'type': 'str', 'required': True}, 'gap_policy': {'type': 'str', 'default': 'skip'}, 'format': {'type': 'str'}}, 'returns': ['value']}, 'boxplot': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'compression': {'type': 'int', 'default': 100}, 'missing': {'type': 'Any'}}, 'returns': ['min', 'max', 'q1', 'q2', 'q3']}, 'cardinality': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'precision_threshold': {'type': 'int', 'default': 3000}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'children': {'group': 'bucket', 'parameters': {'type': {'type': 'str', 'required': True}}}, 'composite': {'group': 'bucket', 'parameters': {'sources': {'type': 'Sequence[Mapping]', 'required': True}, 'size': {'type': 'int', 'default': 10}, 'after': {'type': 'Union[str, int, float, datetime]'}}}, 'date_histogram': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'timestamp': True}, 'calendar_interval': {'type': 'str'}, 'fixed_interval': {'type': 'str'}, 'min_doc_count': {'type': 'int', 'default': 1}, 'offset': {'type': 'str'}, 'time_zone': {'type': 'str'}, 'format': {'type': 'str'}, 'keyed': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}}, 'date_range': {'group': 'bucket', 'parameters': {'ranges': {'type': 'Sequence[Union[Mapping[str, str], str]]', 'required': True, 'ranges': True}, 'field': {'type': 'str', 'timestamp': True}, 'format': {'type': 'str'}, 'time_zone': {'type': 'str'}, 'keyed': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}}, 'derivative': {'group': 'pipeline', 'parameters': {'buckets_path': {'type': 'str', 'required': True}, 'gap_policy': {'type': 'str', 'default': 'skip'}, 'format': {'type': 'str'}, 'units': {'type': 'str'}}, 'returns': ['value']}, 'diversified_sampler': {'group': 'bucket', 'parameters': {'field': {'type': 'str'}, 'script': {'type': 'Mapping'}, 'shard_size': {'type': 'int', 'default': 100}, 'max_docs_per_value': {'type': 'int', 'default': 1}}}, 'extended_stats': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'sigma': {'type': 'float', 'default': 3.0}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['count', 'min', 'max', 'avg', 'sum', 'sum_of_squares', 'variance', 'variance_population', 'variance_sampling', 'std_deviation', 'std_deviation_population', 'std_deviation_sampling', 'std_deviation_bounds']}, 'filter': {'group': 'bucket', 'parameters': {'filter': {'type': "Union[Mapping, 'QueryInterface']", 'required': True}}}, 'filters': {'group': 'bucket', 'parameters': {'filters': {'type': "Mapping[str, Union[Mapping, 'QueryInterface']]", 'required': True}}}, 'geo_bounds': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'wrap_longitude': {'type': 'bool', 'default': True}}, 'returns': ['bounds']}, 'geo_centroid': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}}, 'returns': ['location']}, 'geo_distance': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'ranges': {'type': 'Sequence[Union[Mapping[str, float], float]]', 'required': True, 'ranges': True}, 'origin': {'type': 'Union[str, Mapping[str, float], Sequence[float]]', 'required': True}, 'unit': {'type': 'str', 'default': 'm'}, 'distance_type': {'type': 'str', 'default': 'arc'}, 'keyed': {'type': 'bool', 'default': False}}}, 'geohash_grid': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'precision': {'type': 'Union[int, str]', 'default': 5}, 'bounds': {'type': 'Mapping'}, 'size': {'type': 'int', 'default': 10000}, 'shard_size': {'type': 'int'}}}, 'geotile_grid': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'precision': {'type': 'Union[int, str]', 'default': 7}, 'bounds': {'type': 'Mapping'}, 'size': {'type': 'int', 'default': 10000}, 'shard_size': {'type': 'int'}}}, 'global': {'group': 'bucket', 'parameters': {}}, 'histogram': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'interval': {'type': 'int', 'required': True}, 'min_doc_count': {'type': 'int', 'default': 0}, 'offset': {'type': 'int'}, 'extended_bounds': {'type': 'Mapping[str, int]'}, 'hard_bounds': {'type': 'Mapping[str, int]'}, 'format': {'type': 'str'}, 'order': {'type': 'Mapping[str, Any]'}, 'keyed': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}}}, 'ip_range': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'ranges': {'type': 'Sequence[Union[Mapping[str, str], str]]', 'required': True, 'ranges': True}, 'keyed': {'type': 'bool', 'default': False}}}, 'matrix_stats': {'group': 'metric', 'parameters': {'fields': {'type': 'list', 'required': True}, 'mode': {'type': 'str', 'default': 'avg'}, 'missing': {'type': 'Any'}}, 'returns': ['fields']}, 'max': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'median_absolute_deviation': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'compression': {'type': 'int', 'default': 1000}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'min': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'percentile_ranks': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'values': {'type': 'list', 'required': True}, 'keyed': {'type': 'bool', 'default': True}, 'hdr.number_of_significant_value_digits': {'type': 'int'}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['values']}, 'percentiles': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'percents': {'type': 'list', 'default': '(1, 5, 25, 50, 75, 95, 99)'}, 'keyed': {'type': 'bool', 'default': True}, 'tdigest.compression': {'type': 'int', 'default': 100}, 'hdr.number_of_significant_value_digits': {'type': 'int'}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['values']}, 'range': {'group': 'bucket', 'parameters': {'ranges': {'type': 'Sequence[Union[Mapping[str, Any], Any]]', 'required': True, 'ranges': True}, 'field': {'type': 'str'}, 'keyed': {'type': 'bool', 'default': False}, 'script': {'type': 'dict'}}}, 'rate': {'group': 'metric', 'parameters': {'unit': {'type': 'str', 'required': True}, 'field': {'type': 'str'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'scripted_metric': {'group': 'metric', 'parameters': {'map_script': {'type': 'str', 'required': True}, 'combine_script': {'type': 'str', 'required': True}, 'reduce_script': {'type': 'str', 'required': True}, 'init_script': {'type': 'str'}, 'params': {'type': 'dict'}}, 'returns': ['value']}, 'stats': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}}, 'returns': ['count', 'min', 'max', 'sum', 'count', 'avg']}, 'string_stats': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'show_distribution': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}}, 'returns': ['count', 'min_length', 'max_length', 'avg_length', 'entropy', 'distribution']}, 'sum': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 't_test': {'group': 'metric', 'parameters': {'a.field': {'type': 'str', 'required': True}, 'b.field': {'type': 'str', 'required': True}, 'type': {'type': 'str', 'required': True}, 'a.filter': {'type': 'dict'}, 'b.filter': {'type': 'dict'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'terms': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'size': {'type': 'int', 'default': 10}, 'shard_size': {'type': 'int'}, 'show_term_doc_count_error': {'type': 'bool'}, 'order': {'type': 'dict'}, 'min_doc_count': {'type': 'int', 'default': 1}, 'shard_min_doc_count': {'type': 'int'}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}}, 'top_hits': {'group': 'metric', 'parameters': {'size': {'type': 'int', 'required': True}, 'sort': {'type': 'dict'}, '_source': {'type': 'dict'}}, 'returns': ['hits']}, 'top_metrics': {'group': 'metric', 'parameters': {'metrics': {'type': 'dict', 'required': True}, 'sort': {'type': 'dict'}}, 'returns': ['top']}, 'value_count': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'weighted_avg': {'group': 'metric', 'parameters': {'value.field': {'type': 'str', 'required': True}, 'weight.field': {'type': 'str', 'required': True}, 'value.missing': {'type': 'Any'}, 'weight.missing': {'type': 'Any'}, 'format': {'type': 'str'}, 'value_type': {'type': 'str'}, 'script': {'type': 'dict'}}, 'returns': ['value']}}
+    AGGREGATION_DEFINITION = {'adjacency_matrix': {'group': 'bucket', 'parameters': {'filters': {'type': "Mapping[str, Union[Mapping, 'QueryInterface']]", 'required': True}, 'separator': {'type': 'str'}}}, 'auto_date_histogram': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'timestamp': True}, 'buckets': {'type': 'int', 'default': 10}, 'minimum_interval': {'type': 'str'}, 'time_zone': {'type': 'str'}, 'format': {'type': 'str'}, 'keyed': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}}, 'avg': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'avg_bucket': {'group': 'pipeline', 'parameters': {'buckets_path': {'type': 'str', 'required': True}, 'gap_policy': {'type': 'str', 'default': 'skip'}, 'format': {'type': 'str'}}, 'returns': ['value']}, 'boxplot': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'compression': {'type': 'int', 'default': 100}, 'missing': {'type': 'Any'}}, 'returns': ['min', 'max', 'q1', 'q2', 'q3']}, 'cardinality': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'precision_threshold': {'type': 'int', 'default': 3000}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'children': {'group': 'bucket', 'parameters': {'type': {'type': 'str', 'required': True}}}, 'composite': {'group': 'bucket', 'parameters': {'sources': {'type': 'Sequence[Mapping]', 'required': True}, 'size': {'type': 'int', 'default': 10}, 'after': {'type': 'Union[str, int, float, datetime]'}}}, 'date_histogram': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'timestamp': True}, 'calendar_interval': {'type': 'str'}, 'fixed_interval': {'type': 'str'}, 'min_doc_count': {'type': 'int', 'default': 1}, 'offset': {'type': 'str'}, 'time_zone': {'type': 'str'}, 'format': {'type': 'str'}, 'keyed': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}}, 'date_range': {'group': 'bucket', 'parameters': {'ranges': {'type': 'Sequence[Union[Mapping[str, str], str]]', 'required': True, 'ranges': True}, 'field': {'type': 'str', 'timestamp': True}, 'format': {'type': 'str'}, 'time_zone': {'type': 'str'}, 'keyed': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}}, 'derivative': {'group': 'pipeline', 'parameters': {'buckets_path': {'type': 'str', 'required': True}, 'gap_policy': {'type': 'str', 'default': 'skip'}, 'format': {'type': 'str'}, 'units': {'type': 'str'}}, 'returns': ['value']}, 'diversified_sampler': {'group': 'bucket', 'parameters': {'field': {'type': 'str'}, 'script': {'type': 'Mapping'}, 'shard_size': {'type': 'int', 'default': 100}, 'max_docs_per_value': {'type': 'int', 'default': 1}}}, 'extended_stats': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'sigma': {'type': 'float', 'default': 3.0}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['count', 'min', 'max', 'avg', 'sum', 'sum_of_squares', 'variance', 'variance_population', 'variance_sampling', 'std_deviation', 'std_deviation_population', 'std_deviation_sampling', 'std_deviation_bounds']}, 'filter': {'group': 'bucket', 'parameters': {'filter': {'type': "Union[Mapping, 'QueryInterface']", 'required': True}}}, 'filters': {'group': 'bucket', 'parameters': {'filters': {'type': "Mapping[str, Union[Mapping, 'QueryInterface']]", 'required': True}}}, 'geo_bounds': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'wrap_longitude': {'type': 'bool', 'default': True}}, 'returns': ['bounds']}, 'geo_centroid': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}}, 'returns': ['location']}, 'geo_distance': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'ranges': {'type': 'Sequence[Union[Mapping[str, float], float]]', 'required': True, 'ranges': True}, 'origin': {'type': 'Union[str, Mapping[str, float], Sequence[float]]', 'required': True}, 'unit': {'type': 'str', 'default': 'm'}, 'distance_type': {'type': 'str', 'default': 'arc'}, 'keyed': {'type': 'bool', 'default': False}}}, 'geohash_grid': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'precision': {'type': 'Union[int, str]', 'default': 5}, 'bounds': {'type': 'Mapping'}, 'size': {'type': 'int', 'default': 10000}, 'shard_size': {'type': 'int'}}}, 'geotile_grid': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'precision': {'type': 'Union[int, str]', 'default': 7}, 'bounds': {'type': 'Mapping'}, 'size': {'type': 'int', 'default': 10000}, 'shard_size': {'type': 'int'}}}, 'global': {'group': 'bucket', 'parameters': {}}, 'histogram': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'interval': {'type': 'int', 'required': True}, 'min_doc_count': {'type': 'int', 'default': 0}, 'offset': {'type': 'int'}, 'extended_bounds': {'type': 'Mapping[str, int]'}, 'hard_bounds': {'type': 'Mapping[str, int]'}, 'format': {'type': 'str'}, 'order': {'type': 'Mapping[str, Any]'}, 'keyed': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}}}, 'ip_range': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'ranges': {'type': 'Sequence[Union[Mapping[str, str], str]]', 'required': True, 'ranges': True}, 'keyed': {'type': 'bool', 'default': False}}}, 'matrix_stats': {'group': 'metric', 'parameters': {'fields': {'type': 'list', 'required': True}, 'mode': {'type': 'str', 'default': 'avg'}, 'missing': {'type': 'Any'}}, 'returns': ['fields']}, 'max': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'median_absolute_deviation': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'compression': {'type': 'int', 'default': 1000}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'min': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'percentile_ranks': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'values': {'type': 'list', 'required': True}, 'keyed': {'type': 'bool', 'default': True}, 'hdr.number_of_significant_value_digits': {'type': 'int'}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['values']}, 'percentiles': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'percents': {'type': 'list', 'default': '(1, 5, 25, 50, 75, 95, 99)'}, 'keyed': {'type': 'bool', 'default': True}, 'tdigest.compression': {'type': 'int', 'default': 100}, 'hdr.number_of_significant_value_digits': {'type': 'int'}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['values']}, 'range': {'group': 'bucket', 'parameters': {'ranges': {'type': 'Sequence[Union[Mapping[str, Any], Any]]', 'required': True, 'ranges': True}, 'field': {'type': 'str'}, 'keyed': {'type': 'bool', 'default': False}, 'script': {'type': 'dict'}}}, 'rare_terms': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'max_doc_count': {'type': 'int', 'default': 1}, 'include': {'type': 'Union[str, Sequence[str], Mapping[str, int]]'}, 'exclude': {'type': 'Union[str, Sequence[str]]'}, 'missing': {'type': 'Any'}}}, 'rate': {'group': 'metric', 'parameters': {'unit': {'type': 'str', 'required': True}, 'field': {'type': 'str'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'scripted_metric': {'group': 'metric', 'parameters': {'map_script': {'type': 'str', 'required': True}, 'combine_script': {'type': 'str', 'required': True}, 'reduce_script': {'type': 'str', 'required': True}, 'init_script': {'type': 'str'}, 'params': {'type': 'dict'}}, 'returns': ['value']}, 'stats': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}}, 'returns': ['count', 'min', 'max', 'sum', 'count', 'avg']}, 'string_stats': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'show_distribution': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}}, 'returns': ['count', 'min_length', 'max_length', 'avg_length', 'entropy', 'distribution']}, 'sum': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 't_test': {'group': 'metric', 'parameters': {'a.field': {'type': 'str', 'required': True}, 'b.field': {'type': 'str', 'required': True}, 'type': {'type': 'str', 'required': True}, 'a.filter': {'type': 'dict'}, 'b.filter': {'type': 'dict'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'terms': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'size': {'type': 'int', 'default': 10}, 'shard_size': {'type': 'int'}, 'show_term_doc_count_error': {'type': 'bool'}, 'order': {'type': 'dict'}, 'min_doc_count': {'type': 'int', 'default': 1}, 'shard_min_doc_count': {'type': 'int'}, 'include': {'type': 'Union[str, Sequence[str], Mapping[str, int]]'}, 'exclude': {'type': 'Union[str, Sequence[str]]'}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}}, 'top_hits': {'group': 'metric', 'parameters': {'size': {'type': 'int', 'required': True}, 'sort': {'type': 'dict'}, '_source': {'type': 'dict'}}, 'returns': ['hits']}, 'top_metrics': {'group': 'metric', 'parameters': {'metrics': {'type': 'dict', 'required': True}, 'sort': {'type': 'dict'}}, 'returns': ['top']}, 'value_count': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'weighted_avg': {'group': 'metric', 'parameters': {'value.field': {'type': 'str', 'required': True}, 'weight.field': {'type': 'str', 'required': True}, 'value.missing': {'type': 'Any'}, 'weight.missing': {'type': 'Any'}, 'format': {'type': 'str'}, 'value_type': {'type': 'str'}, 'script': {'type': 'dict'}}, 'returns': ['value']}}
 
     def agg_adjacency_matrix(
             self,
@@ -1813,6 +1813,82 @@ class AggregationInterface(AggregationInterfaceBase):
         )
         return agg
 
+    def agg_rare_terms(
+            self,
+            *aggregation_name: Optional[str],
+            field: str,
+            max_doc_count: int = 1,
+            include: Optional[Union[str, Sequence[str], Mapping[str, int]]] = None,
+            exclude: Optional[Union[str, Sequence[str]]] = None,
+            missing: Optional[Any] = None,
+    ):
+        """
+        A multi-bucket value source based aggregation which finds "rare"
+        terms — terms that are at the long-tail of the distribution and are not
+        frequent. Conceptually, this is like a terms aggregation that is sorted by
+        _count ascending. As noted in the [terms aggregation
+        docs](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-order),
+        actually ordering a terms agg by count ascending has unbounded error.
+        Instead, you should use the rare_terms aggregation.
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-rare-terms-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :param field: str
+            The field we wish to find rare terms in
+
+        :param max_doc_count: int
+            The maximum number of documents a term should appear in.
+
+            The max_doc_count parameter is used to control the upper bound of
+            document counts that a term can have. There is not a size limitation on
+            the rare_terms agg like terms agg has. This means that terms which match
+            the max_doc_count criteria will be returned. The aggregation functions
+            in this manner to avoid the order-by-ascending issues that afflict the
+            terms aggregation.
+
+            This does, however, mean that a large number of results can be returned
+            if chosen incorrectly. To limit the danger of this setting, the maximum
+            max_doc_count is 100.
+
+        :param include: Optional[Union[str, Sequence[str], Mapping[str, int]]]
+            A
+            [regexp](https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html)
+            pattern that filters the documents which will be aggregated.
+
+            Alternatively can be a list of strings.
+
+            [Parition
+            expressions](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#_filtering_values_with_partitions)
+            are also possible.
+
+        :param exclude: Optional[Union[str, Sequence[str]]]
+            A
+            [regexp](https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html)
+            pattern that filters the documents which will be aggregated.
+
+            Alternatively can be a list of strings.
+
+        :param missing: Optional[Any]
+            The missing parameter defines how documents that are missing a value
+            should be treated. By default they will be ignored but it is also
+            possible to treat them as if they had a value.
+
+        :returns: 'AggregationInterface'
+            A new instance is created and returned
+        """
+        agg = self.agg(
+            *(aggregation_name + ("rare_terms", )),
+            field=field,
+            max_doc_count=max_doc_count,
+            include=include,
+            exclude=exclude,
+            missing=missing,
+        )
+        return agg
+
     def metric_rate(
             self,
             *aggregation_name: Optional[str],
@@ -2061,6 +2137,8 @@ class AggregationInterface(AggregationInterfaceBase):
             order: Optional[dict] = None,
             min_doc_count: int = 1,
             shard_min_doc_count: Optional[int] = None,
+            include: Optional[Union[str, Sequence[str], Mapping[str, int]]] = None,
+            exclude: Optional[Union[str, Sequence[str]]] = None,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
     ):
@@ -2176,6 +2254,24 @@ class AggregationInterface(AggregationInterfaceBase):
             high will cause terms to be filtered out on a shard level. This value
             should be set much lower than min_doc_count/#shards.
 
+        :param include: Optional[Union[str, Sequence[str], Mapping[str, int]]]
+            A
+            [regexp](https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html)
+            pattern that filters the documents which will be aggregated.
+
+            Alternatively can be a list of strings.
+
+            [Parition
+            expressions](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#_filtering_values_with_partitions)
+            are also possible.
+
+        :param exclude: Optional[Union[str, Sequence[str]]]
+            A
+            [regexp](https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html)
+            pattern that filters the documents which will be aggregated.
+
+            Alternatively can be a list of strings.
+
         :param missing: Optional[Any]
             The missing parameter defines how documents that are missing a value
             should be treated. By default they will be ignored but it is also
@@ -2196,6 +2292,8 @@ class AggregationInterface(AggregationInterfaceBase):
             order=order,
             min_doc_count=min_doc_count,
             shard_min_doc_count=shard_min_doc_count,
+            include=include,
+            exclude=exclude,
             missing=missing,
             script=script,
         )

@@ -43,6 +43,20 @@ parameters:
             Note: Setting min_doc_count=0 will also return buckets for terms that didn’t match any hit. However, some of the returned terms which have a document count of zero might only belong to deleted documents or documents from other types, so there is no warranty that a match_all query would find a positive document count for those terms.
             
             Warning: When NOT sorting on doc_count descending, high values of min_doc_count may return a number of buckets which is less than size because not enough data was gathered from the shards. Missing buckets can be back by increasing shard_size. Setting shard_min_doc_count too high will cause terms to be filtered out on a shard level. This value should be set much lower than min_doc_count/#shards.
+    include:
+        type: Union[str, Sequence[str], Mapping[str, int]]
+        doc: |
+            A [regexp](https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html) pattern that filters the documents which will be aggregated.
+
+            Alternatively can be a list of strings.
+
+            [Parition expressions](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#_filtering_values_with_partitions) are also possible.
+    exclude:
+        type: Union[str, Sequence[str]]
+        doc: |
+            A [regexp](https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html) pattern that filters the documents which will be aggregated.
+
+            Alternatively can be a list of strings.
     missing:
         type: Any
         doc: |
