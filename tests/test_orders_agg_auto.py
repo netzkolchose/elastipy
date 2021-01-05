@@ -104,6 +104,11 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
                     {"from": 10000},
                 ]
             })
+        if agg_type == "range":
+            params.update({
+                "field": "quantity",
+                "ranges": [2, 3]
+            })
         if agg_type == "filter":
             params["filter"] = query.Term(field="sku", value="sku-1")
         if agg_type in ("filters", "adjacency_matrix"):
@@ -211,7 +216,7 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
                     for agg_type in agg_types:
                         if agg_type in (
                                 "date_histogram", "auto_date_histogram", "date_range", "filter", "filters",
-                                "geo_distance", "histogram"
+                                "geo_distance", "histogram", "range"
                         ):
                             warnings.warn(
                                 f"TODO: scripted_metric execution fails on top of empty buckets"
