@@ -14,6 +14,7 @@ class OrderExporter(Exporter):
             "timestamp": {"type": "date"},
             "channel": {"type": "keyword"},
             "country": {"type": "keyword"},
+            "location": {"type": "geo_point"},
             "order_id": {"type": "keyword"},
             "item_line_index": {"type": "integer"},
             "sku": {"type": "keyword"},
