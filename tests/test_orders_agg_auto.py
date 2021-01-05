@@ -85,14 +85,23 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
 
         params = dict()
 
+        # --- buckets ---
+
         if agg_type in ("children", ):
             warnings.warn(f"{agg_type} tests currently not supported")
             return
 
         if agg_type == "date_histogram":
             params["calendar_interval"] = "1d"
-        if agg_type in ("geo_bounds", "geo_centroid"):
-            params["field"] = "location"
+        if agg_type == "geo_distance":
+            params.update({
+                "field": "location",
+                "origin": {"lat": 52, "lon": 12},
+                "ranges": [
+                    {"to": 10000},
+                    {"from": 10000},
+                ]
+            })
         if agg_type == "filter":
             params["filter"] = query.Term(field="sku", value="sku-1")
         if agg_type in ("filters", "adjacency_matrix"):
@@ -113,6 +122,10 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
         if agg_type == "diversified_sampler":
             params["field"] = "sku"
 
+        # --- metrics ---
+
+        if agg_type in ("geo_bounds", "geo_centroid"):
+            params["field"] = "location"
         if agg_type == "matrix_stats":
             params["fields"] = ["quantity", "item_line_index"]
         if agg_type == "percentile_ranks":
@@ -193,7 +206,8 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
                 if "scripted_metric" in agg_types:
                     for agg_type in agg_types:
                         if agg_type in (
-                                "date_histogram", "auto_date_histogram", "date_range", "filter", "filters"
+                                "date_histogram", "auto_date_histogram", "date_range", "filter", "filters",
+                                "geo_distance"
                         ):
                             # probably needs a min_doc_count=0
                             warnings.warn(
