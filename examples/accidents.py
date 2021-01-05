@@ -19,7 +19,7 @@ def accidents_by_state():
     s.execute()
 
     # print all received data points
-    print("\n### Accidents by state")
+    print("\n### Accidents by state\n")
     agg.print.table()
 
 
@@ -53,7 +53,7 @@ def accidents_by_state_more_precise():
 
         s2.execute()
 
-        print("\n### Accidents by state (category: %s)" % ("all" if not category else category))
+        print("\n### Accidents by state (category: %s)\n" % ("all" if not category else category))
         agg.print.table(digits=3)
 
 
@@ -67,7 +67,7 @@ def accidents_by_weekday():
 
     s.execute()
 
-    print("\n### Accidents by weekday")
+    print("\n### Accidents by weekday\n")
     agg.print.table(digits=3)
 
 
@@ -80,7 +80,7 @@ def accidents_by_condition():
 
     s.execute()
 
-    print("\n### Accidents by condition")
+    print("\n### Accidents by condition\n")
     agg.print.table()
 
     # the to_dict method returns the values of the chosen aggregation
@@ -103,8 +103,32 @@ def accidents_by_vehicle_combination():
 
     s.execute()
 
-    print("\n### Accidents by vehicle combination")
+    print("\n### Accidents by vehicle combination\n")
     agg.print.table()
+
+
+def accidents_geo_centroid_per_state():
+    s = search()
+    agg = s \
+        .agg_terms("state", field="state", size=16) \
+        .metric_geo_centroid("centroid", field="location")
+
+    s.execute()
+
+    print("\n### Accidents geo-centroid per state\n")
+    agg.print.table(digits=5)
+
+
+def accidents_geo_bounds_per_state():
+    s = search()
+    agg = s \
+        .agg_terms("state", field="state", size=16) \
+        .metric_geo_bounds("bounds", field="location")
+
+    s.execute()
+
+    print("\n### Accidents geo-bounds per state\n")
+    agg.print.table(digits=5)
 
 
 #accidents_by_state()
@@ -112,3 +136,5 @@ accidents_by_state_more_precise()
 accidents_by_weekday()
 accidents_by_condition()
 accidents_by_vehicle_combination()
+accidents_geo_centroid_per_state()
+accidents_geo_bounds_per_state()

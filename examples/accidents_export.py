@@ -121,6 +121,7 @@ class AccidentExporter(Exporter):
             "other": {"type": "integer"},
             "street_condition_i": {"type": "integer"},
             "street_condition": {"type": "keyword"},
+            "location": {"type": "geo_point"},
         }
     }
 
@@ -134,7 +135,6 @@ class AccidentExporter(Exporter):
                 "id": data["OBJECTID"],
                 "state": FEDERAL_STATES[int(data["ULAND"])-1],
                 # TODO: actually there are a few more geographic fields which need big conversion lists...
-                # TODO: also there are geo coordinates in there
                 # Berlin has a street in there but it's not in the federal data
                 # "street": data["STRASSE"],
 
@@ -158,6 +158,10 @@ class AccidentExporter(Exporter):
                 "other": data["IstSonstige"],
                 "street_condition_i": data["STRZUSTAND"],
                 "street_condition": STREET_CONDITIONS[int(data["STRZUSTAND"])],
+                "location": {
+                    "lat": data["YGCSWGS84"].replace(",", "."),
+                    "lon": data["XGCSWGS84"].replace(",", "."),
+                }
             }
         except BaseException as e:
             print("WHEN CONVERTING:", data)
@@ -192,3 +196,5 @@ def export_data():
 
 if __name__ == "__main__":
     export_data()
+
+
