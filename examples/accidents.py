@@ -131,6 +131,17 @@ def accidents_geo_bounds_per_state():
     agg.print.table(digits=5)
 
 
+def accidents_geotile_grid():
+    s = search()
+    agg = s.agg_geotile_grid("grid", field="location", precision=6)
+
+    s.execute()
+
+    print("\n### Accidents geo-grid")
+    print("(The key represents zoom-level/X/Y, see https://en.wikipedia.org/wiki/Tiled_web_map\n")
+    agg.print.table()
+
+
 #accidents_by_state()
 accidents_by_state_more_precise()
 accidents_by_weekday()
@@ -138,3 +149,4 @@ accidents_by_condition()
 accidents_by_vehicle_combination()
 accidents_geo_centroid_per_state()
 accidents_geo_bounds_per_state()
+accidents_geotile_grid()
