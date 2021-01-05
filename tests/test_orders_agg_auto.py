@@ -85,12 +85,14 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
 
         params = dict()
 
-        if agg_type in ("geo_bounds", "geo_centroid", "children"):
+        if agg_type in ("children", ):
             warnings.warn(f"{agg_type} tests currently not supported")
             return
 
         if agg_type == "date_histogram":
             params["calendar_interval"] = "1d"
+        if agg_type in ("geo_bounds", "geo_centroid"):
+            params["field"] = "location"
         if agg_type == "filter":
             params["filter"] = query.Term(field="sku", value="sku-1")
         if agg_type in ("filters", "adjacency_matrix"):
@@ -182,7 +184,9 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
                 if "Sampler aggregation must be used with child aggregations." in str(e):
                     continue
 
-                if re.match(r".*Index \d out of bounds for length \d", str(e)) and "diversified_sampler" in agg_types:
+                if re.match(r".*Index \d out of bounds for length \d", str(e)) and (
+                        "diversified_sampler" in agg_types or "geo_bounds" in agg_types
+                ):
                     continue
 
                 do_raise = True
