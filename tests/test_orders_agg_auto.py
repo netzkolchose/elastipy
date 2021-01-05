@@ -216,7 +216,7 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
                     for agg_type in agg_types:
                         if agg_type in (
                                 "date_histogram", "auto_date_histogram", "date_range", "filter", "filters",
-                                "geo_distance", "histogram", "range"
+                                "geo_distance", "histogram", "range", "missing"
                         ):
                             warnings.warn(
                                 f"TODO: scripted_metric execution fails on top of empty buckets"
