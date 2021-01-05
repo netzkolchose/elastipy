@@ -1,0 +1,13 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-sampler-aggregation.html
+doc: |
+    A filtering aggregation used to limit any sub aggregations' processing to a sample of the top-scoring documents.
+
+    Example use cases:
+        - Tightening the focus of analytics to high-relevance matches rather than the potentially very long tail of low-quality matches
+        - Reducing the running cost of aggregations that can produce useful results using only samples e.g. significant_terms
+parameters:
+    shard_size:
+        type: int
+        default: 100
+        doc: |
+            The shard_size parameter limits how many top-scoring documents are collected in the sample processed on each shard. The default value is 100.

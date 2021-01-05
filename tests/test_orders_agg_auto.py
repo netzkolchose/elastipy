@@ -8,6 +8,7 @@ import json
 import time
 import unittest
 import warnings
+from collections import Counter
 
 from elastipy import get_elastic_client, Search, query
 from definition.data import AGGREGATION_DEFINITION
@@ -181,13 +182,19 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
         return parent.aggregation(agg_type, **params)
 
     def test_all(self):
+        not_working = dict()
+        def _not_working(reason, agg_types):
+            if reason not in not_working:
+                not_working[reason] = set()
+            not_working[reason].add(agg_types)
+
         for search in self.iter_searches(self.search()):
             if not search._aggregations:
                 continue
 
             # TODO: actually we need some interface for that
             agg = search._aggregations[-1]
-            agg_types = list(map(lambda a: a.type, search._aggregations))
+            agg_types = tuple(map(lambda a: a.type, search._aggregations))
 
             try:
                 search.execute()
@@ -208,7 +215,9 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
 
                 if re.match(r".*Index \d out of bounds for length \d", str(e)) and (
                         "diversified_sampler" in agg_types or "geo_bounds" in agg_types
+                        or "sampler" in agg_types
                 ):
+                    _not_working("index-out-of-bounds", agg_types)
                     continue
 
                 do_raise = True
@@ -221,6 +230,7 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
                             warnings.warn(
                                 f"TODO: scripted_metric execution fails on top of empty buckets"
                             )
+                            _not_working("scripted-metric-exception", agg_types)
                             do_raise = False
                             break
                 if not do_raise:
@@ -233,9 +243,16 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
                 search.dump_body()
                 print("AGGREGATIONS", search._aggregations)
                 raise
-                #raise AssertionError(
-                #    f"{type(e).__name__}: {e} / aggregation type {agg_type}"
-                #)
+
+        if not_working:
+            print("## Aggregations that failed in elasticsearch:")
+            count = 0
+            for key, agg_types_set in not_working.items():
+                print(f"{key}: {len(agg_types_set)}")
+                count += len(agg_types_set)
+                #for agg_types in agg_types_set:
+                #    print("  ", "->".join(agg_types))
+            print("sum:", count)
 
 
 if __name__ == "__main__":
