@@ -35,6 +35,8 @@ class TestQueryHousing(unittest.TestCase):
             query.Term("a", "b"),
             query.Match("a", "c"),
         )
+        for not_a_query in (None, [], 23):
+            self.assertNotEqual(query.Term("a", "b"), not_a_query)
 
     def test_copy_compare(self):
         q1 = query.Term("a", "b")
@@ -56,6 +58,17 @@ class TestQueryHousing(unittest.TestCase):
         q1.must[0].must[0].parameters["field"] = "x"
         self.assertNotEqual(q1, q2)
 
+    def test_copy(self):
+        s = Search().copy().bool(must=query.MatchAll())
+        self.assertEqual(
+            [query.MatchAll()],
+            s.get_query().parameters["must"]
+        )
+        s = s.copy().bool(must_not=query.MatchNone())
+        self.assertEqual(
+            [query.MatchNone()],
+            s.get_query().parameters["must_not"]
+        )
 
 if __name__ == "__main__":
     unittest.main()
