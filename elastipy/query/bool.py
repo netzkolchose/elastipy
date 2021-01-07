@@ -1,11 +1,24 @@
 from copy import copy, deepcopy
-from typing import Sequence, Mapping
+from typing import Sequence, Mapping, Optional, Union
 
 from .query import Query, QueryInterface, factory
 from .generated_classes import _Bool
 
 
 class Bool(_Bool):
+
+    def _map_parameters(self, params: Mapping) -> dict:
+        params = super()._map_parameters(params)
+        for key, value in params.items():
+            # wrap a single query into a list
+            if not isinstance(value, Sequence):
+                params[key] = [value]
+
+            for v in params[key]:
+                if not isinstance(v, (Query, Mapping)):
+                    raise TypeError(f"{self.__class__.__name__} parameter '{key}' has invalid type {type(v).__name__}"
+                                    f", must be Query or dict")
+        return params
 
     @property
     def must(self):
@@ -40,13 +53,14 @@ class Bool(_Bool):
         self._set_bool_param("filter", value)
 
     def _get_bool_param(self, name):
-        return self._optional_parameters.get(name) or self.parameters.get(name) or []
+        return self.parameters.get(name) or []
 
     def _set_bool_param(self, name, value):
-        if name in self.parameters:
-            self.parameters[name] = value
+        if value == self._optional_parameters.get(name):
+            self.parameters.pop(name, None)
         else:
-            self._optional_parameters[name] = value
+            assert isinstance(value, Sequence), f"Failed in {self} with {name}:{value}"
+            self.parameters[name] = value
 
     def add_query(self, name, **params) -> 'Bool':
         return self & factory(name, **params)

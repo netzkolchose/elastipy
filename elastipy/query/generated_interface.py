@@ -9,10 +9,10 @@ class QueryInterface(QueryInterfaceBase):
 
     def bool(
             self,
-            must: Optional[Sequence['QueryInterface']] = None,
-            must_not: Optional[Sequence['QueryInterface']] = None,
-            should: Optional[Sequence['QueryInterface']] = None,
-            filter: Optional[Sequence['QueryInterface']] = None,
+            must: Optional[Union['QueryInterface', Sequence['QueryInterface']]] = None,
+            must_not: Optional[Union['QueryInterface', Sequence['QueryInterface']]] = None,
+            should: Optional[Union['QueryInterface', Sequence['QueryInterface']]] = None,
+            filter: Optional[Union['QueryInterface', Sequence['QueryInterface']]] = None,
     ) -> 'QueryInterface':
         """
         A query that matches documents matching boolean combinations of other
@@ -25,20 +25,20 @@ class QueryInterface(QueryInterfaceBase):
 
         https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html
 
-        :param must: Optional[Sequence['QueryInterface']]
+        :param must: Optional[Union['QueryInterface', Sequence['QueryInterface']]]
             The clause (query) must appear in matching documents and will contribute
             to the score.
 
-        :param must_not: Optional[Sequence['QueryInterface']]
+        :param must_not: Optional[Union['QueryInterface', Sequence['QueryInterface']]]
             The clause (query) must not appear in the matching documents. Clauses
             are executed in filter context meaning that scoring is ignored and
             clauses are considered for caching. Because scoring is ignored, a score
             of 0 for all documents is returned.
 
-        :param should: Optional[Sequence['QueryInterface']]
+        :param should: Optional[Union['QueryInterface', Sequence['QueryInterface']]]
             The clause (query) should appear in the matching document.
 
-        :param filter: Optional[Sequence['QueryInterface']]
+        :param filter: Optional[Union['QueryInterface', Sequence['QueryInterface']]]
             The clause (query) must appear in matching documents. However unlike
             must the score of the query will be ignored. Filter clauses are executed
             in filter context, meaning that scoring is ignored and clauses are
