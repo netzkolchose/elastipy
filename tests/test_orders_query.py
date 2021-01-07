@@ -59,6 +59,17 @@ class TestOrdersQuery(unittest.TestCase):
         self.assertEqual(2, search.term("channel", "the-sale").execute().total_hits)
         self.assertEqual(2, search.term("channel", "the-end").execute().total_hits)
 
+    def test_total_hits_terms(self):
+        search = self.search()
+        search = search.terms(field="country", value=["DE", "GB"])
+        self.assertEqual(
+            sum(
+                len(o["items"])
+                for o in data.orders.orders1
+            ),
+            search.execute().total_hits
+        )
+
     def test_total_hits_match(self):
         query = self.search()
 

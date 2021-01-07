@@ -420,7 +420,7 @@ class Term(Query):
         )
 
 
-class Terms(Query):
+class _Terms(Query, factory=False):
 
     """
     Returns documents that contain one or more exact terms in a provided field.
