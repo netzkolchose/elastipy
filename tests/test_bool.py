@@ -14,9 +14,7 @@ class TestBool(unittest.TestCase):
             [query.MatchAll()],
             s.get_query().parameters["must"]
         )
-        print("--"*10)
         s = s.bool(must_not=query.MatchNone())
-        s.dump_body()
         self.assertEqual(
             [query.MatchAll()],
             s.get_query().parameters["must"]

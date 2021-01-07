@@ -62,6 +62,5 @@ class TestOrdersQueryAuto(unittest.TestCase):
             # print(count, search.get_query())
 
 
-
 if __name__ == "__main__":
     unittest.main()
