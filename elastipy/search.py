@@ -27,7 +27,7 @@ class Search(QueryInterface, AggregationInterface):
         """
         Create a new Search instance.
         :param index: str, optional index name/pattern, can also be set later via index()
-        :param client: elasticsearch.Client instance, if None elastipy.get_elastic_client() is used
+        :param client: elasticsearch.Client instance, if None elastipy.connections.get("default") is used
         :param timestamp_field: str, the default timestamp field used for fields that require dates
         """
         AggregationInterface.__init__(self, timestamp_field=timestamp_field)
@@ -37,23 +37,45 @@ class Search(QueryInterface, AggregationInterface):
         self._query = EmptyQuery()
         self._aggregations = []
         self._body = dict()
-        self._response: Optional[dict] = None
+        self._response: Optional[Response] = None
 
-    def get_index(self):
+    def get_index(self) -> str:
+        """Return current index"""
         return self._index
 
-    def get_query(self):
+    def get_query(self) -> QueryInterface:
+        """Return current query"""
         return self._query
 
+    def get_client(self):
+        """Return current client"""
+        return self._client
+
     def copy(self):
+        """
+        Make a copy of this instance and it's queries.
+
+        Warning: Copying of Aggregations is currently not supported so
+            aggregations must be added at the last step, after all queries are applied.
+
+        :return: a new Search instance
+        """
         es = self.__class__(index=self._index, client=self._client, timestamp_field=self.timestamp_field)
         es._body = deepcopy(self._body)
-        es._aggregations = self._aggregations.copy()
         es._query = self._query.copy()
+        if self._aggregations:
+            raise NotImplementedError(
+                "Sorry, but copying of aggregations is currently not supported. "
+                "Please make all the queries before adding aggregations"
+            )
+        es._aggregations = copy(self._aggregations)
         return es
 
-    @property
-    def body(self):
+    def to_body(self) -> dict:
+        """
+        Returns the complete body of the search request
+        :return: dict
+        """
         body = copy(self._body)
 
         query_dict = self._query.to_dict()
@@ -66,15 +88,12 @@ class Search(QueryInterface, AggregationInterface):
 
         return make_json_compatible(body)
 
-    @property
-    def response(self):
-        if self._response is None:
-            raise ValueError(
-                f"Can not access Search.response, search has not been executed."
-            )
-        return self._response
-
-    def execute(self):
+    def execute(self) -> 'Response':
+        """
+        Sends the search against the current client and returns the response.
+        If no client is specified, elastipy.connections.get("default") will be used.
+        :return: Response, a dict wrapper with some convenience methods
+        """
         client = self._client
         if client is None:
             client = connections.get()
@@ -84,35 +103,50 @@ class Search(QueryInterface, AggregationInterface):
             params={
                 "rest_total_hits_as_int": "true"
             },
-            body=self.body,
+            body=self.to_body(),
         )
 
         self.set_response(response)
         return self._response
 
-    def set_response(self, response: Mapping):
+    @property
+    def response(self) -> 'Response':
         """
-        Sets the elasticsearch API response.
-
-        Use this if you need other means of passing the API response to the Search instance.
-        :param response: Mapping, the complete response from /search/ endpoint
-        :return: self
+        Access to the response of the search.
+        Raises exception if accessed before search
+        :return: Response, a dict wrapper with some convenience methods
         """
-        self._response = Response(**response)
-        for agg in self._aggregations:
-            agg._response = self.response
-        return self
+        if self._response is None:
+            raise ValueError(
+                f"Can not access Search.response, search has not been executed."
+            )
+        return self._response
 
-    def index(self, index):
+    def index(self, index: str):
+        """
+        Replace the index.
+        :param index: str
+        :return: new Search instance
+        """
         es = self.copy()
         es._index = index
         return es
 
+    def client(self, client):
+        """
+        Replace the client that will be used for request.
+        :param client: an elasticsearch.Elasticsearch client or compatible
+        :return: new Search instance
+        """
+        es = self.copy()
+        es._client = client
+        return es
+
     def sort(self, *sort):
         """
-        Override the sorting
+        Replace the sorting
         :param sort: can be str, dict or list
-        :return:
+        :return: new Search instance
         """
         args = []
         for s in sort:
@@ -127,13 +161,15 @@ class Search(QueryInterface, AggregationInterface):
 
     def query(self, query: QueryInterface):
         """
-        Override query
-        :param query:
+        Replace the query
+        :param query: a QueryInterface sub-class
         :return: new Search instance
         """
         es = self.copy()
         es._query = query
         return es
+
+    # -- attach QueryInterface --
 
     def add_query(self, name, **params):
         es = self.copy()
@@ -148,20 +184,7 @@ class Search(QueryInterface, AggregationInterface):
     def query_to_dict(self):
         return self._query.to_dict()
 
-    def __and__(self, other):
-        es = self.copy()
-        es._query &= _to_query(other)
-        return es
-
-    def __or__(self, other):
-        es = self.copy()
-        es._query |= _to_query(other)
-        return es
-
-    def __invert__(self):
-        es = self.copy()
-        es._query = ~es._query
-        return es
+    # -- attach the AggregationInterface --
 
     def aggregation(self, *aggregation_name_type, **params) -> Aggregation:
         if len(aggregation_name_type) == 1:
@@ -179,11 +202,43 @@ class Search(QueryInterface, AggregationInterface):
         self._add_body(f"aggregations.{name}.{aggregation_type}", agg.to_body())
         return agg
 
+    def __and__(self, other):
+        es = self.copy()
+        es._query &= _to_query(other)
+        return es
+
+    def __or__(self, other):
+        es = self.copy()
+        es._query |= _to_query(other)
+        return es
+
+    def __invert__(self):
+        es = self.copy()
+        es._query = ~es._query
+        return es
+
+    # -- debugging stuff --
+
+    def set_response(self, response: Mapping):
+        """
+        Sets the elasticsearch API response.
+
+        Use this if you need other means of passing the API response to the Search instance.
+        :param response: Mapping, the complete response from /search/ endpoint
+        :return: self
+        """
+        self._response = Response(**response)
+        for agg in self._aggregations:
+            agg._response = self.response
+        return self
+
     def dump_body(self, indent=2, file=None):
-        print(json.dumps(self.body, indent=indent), file=file)
+        print(json.dumps(self.to_body(), indent=indent), file=file)
 
     def dump_response(self, indent=2, file=None):
         print(json.dumps(self.response, indent=indent), file=file)
+
+    # -- private impl --
 
     def _add_body(self, path: str, value, override=True):
         # print("ADD BODY", path, value)
@@ -207,7 +262,7 @@ class Search(QueryInterface, AggregationInterface):
 
     def _add_bool_filter(self, data):
         self._add_body(f"query.bool.filter", [], override=False)
-        self.body["query"]["bool"]["filter"].append(data)
+        self._body["query"]["bool"]["filter"].append(data)
 
 
 class Response(dict):

@@ -32,12 +32,12 @@ class TestAggregationHousing(unittest.TestCase):
         self.assertEqual(
             "blabla",
             Search(timestamp_field="blabla").agg_date_histogram(calendar_interval="1d") \
-                .search.body["aggregations"]["a0"]["date_histogram"]["field"],
+                .search.to_body()["aggregations"]["a0"]["date_histogram"]["field"],
         )
         self.assertEqual(
             "blabla",
             Search(timestamp_field="blabla").agg_auto_date_histogram() \
-                .search.body["aggregations"]["a0"]["auto_date_histogram"]["field"],
+                .search.to_body()["aggregations"]["a0"]["auto_date_histogram"]["field"],
         )
 
     def test_ranges_auto_conversion(self):
