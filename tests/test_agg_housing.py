@@ -50,6 +50,20 @@ class TestAggregationHousing(unittest.TestCase):
             Search().agg_date_range(ranges=["2000", "2001"]).to_body()["ranges"]
         )
 
+    def test_order_convenience(self):
+        self.assertEqual(
+            Search().agg_terms(field="a", order={"metric": "asc"}).to_body(),
+            Search().agg_terms(field="a", order="metric").to_body(),
+        )
+        self.assertEqual(
+            Search().agg_terms(field="a", order={"metric": "desc"}).to_body(),
+            Search().agg_terms(field="a", order="-metric").to_body(),
+        )
+        self.assertEqual(
+            Search().agg_terms(field="a", order={"_count": "desc"}).to_body(),
+            Search().agg_terms(field="a", order="-_count").to_body(),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

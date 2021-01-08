@@ -28,7 +28,7 @@ class Aggregation(AggregationInterface):
         self.name = name
         self.type = type
         self.definition = self.AGGREGATION_DEFINITION.get(self.type) or dict()
-        self.params = self._get_parameters(params)
+        self.params = self._map_parameters(params)
         self._response: Optional[Response] = None
         self.parent: Optional[Aggregation] = None
         self.root: Aggregation = self
@@ -249,7 +249,7 @@ class Aggregation(AggregationInterface):
         else:
             return f"{self.parent.body_path()}.aggregations.{self.name}"
 
-    def _get_parameters(self, params: Mapping) -> Mapping:
+    def _map_parameters(self, params: Mapping) -> Mapping:
         """
         Convert the constructor parameters to aggregation parameters.
         It basically just removes the default parameters that are not changed.
@@ -261,12 +261,21 @@ class Aggregation(AggregationInterface):
             param_key = key.replace("__", ".")
             if self.definition.get("parameters") and param_key in self.definition["parameters"]:
                 param_def = self.definition["parameters"][param_key]
+
                 # not required and matches default value
                 if not param_def.get("required") and param_def.get("default") == value:
                     if param_def.get("timestamp"):
                         value = self.search.timestamp_field
                     else:
                         continue
+
+                # convert order convenience format
+                if param_def.get("order"):
+                    if isinstance(value, str):
+                        if value.startswith("-"):
+                            value = {value[1:]: "desc"}
+                        else:
+                            value = {value: "asc"}
 
             if "__" in key or "." in key:
                 # TODO: this will break for sub-sub-keys but it's anyway not a good approach..

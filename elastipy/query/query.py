@@ -88,7 +88,7 @@ def value_to_dict(value):
     if hasattr(value, "to_dict"):
         return value.to_dict()
     elif isinstance(value, (list, tuple)):
-        return [value_to_dict(v) if hasattr(v, "to_dict") else v for v in value]
+        return [value_to_dict(v) for v in value]
     return value
 
 
