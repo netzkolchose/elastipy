@@ -46,8 +46,8 @@ class Exporter:
 
     def index_name(self) -> str:
         name = self.INDEX_NAME
-        if self.index_postfix:
-            name = f"{self.index_postfix}-{name}"
+        if self.index_prefix:
+            name = f"{self.index_prefix}-{name}"
         if self.index_postfix:
             name = f"{name}-{self.index_postfix}"
         return name
