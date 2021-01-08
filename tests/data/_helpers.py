@@ -20,7 +20,7 @@ def export_data(json_filename_or_data, ExporterClass, client):
 
     exporter = ExporterClass(client=client)
     exporter.update_index()
-    exporter.export_list(json_filename_or_data)
+    exporter.export_list(json_filename_or_data, refresh=True)
 
 
 class ExportScope:
@@ -32,7 +32,6 @@ class ExportScope:
 
     def __enter__(self):
         export_data(self.json_filename_or_data, self.ExporterClass, self.client)
-        time.sleep(1.1)  # wait for index refresh
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

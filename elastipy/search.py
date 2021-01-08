@@ -1,6 +1,6 @@
 import json
 from copy import copy, deepcopy
-from typing import Optional, Union, Mapping, Callable
+from typing import Optional, Union, Mapping, Callable, Sequence
 
 from elasticsearch import Elasticsearch
 
@@ -33,6 +33,7 @@ class Search(QueryInterface, AggregationInterface):
         AggregationInterface.__init__(self, timestamp_field=timestamp_field)
         self._index = index
         self._client = client
+        self._sort = None
         self._query = EmptyQuery()
         self._aggregations = []
         self._body = dict()
@@ -54,10 +55,15 @@ class Search(QueryInterface, AggregationInterface):
     @property
     def body(self):
         body = copy(self._body)
+
         query_dict = self._query.to_dict()
         if "query" not in query_dict:
             query_dict = {"query": query_dict}
         body.update(query_dict)
+
+        if self._sort:
+            body["sort"] = self._sort
+
         return make_json_compatible(body)
 
     @property
@@ -107,7 +113,29 @@ class Search(QueryInterface, AggregationInterface):
         es._index = index
         return es
 
-    def query(self, query):
+    def sort(self, *sort):
+        """
+        Override the sorting
+        :param sort: can be str, dict or list
+        :return:
+        """
+        args = []
+        for s in sort:
+            if isinstance(s, (list, tuple)):
+                args += list(s)
+            else:
+                args.append(s)
+
+        es = self.copy()
+        es._sort = args or None
+        return es
+
+    def query(self, query: QueryInterface):
+        """
+        Override query
+        :param query:
+        :return: new Search instance
+        """
         es = self.copy()
         es._query = query
         return es
@@ -139,43 +167,6 @@ class Search(QueryInterface, AggregationInterface):
         es = self.copy()
         es._query = ~es._query
         return es
-
-    """
-    def match(self, field, value):
-        es = self.copy()
-        es._add_bool_filter({"match_phrase": {field: value}})
-        return es
-
-    def query_string(self, query):
-        es = self.copy()
-        es._add_bool_filter({"query_string": {"query": query}})
-        return es
-
-    def date_from(self, date):
-        es = self.copy()
-        es._add_bool_filter({"range": {self.timestamp_field: {"gte": date}}})
-        return es
-
-    def date_to(self, date):
-        es = self.copy()
-        es._add_bool_filter({"range": {self.timestamp_field: {"lte": date}}})
-        return es
-
-    def date_before(self, date):
-        es = self.copy()
-        es._add_bool_filter({"range": {self.timestamp_field: {"lt": date}}})
-        return es
-
-    def year(self, year):
-        return self.date_from(f"{year}-01-01T00:00:00Z").date_to(f"{year}-12-31T23:59:59Z")
-
-    def year_month(self, year, month):
-        if month < 12:
-            year2, month2 = year, month + 1
-        else:
-            year2, month2 = year + 1, 1
-        return self.date_from(f"{year:04}-{month:02}-01T00:00:00Z").date_before(f"{year2}-{month2:02}-01T00:00:00Z")
-    """
 
     def aggregation(self, *aggregation_name_type, **params) -> Aggregation:
         if len(aggregation_name_type) == 1:

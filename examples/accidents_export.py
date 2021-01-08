@@ -4,8 +4,11 @@ Exports data of german car accidents to index 'elastipy-example-accidents'
 Data is from https://unfallatlas.statistikportal.de/_opendata2020.html
     "Unfallatlas | Kartenanwendung der Statistischen Ämter des Bundes und der Länder"
 
+and https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/_inhalt.html
+    "Gemeindeverzeichnis-Informationssystem GV-ISys. Herausgeber: Statistische Ämter des Bundes und der Länder"
+
 You may excuse this geological restriction. I just live there and it's always
-more interesting to look at data involving your everyday life.
+more interesting to look at data involving your own environment.
 
 """
 
@@ -32,7 +35,7 @@ WEEKDAYS = (
 CATEGORIES = (
     "deadly",
     "seriously",  # injured
-    "lightly"  # injured
+    "lightly"
 )
 
 FEDERAL_STATES = (
@@ -100,6 +103,9 @@ class AccidentExporter(Exporter):
         "properties": {
             "id": {"type": "keyword"},
             "state": {"type": "keyword"},
+            "city": {"type": "keyword"},
+            "area": {"type": "float"},
+            "population": {"type": "integer"},
             # "street": {"type": "keyword"},
             "timestamp": {"type": "date"},
             "weekday": {"type": "keyword"},
@@ -131,10 +137,20 @@ class AccidentExporter(Exporter):
     # here we convert a single line from the CSV to the elasticsearch object
     def transform_object_data(self, data):
         try:
+            code = "".join((data["ULAND"], data["UREGBEZ"], data["UKREIS"], data["UGEMEINDE"]))
+
+            # map the administrative code to some geographic data
+            if code in self.mapping_data:
+                geographic = self.mapping_data[code]
+            else:
+                # print(f"not found {code}")
+                geographic = dict()
+                self.codes_not_found.add(code)
+
             return {
                 "id": data["OBJECTID"],
                 "state": FEDERAL_STATES[int(data["ULAND"])-1],
-                # TODO: actually there are a few more geographic fields which need big conversion lists...
+                **geographic,
                 # Berlin has a street in there but it's not in the federal data
                 # "street": data["STRASSE"],
 
@@ -185,16 +201,72 @@ def load_data():
                     return list(reader)
 
 
+def load_mapping_data():
+    """
+    Mapping of code to city name and some geographic data
+    """
+    FILES = {
+        2018: (
+            "https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/Administrativ/Archiv/GV100ADJ/GV100AD31122018.zip?__blob=publicationFile",
+            "GV100AD_311218.ASC",
+            "iso-8859-1"
+        ),
+        2019: (
+            "https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/Administrativ/Archiv/GV100ADJ/GV100AD31122019.zip?__blob=publicationFile",
+            "GV100AD_311219.ASC",
+            "utf-8"
+        ),
+        2020: (
+            "https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/Administrativ/Archiv/GV100ADQ/GV100AD3011.zip?__blob=publicationFile",
+            "GV100AD_301120.asc",
+            "utf-8"
+        )
+    }
+
+    lines = []
+    for year, (url, text_filename, encoding) in FILES.items():
+        filename = get_web_file(url, f"gemeindeverzeichnis-{year}.zip")
+        with open(filename, "rb") as fp:
+            with zipfile.ZipFile(fp) as zfp:
+                with zfp.open(text_filename) as csv_binary:
+                    with TextIOWrapper(csv_binary, encoding=encoding) as csv_text:
+                        lines += csv_text.readlines()
+
+    def _int(v):
+        try:
+            return int(v.lstrip("0"))
+        except ValueError:
+            return None
+
+    return {
+        l[10:18]: {
+            "city": l[22:72].strip(),
+            "zipcode": l[165:170],
+            "area": _int(l[128:139]),
+            "population": _int(l[139:150]),
+        }
+        for l in lines
+    }
+
+
 def export_data():
     data = load_data()
     exporter = AccidentExporter()
+    # attach the code to geographic mapping data to the exporter
+    #   so we can reach it from the transform_object_data method
+    exporter.mapping_data = load_mapping_data()
+    exporter.codes_not_found = set()
     # create the index or update it's mapping
+    exporter.delete_index()
     exporter.update_index()
     # export everything
     exporter.export_list(data)
 
+    if exporter.codes_not_found:
+        print(len(exporter.codes_not_found), "administrative codes not mapped")
+
 
 if __name__ == "__main__":
     export_data()
-
+    #print(load_data()[:10])
 

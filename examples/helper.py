@@ -33,6 +33,7 @@ def get_web_file(url: str, filename: str):
     if os.path.exists(cache_filename):
         return cache_filename
 
+    print(f"downloading {url} to {cache_filename}", file=sys.stderr)
     response = requests.get(url)
 
     if not os.path.exists(CACHE_DIR):

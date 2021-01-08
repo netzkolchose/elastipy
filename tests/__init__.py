@@ -1,5 +1,6 @@
 from .test_agg_housing import *
 from .test_bool import *
+from .test_exporter import *
 from .test_orders_agg import *
 from .test_orders_agg_auto import *
 from .test_orders_agg_table import *

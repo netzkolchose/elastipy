@@ -57,6 +57,19 @@ def accidents_by_state_more_precise():
         agg.print.table(digits=3)
 
 
+def accidents_by_city():
+    s = search()
+
+    agg = s.agg_terms("city", field="city")
+    add_vehicle_metrics(agg)
+
+    s.execute()
+
+    print("\n### Accidents by city\n")
+    agg.print.table(digits=3)
+
+accidents_by_city(); exit()
+
 def accidents_by_weekday():
     s = search()
 
@@ -156,6 +169,7 @@ def accidents_geotile_grid():
 
 #accidents_by_state()
 accidents_by_state_more_precise()
+accidents_by_city()
 accidents_by_weekday()
 accidents_by_hour()
 accidents_by_condition()

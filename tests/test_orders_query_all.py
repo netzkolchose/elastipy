@@ -19,7 +19,6 @@ class TestOrdersQueryAuto(unittest.TestCase):
         cls.maxDiff = int(1e5)
         cls.client = get_elastic_client()
         data.export_data(data.orders.orders1, data.orders.OrderExporter, cls.client)
-        time.sleep(1.1)  # give time to update index
 
     @classmethod
     def tearDownClass(cls):

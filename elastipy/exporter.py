@@ -1,11 +1,13 @@
 import datetime
 import os
 import json
+from typing import Iterable, Any, Mapping
 
 from elasticsearch import ElasticsearchException, NotFoundError
-from elasticsearch.helpers import bulk
+from elasticsearch.helpers import streaming_bulk, bulk
 
 from .client import get_elastic_client
+from .search import Search
 
 
 class Exporter:
@@ -29,8 +31,14 @@ class Exporter:
         for required_attribute in ("INDEX_NAME", "MAPPINGS"):
             if not getattr(self, required_attribute, None):
                 raise ValueError(f"Need to define class attribute {self.__class__.__name__}.{required_attribute}")
-        self.client = client if client is not None else get_elastic_client()
+        self._client = client
         self.index_suffix = index_suffix
+
+    @property
+    def client(self):
+        if self._client is None:
+            self._client = get_elastic_client()
+        return self._client
 
     def index_name(self):
         name = self.INDEX_NAME
@@ -38,13 +46,21 @@ class Exporter:
             name = f"{name}-{self.index_suffix}"
         return name
 
+    def search(self, **kwargs) -> Search:
+        """
+        return a new Search object for this index and client
+        :return: Search instance
+        """
+        from .search import Search
+        return Search(index=self.index_name(), client=self._client, **kwargs)
+
     def get_object_id(self, es_data):
         """
         Override this to return a single elasticsearch object's id
         :param es_data: dict, single object as returned by transform_object_data()
         :return: str, int etc..
         """
-        raise NotImplementedError
+        return None
 
     def transform_object_data(self, data):
         """
@@ -64,8 +80,11 @@ class Exporter:
         try:
             self.client.indices.get_mapping(index=self.index_name())
             self.client.indices.put_mapping(index=self.index_name(), body=self.MAPPINGS)
+            return
         except NotFoundError:
-            self.client.indices.create(index=self.index_name(), body=self.get_index_params())
+            pass
+
+        self.client.indices.create(index=self.index_name(), body=self.get_index_params())
 
     def delete_index(self):
         try:
@@ -74,54 +93,47 @@ class Exporter:
         except NotFoundError:
             return False
 
-    def export_list(self, object_list, bulk_size=10000):
+    def export_list(self, object_list: Iterable[Any], chunk_size=500, refresh=False, verbose=False, **kwargs):
         """
         Export a list of objects
         :param object_list: list of dict
-        :param bulk_size: int, number of objects per bulk request
+        :param chunk_size: int, number of objects per bulk request
         :return: dict, response of elasticsearch bulk call
         """
-        bulk_actions = []
+        verbose_iter = lambda x: x
+        if verbose:
+            try:
+                import tqdm
+                verbose_iter = tqdm.tqdm
+            except ImportError:
+                pass
 
-        num_exported = 0
-        for object_data in object_list:
+        def bulk_actions():
+            for object_data in verbose_iter(object_list):
 
-            es_data_array = self.transform_object_data(object_data)
-            if not isinstance(es_data_array, (list, tuple)):
-                es_data_array = [es_data_array]
+                es_data_iter = self.transform_object_data(object_data)
+                if isinstance(es_data_iter, Mapping):
+                    es_data_iter = [es_data_iter]
 
-            for es_data in es_data_array:
-                object_id = self.get_object_id(es_data)
+                for es_data in es_data_iter:
+                    object_id = self.get_object_id(es_data)
 
-                if not self.client.exists(index=self.index_name(), id=object_id):
-                    bulk_actions.append(
-                        {
-                            "_index": self.index_name(),
-                            "_id": object_id,
-                            "_source": es_data,
-                        }
-                    )
-                else:
-                    # if the order exists already, some updates will be applied
-                    bulk_actions.append(
-                        {
-                            "_op_type": "update",
-                            "_index": self.index_name(),
-                            "_id": object_id,
-                            "doc": es_data
-                        }
-                    )
+                    action = {
+                        "_index": self.index_name(),
+                        "_source": es_data,
+                    }
+                    if object_id is not None:
+                        action["_id"] = object_id
 
-                num_exported += 1
+                    yield action
 
-                if len(bulk_actions) >= bulk_size:
-                    print(f"exporting {num_exported}/{len(object_list)}")
-                    bulk(self.client, bulk_actions)
-                    bulk_actions = []
-
-        if bulk_actions:
-            # TODO: only returning last bulk call, if any..
-            return bulk(self.client, bulk_actions)
+        bulk(
+            client=self.client,
+            actions=bulk_actions(),
+            chunk_size=chunk_size,
+            refresh=refresh,
+            **kwargs,
+        )
 
     def get_index_params(self):
         return {
