@@ -5,6 +5,11 @@ Currently collection of all queries that have some peculiarity
 from .generated_classes import _Terms
 
 
+__all__ = (
+    "Terms",
+)
+
+
 class Terms(_Terms):
 
     def to_dict(self):

@@ -2,8 +2,13 @@
 from datetime import date, datetime
 from typing import Mapping, Sequence, Any, Union, Optional
 
-
 from .query import Query, QueryInterface
+
+
+__all__ = (
+    "_Bool", "Match", "MatchAll", "MatchNone", "QueryString", "Range", "Term",
+    "_Terms"
+)
 
 
 class _Bool(Query, factory=False):

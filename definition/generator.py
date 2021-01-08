@@ -52,17 +52,31 @@ def render_query_class():
     return code.rstrip() + "\n"
 
 
+def to_class_name(name, abstract=False):
+    class_name = "".join(p.title() for p in name.split("_"))
+    if abstract:
+        class_name = f"_{class_name}"
+    return class_name
+
+
 def render_query_classes():
     code = HEADLINE + "\n" + TYPING_IMPORT + "\n\n"
 
-    code += f"\nfrom .query import Query, QueryInterface\n\n"
+    code += f"from .query import Query, QueryInterface\n\n"
+
+    export_names = tuple(
+        to_class_name(query_name, QUERY_DEFINITION[query_name].get("abstract"))
+        for query_name in sorted(QUERY_DEFINITION)
+    )
+
+    code += f"\n__all__ = (\n"
+    code += change_text_indent(", ".join(f'"{n}"' for n in export_names), INDENT, max_length=80)
+    code += "\n)\n\n"
 
     for query_name in sorted(QUERY_DEFINITION):
         definition = QUERY_DEFINITION[query_name]
 
-        class_name = "".join(p.title() for p in query_name.split("_"))
-        if definition.get("abstract"):
-            class_name = f"_{class_name}"
+        class_name = to_class_name(query_name, definition.get("abstract"))
 
         class_parameters = {
             "name": query_name,
