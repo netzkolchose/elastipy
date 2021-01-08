@@ -59,16 +59,32 @@ def accidents_by_state_more_precise():
 
 def accidents_by_city():
     s = search()
+    # make sure we have a population value
+    s = s.range(field="population", gt=0)
 
-    agg = s.agg_terms("city", field="city")
-    add_vehicle_metrics(agg)
+    agg = s.agg_terms("city", field="city", size=30, order="-population")
+
+    # the pipeline aggregation below does not have access to the city.doc_count
+    #   so we repeat the count value here as a metric
+    agg.metric_value_count("count", field="city")
+    agg.metric_avg("population", field="population")
+    agg.metric_avg("density", field="population_density")
+
+    # divide number of accidents by population size
+    agg.pipeline_bucket_script(
+        "accidents_per_population_percent",
+        buckets_path={
+            "accidents": "count",
+            "population": "population"
+        },
+        script="params.accidents / params.population * 100"
+    )
 
     s.execute()
 
     print("\n### Accidents by city\n")
     agg.print.table(digits=3)
 
-accidents_by_city(); exit()
 
 def accidents_by_weekday():
     s = search()

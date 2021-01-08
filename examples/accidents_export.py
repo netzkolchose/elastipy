@@ -106,6 +106,7 @@ class AccidentExporter(Exporter):
             "city": {"type": "keyword"},
             "area": {"type": "float"},
             "population": {"type": "integer"},
+            "population_density": {"type": "float"},
             # "street": {"type": "keyword"},
             "timestamp": {"type": "date"},
             "weekday": {"type": "keyword"},
@@ -238,30 +239,51 @@ def load_mapping_data():
         except ValueError:
             return None
 
-    return {
+    def _float(v):
+        try:
+            v = v.lstrip("0")
+            return float(v[:-2] + "." + v[-2:])
+        except ValueError:
+            return None
+
+    data = {
         l[10:18]: {
-            "city": l[22:72].strip(),
+            "city": l[22:72].strip().split(",")[0],
             "zipcode": l[165:170],
-            "area": _int(l[128:139]),
+            "area": _float(l[128:139]),
             "population": _int(l[139:150]),
         }
         for l in lines
     }
 
+    for entry in data.values():
+        try:
+            entry["population_density"] = entry["population"] / entry["area"]
+        except (TypeError, ZeroDivisionError):
+            pass
+
+    return data
+
 
 def export_data():
+    # load accident data
     data = load_data()
+
+    # create exporter instance
     exporter = AccidentExporter()
+
     # attach the code to geographic mapping data to the exporter
     #   so we can reach it from the transform_object_data method
     exporter.mapping_data = load_mapping_data()
     exporter.codes_not_found = set()
-    # create the index or update it's mapping
-    exporter.delete_index()
-    exporter.update_index()
-    # export everything
-    exporter.export_list(data)
 
+    # create the index or update it's mapping
+    exporter.update_index()
+
+    # export everything
+    exporter.export_list(data, verbose=True, chunk_size=10000)
+
+    # well... 'open' administrative data is still 'administrative'
     if exporter.codes_not_found:
         print(len(exporter.codes_not_found), "administrative codes not mapped")
 
@@ -269,4 +291,5 @@ def export_data():
 if __name__ == "__main__":
     export_data()
     #print(load_data()[:10])
-
+    #data = load_mapping_data()
+    #print(data["11000000"])
