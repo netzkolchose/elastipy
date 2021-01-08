@@ -4,7 +4,7 @@ from typing import Optional, Union, Mapping, Callable, Sequence
 
 from elasticsearch import Elasticsearch
 
-from .client import get_elastic_client
+from . import connections
 from .aggregation import Aggregation, AggregationInterface, factory as agg_factory
 from .query import QueryInterface, EmptyQuery
 from ._json import make_json_compatible
@@ -76,10 +76,8 @@ class Search(QueryInterface, AggregationInterface):
 
     def execute(self):
         client = self._client
-        close_client = False
         if client is None:
-            client = get_elastic_client()
-            close_client = True
+            client = connections.get()
 
         response = client.search(
             index=self._index,
@@ -88,9 +86,6 @@ class Search(QueryInterface, AggregationInterface):
             },
             body=self.body,
         )
-
-        if close_client:
-            client.close()
 
         self.set_response(response)
         return self._response

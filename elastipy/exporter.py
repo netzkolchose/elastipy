@@ -6,7 +6,7 @@ from typing import Iterable, Any, Mapping, Union, Iterator, Sequence
 from elasticsearch import ElasticsearchException, NotFoundError
 from elasticsearch.helpers import streaming_bulk, bulk
 
-from .client import get_elastic_client
+from . import connections
 from .search import Search
 
 
@@ -41,7 +41,7 @@ class Exporter:
     @property
     def client(self):
         if self._client is None:
-            self._client = get_elastic_client()
+            self._client = connections.get()
         return self._client
 
     def index_name(self) -> str:
