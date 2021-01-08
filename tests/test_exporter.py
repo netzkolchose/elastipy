@@ -57,6 +57,13 @@ class TestExporterMultiWithId(TestExporterMulti):
         return "%(id)s-%(number)s" % es_data
 
 
+class TestExporterIndexPrefix(TestExporter):
+    INDEX_NAME = "elastipy---unittest-exporter-prefix*"
+
+    def get_document_index(self, es_data):
+        return self.index_name().replace("*", "-%s" % str(es_data.get("tag")).lower())
+
+
 class TestTheExporter(unittest.TestCase):
 
     def assertDocuments(self, documents, response):
@@ -68,7 +75,6 @@ class TestTheExporter(unittest.TestCase):
 
     def test_create_update_no_id(self):
         exporter = TestExporter()
-        exporter.update_index()
         try:
             exporter.export_list([{"id": 0}, {"id": 1}], refresh=True)
             self.assertDocuments(
@@ -99,7 +105,6 @@ class TestTheExporter(unittest.TestCase):
 
     def test_create_update_id(self):
         exporter = TestExporterWithId()
-        exporter.update_index()
         try:
             exporter.export_list([{"id": 0}, {"id": 1}], refresh=True)
             self.assertDocuments(
@@ -130,7 +135,6 @@ class TestTheExporter(unittest.TestCase):
 
     def test_create_update_multi(self):
         exporter = TestExporterMulti()
-        exporter.update_index()
         try:
             exporter.export_list([{"id": 0}, {"id": 1}], refresh=True)
             self.assertDocuments(
@@ -166,6 +170,40 @@ class TestTheExporter(unittest.TestCase):
                 [{"id": 1, "number": 1}, {"id": 1, "number": 2},
                  {"id": 0, "number": 1}, {"id": 0, "number": 2}],
                 exporter.search().sort("timestamp").execute(),
+            )
+
+        finally:
+            exporter.delete_index()
+
+    def test_create_update_prefix(self):
+        exporter = TestExporterIndexPrefix()
+        try:
+            exporter.export_list([{"id": 0, "tag": "a"}, {"id": 1, "tag": "b"}], refresh=True)
+            self.assertDocuments(
+                [{"id": 0, "tag": "a"}, {"id": 1, "tag": "b"}],
+                exporter.search().sort("timestamp").execute(),
+            )
+            self.assertDocuments(
+                [{"id": 0, "tag": "a"}],
+                exporter.search().index(exporter.index_name().replace("*", "-a")).sort("timestamp").execute(),
+            )
+            self.assertDocuments(
+                [{"id": 1, "tag": "b"}],
+                exporter.search().index(exporter.index_name().replace("*", "-b")).sort("timestamp").execute(),
+            )
+
+            exporter.export_list([{"id": 0, "tag": "a"}, {"id": 1, "tag": "b"}], refresh=True)
+            self.assertDocuments(
+                [{"id": 0, "tag": "a"}, {"id": 1, "tag": "b"}] * 2,
+                exporter.search().sort("timestamp").execute(),
+            )
+            self.assertDocuments(
+                [{"id": 0, "tag": "a"}] * 2,
+                exporter.search().index(exporter.index_name().replace("*", "-a")).sort("timestamp").execute(),
+            )
+            self.assertDocuments(
+                [{"id": 1, "tag": "b"}] * 2,
+                exporter.search().index(exporter.index_name().replace("*", "-b")).sort("timestamp").execute(),
             )
 
         finally:
