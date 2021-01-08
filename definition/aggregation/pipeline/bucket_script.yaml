@@ -1,0 +1,24 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-bucket-script-aggregation.html
+doc: |
+    A parent pipeline aggregation which executes a script which can perform per bucket computations on specified metrics in the parent multi-bucket aggregation. The specified metric must be numeric and the script must return a numeric value.
+parameters:
+    script:
+        type: str
+        required: True
+        doc: |
+            The script to run for this aggregation. The script can be inline, file or indexed. (see [Scripting](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting.html) for more details)
+    buckets_path:
+        type: Mapping[str, str]
+        required: True
+        doc: |
+            A map of script variables and their associated path to the buckets we wish to use for the variable (see [buckets_path Syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#buckets-path-syntax) for more details)
+    gap_policy:
+        type: str
+        default: skip
+        doc: |
+            The policy to apply when gaps are found in the data (see [Dealing with gaps](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#gap-policy) in the data for more details)
+    format:
+        type: str
+        doc: |
+            Format to apply to the output value of this aggregation
+returns: ['value']

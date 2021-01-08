@@ -86,6 +86,15 @@ class Aggregation(AggregationInterface):
             if c.is_metric():
                 yield c
 
+    def pipelines(self):
+        """
+        Iterate through all contained pipeline aggregations
+        :return: generator of Aggregation
+        """
+        for c in self.children:
+            if c.is_pipeline():
+                yield c
+
     def to_body(self):
         """
         Returns the part of the elasticsearch request body

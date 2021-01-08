@@ -1,4 +1,5 @@
 from copy import copy, deepcopy
+from itertools import chain
 from typing import Sequence, Union, Optional, Iterable, Tuple, TextIO, Any
 
 from elastipy.aggregation import Aggregation
@@ -116,7 +117,7 @@ class Visitor:
                 agg.name: bucket[b_key] if b_key in bucket else b_key,
                 f"{agg.name}.doc_count": bucket["doc_count"],
             }
-            for metric in agg.metrics():
+            for metric in chain(agg.metrics(), agg.pipelines()):
                 return_keys = metric.definition.get("returns", "value")
                 if isinstance(return_keys, str):
                     return_keys = [return_keys]
