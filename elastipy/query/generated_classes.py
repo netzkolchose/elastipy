@@ -26,7 +26,7 @@ class _Bool(Query, factory=False):
     """
 
     name = 'bool'
-    _optional_parameters = {'must': None, 'must_not': None, 'should': None, 'filter': None}
+    _parameters = {'must': {}, 'must_not': {}, 'should': {}, 'filter': {}}
 
 
     def __init__(
@@ -87,7 +87,7 @@ class Match(Query):
     """
 
     name = 'match'
-    _optional_parameters = {'auto_generate_synonyms_phrase_query': True, 'fuzziness': None, 'max_expansions': 50, 'prefix_length': 0, 'fuzzy_transpositions': True, 'fuzzy_rewrite': None, 'lenient': False, 'operator': None, 'minimum_should_match': None, 'zero_terms_query': 'none'}
+    _parameters = {'field': {'required': True, 'top_level': True}, 'query': {'required': True}, 'auto_generate_synonyms_phrase_query': {'default': True}, 'fuzziness': {}, 'max_expansions': {'default': 50}, 'prefix_length': {'default': 0}, 'fuzzy_transpositions': {'default': True}, 'fuzzy_rewrite': {}, 'lenient': {'default': False}, 'operator': {}, 'minimum_should_match': {}, 'zero_terms_query': {'default': 'none'}}
     _top_level_parameter = 'field'
 
 
@@ -209,7 +209,7 @@ class MatchAll(Query):
     """
 
     name = 'match_all'
-    _optional_parameters = {'boost': None}
+    _parameters = {'boost': {}}
 
 
     def __init__(
@@ -241,7 +241,7 @@ class MatchNone(Query):
     """
 
     name = 'match_none'
-    _optional_parameters = {}
+    _parameters = {}
 
 
     def __init__(
@@ -288,7 +288,7 @@ class QueryString(Query):
     """
 
     name = 'query_string'
-    _optional_parameters = {'default_field': None, 'allow_leading_wildcard': True, 'analyze_wildcard': False, 'analyzer': None, 'auto_generate_synonyms_phrase_query': None, 'boost': 1.0, 'default_operator': None, 'enable_position_increments': True, 'fields': None, 'fuzziness': None, 'fuzzy_max_expansions': 50, 'fuzzy_prefix_length': 0, 'fuzzy_transpositions': True, 'lenient': False, 'max_determinized_states': 10000, 'minimum_should_match': None, 'quote_analyzer': None, 'phrase_slop': 0, 'quote_field_suffix': None, 'rewrite': None, 'time_zone': None}
+    _parameters = {'query': {'required': True}, 'default_field': {}, 'allow_leading_wildcard': {'default': True}, 'analyze_wildcard': {'default': False}, 'analyzer': {}, 'auto_generate_synonyms_phrase_query': {}, 'boost': {'default': 1.0}, 'default_operator': {}, 'enable_position_increments': {'default': True}, 'fields': {}, 'fuzziness': {}, 'fuzzy_max_expansions': {'default': 50}, 'fuzzy_prefix_length': {'default': 0}, 'fuzzy_transpositions': {'default': True}, 'lenient': {'default': False}, 'max_determinized_states': {'default': 10000}, 'minimum_should_match': {}, 'quote_analyzer': {}, 'phrase_slop': {'default': 0}, 'quote_field_suffix': {}, 'rewrite': {}, 'time_zone': {}}
 
 
     def __init__(
@@ -540,7 +540,7 @@ class Range(Query):
     """
 
     name = 'range'
-    _optional_parameters = {'gt': None, 'gte': None, 'lt': None, 'lte': None, 'format': None, 'relation': 'INTERSECTS', 'time_zone': None, 'boost': None}
+    _parameters = {'field': {'required': True, 'top_level': True}, 'gt': {}, 'gte': {}, 'lt': {}, 'lte': {}, 'format': {}, 'relation': {'default': 'INTERSECTS'}, 'time_zone': {}, 'boost': {}}
     _top_level_parameter = 'field'
 
 
@@ -645,7 +645,7 @@ class Term(Query):
     """
 
     name = 'term'
-    _optional_parameters = {'boost': None, 'case_insensitive': None}
+    _parameters = {'field': {'required': True, 'top_level': True}, 'value': {'required': True}, 'boost': {}, 'case_insensitive': {}}
     _top_level_parameter = 'field'
 
 
@@ -708,7 +708,7 @@ class _Terms(Query, factory=False):
     """
 
     name = 'terms'
-    _optional_parameters = {'boost': None}
+    _parameters = {'field': {'required': True, 'top_level': True}, 'value': {'required': True}, 'boost': {}}
     _top_level_parameter = 'field'
 
 

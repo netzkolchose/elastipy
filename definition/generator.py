@@ -80,10 +80,13 @@ def render_query_classes():
 
         class_parameters = {
             "name": query_name,
-            "_optional_parameters": {
-                param_name: param.get("default")
+            "_parameters": {
+                param_name: {
+                    key: value
+                    for key, value in param.items()
+                    if key not in ("doc", "type")
+                }
                 for param_name, param in definition["parameters"].items()
-                if not param.get("required")
             }
         }
 

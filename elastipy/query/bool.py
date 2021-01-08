@@ -56,7 +56,7 @@ class Bool(_Bool):
         return self.parameters.get(name) or []
 
     def _set_bool_param(self, name, value):
-        if value == self._optional_parameters.get(name):
+        if value == self._parameters.get(name, {}).get("default"):
             self.parameters.pop(name, None)
         else:
             assert isinstance(value, Sequence), f"Failed in {self} with {name}:{value}"

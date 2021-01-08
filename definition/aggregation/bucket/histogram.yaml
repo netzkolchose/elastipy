@@ -54,7 +54,8 @@ parameters:
             Specifies the format of the 'key_as_string' response.
             See: https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html
     order:
-        type: Mapping[str, Any]
+        type: Union[Mapping, str]
+        order: True
         doc: |
             By default the returned buckets are sorted by their key ascending, though the order behaviour can be controlled using the order setting. Supports the same order functionality as the [Terms Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-order).
     keyed:

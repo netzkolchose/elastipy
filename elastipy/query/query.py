@@ -1,6 +1,6 @@
 import re
 from copy import copy, deepcopy
-from typing import Mapping
+from typing import Mapping, Any
 
 from .generated_interface import QueryInterface
 
@@ -12,7 +12,7 @@ class Query(QueryInterface):
     _factory_class_map = dict()
 
     _top_level_parameter = None
-    _optional_parameters = {}
+    _parameters = {}
     name = None
 
     def __init_subclass__(cls, **kwargs):
@@ -73,10 +73,14 @@ class Query(QueryInterface):
 
     def _map_parameters(self, params: Mapping) -> dict:
         return {
-            key: value
+            key: self._map_parameter(key, value)
             for key, value in params.items()
-            if key not in self._optional_parameters or value != self._optional_parameters[key]
+            if self._parameters.get(key, {}).get("required") or value != self._parameters.get(key, {}).get("default")
         }
+
+    def _map_parameter(self, name: str, value: Any) -> Any:
+        return value
+
 
 def value_to_dict(value):
     #if hasattr(value, "query_to_dict"):
