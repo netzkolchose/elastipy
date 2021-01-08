@@ -22,10 +22,10 @@ class OrderExporter(Exporter):
         }
     }
 
-    def get_object_id(self, data):
+    def get_document_id(self, data):
         return "%s-%s" % (data["order_id"], data["item_line_index"])
 
-    def transform_object_data(self, data):
+    def transform_document(self, data):
         basis = data.copy()
         items = basis.pop("items")
         elastic_data = []

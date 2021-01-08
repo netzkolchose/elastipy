@@ -54,7 +54,7 @@ class Exporter:
         from .search import Search
         return Search(index=self.index_name(), client=self._client, **kwargs)
 
-    def get_object_id(self, es_data):
+    def get_document_id(self, es_data):
         """
         Override this to return a single elasticsearch object's id
         :param es_data: dict, single object as returned by transform_object_data()
@@ -62,7 +62,7 @@ class Exporter:
         """
         return None
 
-    def transform_object_data(self, data):
+    def transform_document(self, data):
         """
         Override this to transform each object's data for elasticsearch
         Return a list of you want to split data into multiple elasticsearch documents
@@ -111,12 +111,12 @@ class Exporter:
         def bulk_actions():
             for object_data in verbose_iter(object_list):
 
-                es_data_iter = self.transform_object_data(object_data)
+                es_data_iter = self.transform_document(object_data)
                 if isinstance(es_data_iter, Mapping):
                     es_data_iter = [es_data_iter]
 
                 for es_data in es_data_iter:
-                    object_id = self.get_object_id(es_data)
+                    object_id = self.get_document_id(es_data)
 
                     action = {
                         "_index": self.index_name(),

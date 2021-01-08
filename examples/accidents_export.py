@@ -131,11 +131,11 @@ class AccidentExporter(Exporter):
         }
     }
 
-    def get_object_id(self, es_data):
+    def get_document_id(self, es_data):
         return es_data["id"]
 
     # here we convert a single line from the CSV to the elasticsearch object
-    def transform_object_data(self, data):
+    def transform_document(self, data):
         try:
             code = "".join((data["ULAND"], data["UREGBEZ"], data["UKREIS"], data["UGEMEINDE"]))
 
