@@ -1,5 +1,6 @@
 import datetime
 from copy import copy
+from io import StringIO
 import unittest
 
 from elastipy import Search, query, Exporter
@@ -205,6 +206,34 @@ class TestTheExporter(unittest.TestCase):
                 [{"id": 1, "tag": "b"}] * 2,
                 exporter.search().index(exporter.index_name().replace("*", "-b")).sort("timestamp").execute(),
             )
+
+        finally:
+            exporter.delete_index()
+
+    def test_verbose(self):
+        exporter = TestExporter()
+        try:
+            for verbose in (True, "simple"):
+                stream = StringIO()
+                exporter.export_list([{"id": 0}, {"id": 1}], verbose=verbose, file=stream)
+                stream.seek(0)
+                self.assertGreater(len(stream.read()), 10)
+
+                def iter():
+                    for i in range(100):
+                        yield {"id": i}
+
+                stream = StringIO()
+                exporter.export_list(iter(), verbose=verbose, file=stream)
+                stream.seek(0)
+                if verbose == "simple":
+                    self.assertIn("TestExporter 0", stream.read())
+
+                stream = StringIO()
+                exporter.export_list(iter(), verbose=verbose, count=100, file=stream)
+                stream.seek(0)
+                if verbose == "simple":
+                    self.assertIn("TestExporter 0/100", stream.read())
 
         finally:
             exporter.delete_index()
