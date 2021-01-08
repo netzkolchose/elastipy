@@ -91,12 +91,16 @@ agg.print.table()
 #### query example
 
 The querying is a bit similar to [elasticsearch-dsl](https://github.com/elastic/elasticsearch-dsl-py) 
+but there are also methods for each supported query on the **Search** object.  
 
 ```python
 from elastipy import Search, query
 
 q = Search(index="world")
-q = q.term("topic", "yet-another-api") | query.Term("topic", "yet-another-operator-overload")
+# chaining means AND
+q = q.term(field="category", value="programming").term("usage", "widely-used")
+# also can use operators
+q = q & (query.Term("topic", "yet-another-api") | query.Term("topic", "yet-another-operator-overload"))
 
 languages_per_country = q.agg_terms(field="country").agg_terms(field="language").execute()
 
@@ -110,6 +114,9 @@ languages_per_country.to_dict()
 #     ('ES', 'php'): 77,
 #     ...
 # }
+
+# .query() replaces the current query 
+q = q.query(query.MatchAll())
 ```
 
 There is some housekeeping and glue code for the basics. The methods for queries and aggregations as 
