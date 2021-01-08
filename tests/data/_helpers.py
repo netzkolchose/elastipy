@@ -3,8 +3,6 @@ import time
 import json
 import pathlib
 
-from elastipy import get_elastic_client
-
 
 PATH = pathlib.Path(__file__).parent.resolve()
 
@@ -14,7 +12,7 @@ def json_data(filename):
         return json.load(fp)
 
 
-def export_data(json_filename_or_data, ExporterClass, client):
+def export_data(json_filename_or_data, ExporterClass, client=None):
     if isinstance(json_filename_or_data, str):
         json_filename_or_data = json_data(json_filename_or_data)
 

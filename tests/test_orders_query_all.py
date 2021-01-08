@@ -5,7 +5,7 @@ import unittest
 
 import elasticsearch
 
-from elastipy import get_elastic_client, Search, query
+from elastipy import Search, query
 from elastipy.query import factory
 from definition.data import QUERY_DEFINITION
 
@@ -17,15 +17,14 @@ class TestOrdersQueryAuto(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.maxDiff = int(1e5)
-        cls.client = get_elastic_client()
-        data.export_data(data.orders.orders1, data.orders.OrderExporter, cls.client)
+        data.export_data(data.orders.orders1, data.orders.OrderExporter)
 
     @classmethod
     def tearDownClass(cls):
-        data.orders.OrderExporter(client=cls.client).delete_index()
+        data.orders.OrderExporter().delete_index()
 
     def search(self):
-        return Search(index=data.orders.OrderExporter.INDEX_NAME, client=self.client)
+        return Search(index=data.orders.OrderExporter.INDEX_NAME)
 
     def iter_searches(self):
         for s in self.iter_queries():

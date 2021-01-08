@@ -70,5 +70,6 @@ class TestQueryHousing(unittest.TestCase):
             s.get_query().parameters["must_not"]
         )
 
+
 if __name__ == "__main__":
     unittest.main()

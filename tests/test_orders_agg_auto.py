@@ -10,7 +10,7 @@ import unittest
 import warnings
 from collections import Counter
 
-from elastipy import get_elastic_client, Search, query
+from elastipy import Search, query
 from definition.data import AGGREGATION_DEFINITION
 
 from . import data
@@ -24,15 +24,14 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.maxDiff = int(1e5)
-        cls.client = get_elastic_client()
-        data.export_data(data.orders.orders1, data.orders.OrderExporter, cls.client)
+        data.export_data(data.orders.orders1, data.orders.OrderExporter)
 
     @classmethod
     def tearDownClass(cls):
-        data.orders.OrderExporter(client=cls.client).delete_index()
+        data.orders.OrderExporter().delete_index()
 
     def search(self):
-        return Search(index=data.orders.OrderExporter.INDEX_NAME, client=self.client)
+        return Search(index=data.orders.OrderExporter.INDEX_NAME)
 
     def iter_aggs(self, group, exclude=()):
         for agg_type, definition in AGGREGATION_DEFINITION.items():
@@ -161,6 +160,8 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
                 "value.field": "quantity",
                 "weight.field": "item_line_index",
             })
+        if agg_type == "value_count":
+            params["field"] = "sku"
 
         for name, param in definition["parameters"].items():
             if param.get("required") and name not in params:
