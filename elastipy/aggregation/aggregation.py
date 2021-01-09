@@ -24,33 +24,29 @@ class Aggregation(AggregationInterface):
     def __init__(self, search, name, type, params):
         from ..search import Response
         from ..plot import PlotWrapper
-        from .visitor import AggregationVisitor
         AggregationInterface.__init__(self, timestamp_field=search.timestamp_field)
         self.search = search
         self.name = name
         self.type = type
         self.definition = self.AGGREGATION_DEFINITION.get(self.type) or dict()
-        self.params = self._get_parameters(params)
+        self.params = self._map_parameters(params)
         self._response: Optional[Response] = None
         self.parent: Optional[Aggregation] = None
         self.root: Aggregation = self
         self.children: List[Aggregation] = []
-        self._visitor: Optional[AggregationVisitor] = None
         self._plot: Optional[PlotWrapper] = None
 
     def __repr__(self):
         return f"{self.__class__.__name__}('{self.name}', '{self.type}')"
 
     @property
-    def visitor(self):
+    def print(self):
         """
-        Returns an AggregationVisitor attached to this aggregation
-        :return: AggregationVisitor instance
+        Access to printing interface
+        :return: PrintWrapper instance
         """
-        from .visitor import AggregationVisitor
-        if self._visitor is None:
-            self._visitor = AggregationVisitor(self)
-        return self._visitor
+        from .print_wrapper import PrintWrapper
+        return PrintWrapper(self)
 
     @property
     def plot(self):
@@ -84,6 +80,7 @@ class Aggregation(AggregationInterface):
             warn(f"Aggregation '{self.name}'/{self.type} has no definition, is_pipeline() is unknown")
         return self.definition.get("group") == "pipeline"
 
+    # Not defined in yamls and not used yet
     #def is_single_bucket(self):
     #    if not self.definition:
     #        warn(f"Aggregation '{self.name}'/{self.type} has no definition, is_single_bucket() is unknown")
@@ -98,12 +95,27 @@ class Aggregation(AggregationInterface):
             if c.is_metric():
                 yield c
 
+    def pipelines(self):
+        """
+        Iterate through all contained pipeline aggregations
+        :return: generator of Aggregation
+        """
+        for c in self.children:
+            if c.is_pipeline():
+                yield c
+
     def to_body(self):
         """
         Returns the part of the elasticsearch request body
         :return: dict
         """
-        return make_json_compatible(self.params)
+        params = make_json_compatible(self.params)
+        if self.definition.get("parameters"):
+            for key, defi in self.definition["parameters"].items():
+                # convert 'ranges' lists to dict
+                if defi.get("ranges") and params.get("ranges"):
+                    params["ranges"] = _convert_ranges_param(self, params["ranges"])
+        return params
 
     def aggregation(self, *aggregation_name_type, **params) -> 'Aggregation':
         """
@@ -181,7 +193,8 @@ class Aggregation(AggregationInterface):
         :param key_separator: str, optional separator to concat multiple keys into one string
         :return: generator
         """
-        return self.visitor.keys(key_separator=key_separator)
+        from .visitor import Visitor
+        return Visitor(self).keys(key_separator=key_separator)
 
     def values(self, default=None):
         """
@@ -189,7 +202,8 @@ class Aggregation(AggregationInterface):
         :param default: if not None any None-value will be replaced by this
         :return: generator
         """
-        return self.visitor.values(default=default)
+        from .visitor import Visitor
+        return Visitor(self).values(default=default)
 
     def items(self, key_separator=None, default=None) -> Iterable[Tuple]:
         """
@@ -209,10 +223,12 @@ class Aggregation(AggregationInterface):
 
         :return: generator of dict
         """
-        return self.visitor.dict_rows()
+        from .visitor import Visitor
+        return Visitor(self).dict_rows()
 
     def rows(self, header=True) -> Iterable[Sequence]:
-        return self.visitor.rows(header=header)
+        from .visitor import Visitor
+        return Visitor(self).rows(header=header)
 
     def to_dict(self, key_separator=None, default=None) -> dict:
         """
@@ -225,17 +241,6 @@ class Aggregation(AggregationInterface):
             key: value
             for key, value in self.items(key_separator=key_separator, default=default)
         }
-
-    def dump_dict(self, key_separator="|", default=None, indent=2, file=None):
-        print(json.dumps(self.to_dict(key_separator=key_separator, default=default), indent=indent), file=file)
-
-    def dump_table(self, header: bool = True, file: TextIO = None):
-        """
-        Print the result of the dict_rows() function as table to console.
-        :param header: bool, if True, include the names in the first row
-        :param file: optional text stream to print to
-        """
-        self.visitor.dump_table(header=header, file=file)
 
     def key_name(self) -> str:
         """
@@ -262,7 +267,7 @@ class Aggregation(AggregationInterface):
         else:
             return f"{self.parent.body_path()}.aggregations.{self.name}"
 
-    def _get_parameters(self, params: Mapping) -> Mapping:
+    def _map_parameters(self, params: Mapping) -> Mapping:
         """
         Convert the constructor parameters to aggregation parameters.
         It basically just removes the default parameters that are not changed.
@@ -270,8 +275,11 @@ class Aggregation(AggregationInterface):
         """
         ret_params = dict()
         for key, value in params.items():
-            if self.definition.get("parameters") and key in self.definition["parameters"]:
-                param_def = self.definition["parameters"][key]
+
+            param_key = key.replace("__", ".")
+            if self.definition.get("parameters") and param_key in self.definition["parameters"]:
+                param_def = self.definition["parameters"][param_key]
+
                 # not required and matches default value
                 if not param_def.get("required") and param_def.get("default") == value:
                     if param_def.get("timestamp"):
@@ -279,7 +287,29 @@ class Aggregation(AggregationInterface):
                     else:
                         continue
 
-            ret_params[key] = value
+                # convert order convenience format
+                if param_def.get("order"):
+                    if isinstance(value, str):
+                        if value.startswith("-"):
+                            value = {value[1:]: "desc"}
+                        else:
+                            value = {value: "asc"}
+
+            if "__" in key or "." in key:
+                # TODO: this will break for sub-sub-keys but it's anyway not a good approach..
+                root_key, sub_key = key.split("__") if "__" in key else key.split(".")
+                if root_key not in ret_params:
+                    ret_params[root_key] = dict()
+                ret_params[root_key][sub_key] = value
+            else:
+                ret_params[key] = value
+
+        if self.definition.get("parameters"):
+            for name, param in self.definition["parameters"].items():
+                # case when creating through generic .aggregation() function
+                if param.get("timestamp") and name not in ret_params:
+                    ret_params[name] = self.search.timestamp_field
+
         return ret_params
 
 
@@ -296,3 +326,25 @@ def factory(search, name, type, params) -> Aggregation:
             raise TypeError(f"{e} in class {klass.__name__}")
 
     return Aggregation(search, name, type, params)
+
+
+def _convert_ranges_param(agg, ranges):
+    if not isinstance(ranges, Sequence):
+        raise TypeError(f"{agg} 'ranges' parameter must be list or dict")
+
+    ret = []
+    prev_value = None
+    for i, r in enumerate(ranges):
+        if isinstance(r, Mapping):
+            ret.append(r)
+            if "to" in r:
+                prev_value = r
+        else:
+            if prev_value is None:
+                ret.append({"to": r})
+            else:
+                ret.append({"from": prev_value, "to": r})
+                if i == len(ranges) - 1:
+                    ret.append({"from": r})
+            prev_value = r
+    return ret

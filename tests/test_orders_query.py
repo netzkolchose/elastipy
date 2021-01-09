@@ -5,7 +5,7 @@ import unittest
 
 import elasticsearch
 
-from elastipy import get_elastic_client, Search
+from elastipy import Search
 
 from . import data
 
@@ -15,16 +15,14 @@ class TestOrdersQuery(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.maxDiff = int(1e5)
-        cls.client = get_elastic_client()
-        data.export_data(data.orders.orders1, data.orders.OrderExporter, cls.client)
-        time.sleep(1.1)  # give time to update index
+        data.export_data(data.orders.orders1, data.orders.OrderExporter)
 
     @classmethod
     def tearDownClass(cls):
-        data.orders.OrderExporter(client=cls.client).delete_index()
+        data.orders.OrderExporter().delete_index()
 
     def search(self):
-        return Search(index=data.orders.OrderExporter.INDEX_NAME, client=self.client)
+        return Search(index=data.orders.OrderExporter.INDEX_NAME)
 
     def test_total_hits_all(self):
         search = self.search()
@@ -58,6 +56,20 @@ class TestOrdersQuery(unittest.TestCase):
         self.assertEqual(3, search.term("channel", "the-shop").execute().total_hits)
         self.assertEqual(2, search.term("channel", "the-sale").execute().total_hits)
         self.assertEqual(2, search.term("channel", "the-end").execute().total_hits)
+
+    def test_total_hits_terms(self):
+        search = self.search()
+        search = search.terms(field="country", value=["DE", "GB"])
+        self.assertEqual(
+            sum(len(o["items"]) for o in data.orders.orders1),
+            search.execute().total_hits
+        )
+
+    def test_total_hits_query_string(self):
+        self.assertEqual(
+            sum(len(o["items"]) for o in data.orders.orders1 if o["country"] == "DE"),
+            self.search().query_string(query="country: DE").execute().total_hits
+        )
 
     def test_total_hits_match(self):
         query = self.search()

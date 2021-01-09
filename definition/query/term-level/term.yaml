@@ -11,7 +11,7 @@ parameters:
         doc: |
             Field you wish to search.
     value:
-        type: str
+        type: Union[str, int, float, bool, datetime]
         required: True
         doc: |
             Term you wish to find in the provided <field>. To return a document, the term must exactly match the field value, including whitespace and capitalization.

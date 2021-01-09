@@ -26,7 +26,7 @@ class TestQueryBody(unittest.TestCase):
             if i == 0:
                 real_body = q.to_dict()
             else:
-                real_body = q.body["query"]
+                real_body = q.to_body()["query"]
             self.assertEqual(
                 expected_body,
                 real_body,

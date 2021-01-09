@@ -1,7 +1,7 @@
 import time
 import unittest
 
-from elastipy import get_elastic_client, Search
+from elastipy import Search
 from elastipy.plot.text.characters import UnicodeCharacters
 
 from . import data
@@ -12,16 +12,15 @@ class TestOrdersAggregations(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.maxDiff = int(1e5)
-        cls.client = get_elastic_client()
-        data.export_data(data.orders.orders1, data.orders.OrderExporter, cls.client)
+        data.export_data(data.orders.orders1, data.orders.OrderExporter)
         time.sleep(1.1)  # give time to update index
 
     @classmethod
     def tearDownClass(cls):
-        data.orders.OrderExporter(client=cls.client).delete_index()
+        data.orders.OrderExporter().delete_index()
 
     def search(self):
-        return Search(index=data.orders.OrderExporter.INDEX_NAME, client=self.client)
+        return Search(index=data.orders.OrderExporter.INDEX_NAME)
 
     def test_unicode_bar(self):
         #for i in range(9):

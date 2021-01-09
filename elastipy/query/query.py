@@ -1,5 +1,6 @@
 import re
 from copy import copy, deepcopy
+from typing import Mapping, Any
 
 from .generated_interface import QueryInterface
 
@@ -11,7 +12,7 @@ class Query(QueryInterface):
     _factory_class_map = dict()
 
     _top_level_parameter = None
-    _optional_parameters = {}
+    _parameters = {}
     name = None
 
     def __init_subclass__(cls, **kwargs):
@@ -24,11 +25,7 @@ class Query(QueryInterface):
         than the default values into the 'parameters' attribute.
         :param params: any
         """
-        self.parameters = {
-            key: value
-            for key, value in params.items()
-            if key not in self._optional_parameters or value != self._optional_parameters[key]
-        }
+        self.parameters = self._map_parameters(params)
         if not self.name:
             raise TypeError(
                 f"Can not create Query instances directly, use one of the derived classes"
@@ -44,7 +41,13 @@ class Query(QueryInterface):
         return self.__class__(**params)
 
     def __eq__(self, other):
-        return self.to_dict() == other.to_dict()
+        if isinstance(other, Mapping):
+            dic = other
+        elif isinstance(other, Query):
+            dic = other.to_dict()
+        else:
+            return False
+        return self.to_dict() == dic
 
     def copy(self):
         return self.__copy__()
@@ -68,6 +71,16 @@ class Query(QueryInterface):
     def new_query(self, name, **params) -> 'Query':
         return factory(name, **params)
 
+    def _map_parameters(self, params: Mapping) -> dict:
+        return {
+            key: self._map_parameter(key, value)
+            for key, value in params.items()
+            if self._parameters.get(key, {}).get("required") or value != self._parameters.get(key, {}).get("default")
+        }
+
+    def _map_parameter(self, name: str, value: Any) -> Any:
+        return value
+
 
 def value_to_dict(value):
     #if hasattr(value, "query_to_dict"):
@@ -75,7 +88,7 @@ def value_to_dict(value):
     if hasattr(value, "to_dict"):
         return value.to_dict()
     elif isinstance(value, (list, tuple)):
-        return [value_to_dict(v) if hasattr(v, "to_dict") else v for v in value]
+        return [value_to_dict(v) for v in value]
     return value
 
 

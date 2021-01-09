@@ -1,11 +1,12 @@
 from copy import copy, deepcopy
-from typing import Sequence, Union, Optional, Iterable, Tuple, TextIO
+from itertools import chain
+from typing import Sequence, Union, Optional, Iterable, Tuple, TextIO, Any
 
 from elastipy.aggregation import Aggregation
 from elastipy._print import print_dict_rows, dict_rows_to_list_rows
 
 
-class AggregationVisitor:
+class Visitor:
     """
     Helper to access the results of aggregations
     """
@@ -21,13 +22,14 @@ class AggregationVisitor:
     def children(self, depth_first: bool = True):
         yield from self._child_aggregations(self.agg, depth_first=depth_first)
 
-    def dump_table(self, header: bool = True, file: TextIO = None):
+    def dump_table(self, header: bool = True, digits: Optional[int] = None, file: TextIO = None):
         """
         Print the result of the dict_rows() function as table to console.
         :param header: bool, if True, include the names in the first row
+        :param digits: int, optional number of digits for rounding
         :param file: optional text stream to print to
         """
-        print_dict_rows(self.dict_rows(), header=header, file=file)
+        print_dict_rows(self.dict_rows(), header=header, digits=digits, file=file)
 
     def _child_aggregations(self, agg: Aggregation, filter=None, depth_first: bool = True):
         if depth_first:
@@ -70,8 +72,17 @@ class AggregationVisitor:
         :return: generator of str, int or float
         """
         if not self.agg.parent:
-            for b in self.agg.buckets:
-                yield self._concat_key(b[self.agg.key_name()], key_separator=key_separator)
+            if "buckets" in self.agg.response:
+                for b_key, b in self._iter_bucket_items(self.agg):
+                    if b_key not in b:
+                        key = b_key
+                    else:
+                        key = b[b_key]
+                    # wrap into concat in case it does something more at some point
+                    yield self._concat_key(key, key_separator=key_separator)
+            else:
+                # wrap into concat in case it does something more at some point
+                yield self._concat_key(self.agg.name, key_separator=key_separator)
             return
 
         for k in self._iter_sub_keys(self.root_branch()):
@@ -106,16 +117,20 @@ class AggregationVisitor:
                 agg.name: bucket[b_key] if b_key in bucket else b_key,
                 f"{agg.name}.doc_count": bucket["doc_count"],
             }
-            for metric in agg.metrics():
+            for metric in chain(agg.metrics(), agg.pipelines()):
                 return_keys = metric.definition.get("returns", "value")
                 if isinstance(return_keys, str):
                     return_keys = [return_keys]
 
                 if len(return_keys) == 1:
-                    row[metric.name] = bucket[metric.name][return_keys[0]]
+                    values = {metric.name: bucket[metric.name].get(return_keys[0])}
                 else:
+                    values = dict()
                     for key in return_keys:
-                        row[f"{metric.name}.{key}"] = bucket[metric.name][key]
+                        if key in bucket[metric.name]:
+                            values[f"{metric.name}.{key}"] = bucket[metric.name][key]
+
+                row.update(self._expand_value(values))
 
             has_sub_bucket = False
             for bucket_agg in agg.children:
@@ -129,12 +144,27 @@ class AggregationVisitor:
             if not has_sub_bucket:
                 yield row
 
-    def _concat_key(self, key: Union[str, Sequence], key_separator: Optional[str] = None):
+    def _expand_value(self, value, prefix=None):
+        if isinstance(value, dict):
+            def _iter_items(dic, prefix):
+                for key, value in dic.items():
+                    deep_key = f"{prefix}.{key}" if prefix else key
+                    if isinstance(value, dict):
+                        yield from _iter_items(value, deep_key)
+                    else:
+                        yield deep_key, value
+            return {k: v for k, v in _iter_items(value, prefix)}
+        else:
+            return value
+
+    def _concat_key(self, key: Union[Any, Sequence], key_separator: Optional[str] = None):
         if isinstance(key, str):
             return key
-        if key_separator:
-            return key_separator.join(key)
-        return key if len(key) > 1 else key[0]
+        if isinstance(key, Sequence):
+            if key_separator:
+                return key_separator.join(str(i) for i in key)
+            return key if len(key) > 1 else key[0]
+        return key
 
     def _iter_bucket_items(self, agg: Aggregation, response=None):
         assert agg.is_bucket()
@@ -162,7 +192,7 @@ class AggregationVisitor:
             keys = (b_key, )
             yield from self._iter_sub_keys_rec(b, aggs[1:], keys)
 
-    def _iter_sub_keys_rec(self, bucket: dict, aggs: Sequence[Aggregation], keys: Tuple[str]):
+    def _iter_sub_keys_rec(self, bucket: dict, aggs: Sequence[Aggregation], keys: Tuple[Any, ...]):
         if not aggs[0].name in bucket:
             raise ValueError(f"Expected agg '{aggs[0].name}' in bucket {bucket}")
 
@@ -173,12 +203,19 @@ class AggregationVisitor:
             if aggs[0].is_metric():
                 yield keys
             else:
-                for b in sub_bucket["buckets"]:
-                    yield keys + (b[key_name], )
+                for b_key, b in self._iter_bucket_items(aggs[0], sub_bucket):
+                    if key_name in b:
+                        next_key = b[key_name]
+                    else:
+                        next_key = b_key
+                    yield keys + (next_key, )
         else:
-            aggs = aggs[1:]
-            for b in sub_bucket["buckets"]:
-                yield from self._iter_sub_keys_rec(b, aggs, keys + (b[key_name], ))
+            for b_key, b in self._iter_bucket_items(aggs[0], sub_bucket):
+                if key_name in b:
+                    next_key = b[key_name]
+                else:
+                    next_key = b_key
+                yield from self._iter_sub_keys_rec(b, aggs[1:], keys + (next_key, ))
 
     def _iter_sub_values(self, aggs: Sequence[Aggregation], default=None):
         for _, b in self._iter_bucket_items(aggs[0]):
@@ -189,26 +226,37 @@ class AggregationVisitor:
         if len(aggs) == 1:
             yield from self._iter_values_from_bucket(aggs[0], sub_bucket, default=default)
         else:
-            aggs = aggs[1:]
-            for b in sub_bucket["buckets"]:
-                yield from self._iter_sub_values_rec(b, aggs, default=default)
+            for b_key, b in self._iter_bucket_items(aggs[0], sub_bucket):
+                yield from self._iter_sub_values_rec(b, aggs[1:], default=default)
 
     def _iter_values_from_bucket(self, agg: Aggregation, bucket: dict, default=None):
+        def _make_default(value):
+            if default is not None and value is None:
+                value = default
+            return value
+
         if agg.is_metric():
             return_keys = agg.definition.get("returns", "value")
             values = dict()
             for key in return_keys:
                 if key in bucket:
                     value = bucket[key]
-                    if default is not None and value is None:
-                        value = default
-                    values[key] = value
-            if not values:
-                raise ValueError(f"{self} should have returned fields {return_keys}, got {bucket}")
-            yield values if len(values) > 1 else values[list(values.keys())[0]]
+                    values[key] = _make_default(value)
+
+            # TODO: it might be empty for some aggregations..
+            #if not values:
+            #    raise ValueError(f"{self} should have returned fields {return_keys}, got {bucket}")
+            if len(values) > 1:
+                yield values
+            elif len(values) == 1:
+                yield values.popitem()[1]
+            else:
+                yield _make_default(None)
         else:
-            for b in bucket["buckets"]:
-                value = b["doc_count"]
-                if default is not None and value is None:
-                    value = default
-                yield value
+            if "buckets" in bucket:
+                for b_key, b in self._iter_bucket_items(agg, bucket):
+                    value = b["doc_count"]
+                    yield _make_default(value)
+            else:
+                value = bucket["doc_count"]
+                yield _make_default(value)

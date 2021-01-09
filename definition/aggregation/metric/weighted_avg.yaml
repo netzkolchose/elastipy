@@ -1,15 +1,27 @@
 url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-weight-avg-aggregation.html
+doc: |
+    A single-value metrics aggregation that computes the weighted average of numeric values that are extracted from the aggregated documents. These values can be extracted either from specific numeric fields in the documents.
+
+    When calculating a regular average, each datapoint has an equal "weight" …​ it contributes equally to the final value. Weighted averages, on the other hand, weight each datapoint differently. The amount that each datapoint contributes to the final value is extracted from the document, or provided by a script.
+
+    As a formula, a weighted average is the ∑(value * weight) / ∑(weight)
+
+    A regular average can be thought of as a weighted average where every value has an implicit weight of 1
 parameters:
     value.field:
         type: str
         required: True
+        doc: The field that values should be extracted from
     weight.field:
         type: str
         required: True
+        doc: The field that weights should be extracted from
     value.missing:
         type: Any
+        doc: A value to use if the field is missing entirely
     weight.missing:
         type: Any
+        doc: A weight to use if the field is missing entirely
     format:
         type: str
     value_type:

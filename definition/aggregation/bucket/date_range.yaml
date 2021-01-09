@@ -1,0 +1,54 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html
+doc: |
+    A range aggregation that is dedicated for date values. The main difference between this aggregation and the normal [range](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html) aggregation is that the from and to values can be expressed in [Date Math](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math) expressions, and it is also possible to specify a date format by which the from and to response fields will be returned. Note that this aggregation includes the from value and excludes the to value for each range.
+parameters:
+    ranges:
+        type: Sequence[Union[Mapping[str, str], str]]
+        required: True
+        ranges: True
+        doc: |
+            List of ranges to define the buckets
+
+            Example:
+                [
+                    {"to": "1970-01-01"},
+                    {"from": "1970-01-01", "to": "1980-01-01"},
+                    {"from": "1980-01-01"},
+                ]
+
+            Instead of date values any [Date Math](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math) expression can be used as well.
+
+            Alternatively this parameter can be a list of strings. The above example can be rewritten as:
+                ["1970-01-01", "1980-01-01"]
+
+            Note: This aggregation includes the from value and excludes the to value for each range.
+    field:
+        type: str
+        doc: |
+            The date field
+        timestamp: True
+    format:
+        type: str
+        doc: |
+            The format of the response bucket keys as available for the [DateTimeFormatter](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html)
+    time_zone:
+        type: str
+        doc: |
+            Dates can be converted from another time zone to UTC by specifying the time_zone parameter.
+
+            Time zones may either be specified as an ISO 8601 UTC offset (e.g. +01:00 or -08:00) or as one of the time zone ids from the TZ database.
+
+            The time_zone parameter is also applied to rounding in date math expressions.
+    keyed:
+        type: bool
+        default: False
+        doc: |
+            Setting the keyed flag to true associates a unique string key with each bucket and returns the ranges as a hash rather than an array.
+    missing:
+        type: Any
+        doc: |
+            The missing parameter defines how documents that are missing a value should be treated. By default they will be ignored but it is also possible to treat them as if they had a value.
+    script:
+        type: dict
+        doc: |
+            Generating the terms using a script

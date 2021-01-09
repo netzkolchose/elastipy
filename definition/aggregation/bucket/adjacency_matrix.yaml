@@ -1,0 +1,13 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-adjacency-matrix-aggregation.html
+doc: |
+    A bucket aggregation returning a form of adjacency matrix. The request provides a collection of named filter expressions, similar to the filters aggregation request. Each bucket in the response represents a non-empty cell in the matrix of intersecting filters.
+
+    The matrix is said to be symmetric so we only return half of it. To do this we sort the filter name strings and always use the lowest of a pair as the value to the left of the "&" separator.
+parameters:
+    filters:
+        type: Mapping[str, Union[Mapping, 'QueryInterface']]
+        required: True
+    separator:
+        type: str
+        doc: |
+            An alternative separator parameter can be passed in the request if clients wish to use a separator string other than the default of the ampersand.

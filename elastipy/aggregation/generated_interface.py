@@ -7,7 +7,45 @@ from .interface import AggregationInterfaceBase
 
 class AggregationInterface(AggregationInterfaceBase):
 
-    AGGREGATION_DEFINITION = {'scripted_metric': {'group': 'metric', 'parameters': {'map_script': {'type': 'str', 'required': True}, 'combine_script': {'type': 'str', 'required': True}, 'reduce_script': {'type': 'str', 'required': True}, 'init_script': {'type': 'str'}, 'params': {'type': 'dict'}}, 'returns': ['value']}, 'avg': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'max': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 't_test': {'group': 'metric', 'parameters': {'a.field': {'type': 'str', 'required': True}, 'b.field': {'type': 'str', 'required': True}, 'type': {'type': 'str', 'required': True}, 'a.filter': {'type': 'dict'}, 'b.filter': {'type': 'dict'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'percentiles': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'percents': {'type': 'list', 'default': '(1, 5, 25, 50, 75, 95, 99)'}, 'keyed': {'type': 'bool', 'default': True}, 'tdigest.compression': {'type': 'int', 'default': 100}, 'hdr.number_of_significant_value_digits': {'type': 'int'}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['values']}, 'rate': {'group': 'metric', 'parameters': {'unit': {'type': 'str', 'required': True}, 'field': {'type': 'str'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'weighted_avg': {'group': 'metric', 'parameters': {'value.field': {'type': 'str', 'required': True}, 'weight.field': {'type': 'str', 'required': True}, 'value.missing': {'type': 'Any'}, 'weight.missing': {'type': 'Any'}, 'format': {'type': 'str'}, 'value_type': {'type': 'str'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'top_metrics': {'group': 'metric', 'parameters': {'metrics': {'type': 'dict', 'required': True}, 'sort': {'type': 'dict'}}, 'returns': ['top']}, 'extended_stats': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'sigma': {'type': 'float', 'default': 3.0}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['count', 'min', 'max', 'avg', 'sum', 'sum_of_squares', 'variance', 'variance_population', 'variance_sampling', 'std_deviation', 'std_deviation_population', 'std_deviation_sampling', 'std_deviation_bounds']}, 'string_stats': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'show_distribution': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}}, 'returns': ['count', 'min_length', 'max_length', 'avg_length', 'entropy', 'distribution']}, 'top_hits': {'group': 'metric', 'parameters': {'size': {'type': 'int', 'required': True}, 'sort': {'type': 'dict'}, '_source': {'type': 'dict'}}, 'returns': ['hits']}, 'value_count': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'matrix_stats': {'group': 'metric', 'parameters': {'fields': {'type': 'list', 'required': True}, 'mode': {'type': 'str', 'default': 'avg'}, 'missing': {'type': 'Any'}}, 'returns': ['fields']}, 'geo_bounds': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'wrap_longitude': {'type': 'bool', 'default': True}}, 'returns': ['top_left', 'bottom_right']}, 'min': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'median_absolute_deviation': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'compression': {'type': 'int', 'default': 1000}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'cardinality': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'precision_threshold': {'type': 'int', 'default': 3000}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'geo_centroid': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}}, 'returns': ['location']}, 'boxplot': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'compression': {'type': 'int', 'default': 100}, 'missing': {'type': 'Any'}}, 'returns': ['min', 'max', 'q1', 'q2', 'q3']}, 'sum': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'percentile_ranks': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'values': {'type': 'list', 'required': True}, 'keyed': {'type': 'bool', 'default': True}, 'hdr.number_of_significant_value_digits': {'type': 'int'}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['values']}, 'stats': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}}, 'returns': ['count', 'min', 'max', 'sum', 'count', 'avg']}, 'auto_date_histogram': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'timestamp': True}, 'buckets': {'type': 'int', 'default': 10}, 'minimum_interval': {'type': 'str'}, 'time_zone': {'type': 'str'}, 'format': {'type': 'str'}, 'keyed': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}}, 'terms': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'size': {'type': 'int', 'default': 10}, 'shard_size': {'type': 'int'}, 'show_term_doc_count_error': {'type': 'bool'}, 'order': {'type': 'dict'}, 'min_doc_count': {'type': 'int', 'default': 1}, 'shard_min_doc_count': {'type': 'int'}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'filter': {'group': 'bucket', 'parameters': {'filter': {'type': 'QueryInterface', 'required': True}}}, 'date_histogram': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'timestamp': True}, 'calendar_interval': {'type': 'str'}, 'fixed_interval': {'type': 'str'}, 'min_doc_count': {'type': 'int', 'default': 1}, 'offset': {'type': 'str'}, 'time_zone': {'type': 'str'}, 'format': {'type': 'str'}, 'keyed': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}}, 'filters': {'group': 'bucket', 'parameters': {'filters': {'type': "Mapping[str, 'QueryInterface']", 'required': True}}}, 'derivative': {'group': 'pipeline', 'parameters': {'buckets_path': {'type': 'str', 'required': True}, 'gap_policy': {'type': 'str', 'default': 'skip'}, 'format': {'type': 'str'}, 'units': {'type': 'str'}}, 'returns': ['value']}, 'avg_bucket': {'group': 'pipeline', 'parameters': {'buckets_path': {'type': 'str', 'required': True}, 'gap_policy': {'type': 'str', 'default': 'skip'}, 'format': {'type': 'str'}}, 'returns': ['value']}}
+    AGGREGATION_DEFINITION = {'adjacency_matrix': {'group': 'bucket', 'parameters': {'filters': {'type': "Mapping[str, Union[Mapping, 'QueryInterface']]", 'required': True}, 'separator': {'type': 'str'}}}, 'auto_date_histogram': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'timestamp': True}, 'buckets': {'type': 'int', 'default': 10}, 'minimum_interval': {'type': 'str'}, 'time_zone': {'type': 'str'}, 'format': {'type': 'str'}, 'keyed': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}}, 'avg': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'avg_bucket': {'group': 'pipeline', 'parameters': {'buckets_path': {'type': 'str', 'required': True}, 'gap_policy': {'type': 'str', 'default': 'skip'}, 'format': {'type': 'str'}}, 'returns': ['value']}, 'boxplot': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'compression': {'type': 'int', 'default': 100}, 'missing': {'type': 'Any'}}, 'returns': ['min', 'max', 'q1', 'q2', 'q3']}, 'bucket_script': {'group': 'pipeline', 'parameters': {'script': {'type': 'str', 'required': True}, 'buckets_path': {'type': 'Mapping[str, str]', 'required': True}, 'gap_policy': {'type': 'str', 'default': 'skip'}, 'format': {'type': 'str'}}, 'returns': ['value']}, 'cardinality': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'precision_threshold': {'type': 'int', 'default': 3000}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'children': {'group': 'bucket', 'parameters': {'type': {'type': 'str', 'required': True}}}, 'composite': {'group': 'bucket', 'parameters': {'sources': {'type': 'Sequence[Mapping]', 'required': True}, 'size': {'type': 'int', 'default': 10}, 'after': {'type': 'Union[str, int, float, datetime]'}}}, 'date_histogram': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'timestamp': True}, 'calendar_interval': {'type': 'str'}, 'fixed_interval': {'type': 'str'}, 'min_doc_count': {'type': 'int', 'default': 1}, 'offset': {'type': 'str'}, 'time_zone': {'type': 'str'}, 'format': {'type': 'str'}, 'keyed': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}}, 'date_range': {'group': 'bucket', 'parameters': {'ranges': {'type': 'Sequence[Union[Mapping[str, str], str]]', 'required': True, 'ranges': True}, 'field': {'type': 'str', 'timestamp': True}, 'format': {'type': 'str'}, 'time_zone': {'type': 'str'}, 'keyed': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}}, 'derivative': {'group': 'pipeline', 'parameters': {'buckets_path': {'type': 'str', 'required': True}, 'gap_policy': {'type': 'str', 'default': 'skip'}, 'format': {'type': 'str'}, 'units': {'type': 'str'}}, 'returns': ['value']}, 'diversified_sampler': {'group': 'bucket', 'parameters': {'field': {'type': 'str'}, 'script': {'type': 'Mapping'}, 'shard_size': {'type': 'int', 'default': 100}, 'max_docs_per_value': {'type': 'int', 'default': 1}}}, 'extended_stats': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'sigma': {'type': 'float', 'default': 3.0}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['count', 'min', 'max', 'avg', 'sum', 'sum_of_squares', 'variance', 'variance_population', 'variance_sampling', 'std_deviation', 'std_deviation_population', 'std_deviation_sampling', 'std_deviation_bounds']}, 'filter': {'group': 'bucket', 'parameters': {'filter': {'type': "Union[Mapping, 'QueryInterface']", 'required': True}}}, 'filters': {'group': 'bucket', 'parameters': {'filters': {'type': "Mapping[str, Union[Mapping, 'QueryInterface']]", 'required': True}}}, 'geo_bounds': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'wrap_longitude': {'type': 'bool', 'default': True}}, 'returns': ['bounds']}, 'geo_centroid': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}}, 'returns': ['location']}, 'geo_distance': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'ranges': {'type': 'Sequence[Union[Mapping[str, float], float]]', 'required': True, 'ranges': True}, 'origin': {'type': 'Union[str, Mapping[str, float], Sequence[float]]', 'required': True}, 'unit': {'type': 'str', 'default': 'm'}, 'distance_type': {'type': 'str', 'default': 'arc'}, 'keyed': {'type': 'bool', 'default': False}}}, 'geohash_grid': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'precision': {'type': 'Union[int, str]', 'default': 5}, 'bounds': {'type': 'Mapping'}, 'size': {'type': 'int', 'default': 10000}, 'shard_size': {'type': 'int'}}}, 'geotile_grid': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'precision': {'type': 'Union[int, str]', 'default': 7}, 'bounds': {'type': 'Mapping'}, 'size': {'type': 'int', 'default': 10000}, 'shard_size': {'type': 'int'}}}, 'global': {'group': 'bucket', 'parameters': {}}, 'histogram': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'interval': {'type': 'int', 'required': True}, 'min_doc_count': {'type': 'int', 'default': 0}, 'offset': {'type': 'int'}, 'extended_bounds': {'type': 'Mapping[str, int]'}, 'hard_bounds': {'type': 'Mapping[str, int]'}, 'format': {'type': 'str'}, 'order': {'type': 'Union[Mapping, str]', 'order': True}, 'keyed': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}}}, 'ip_range': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'ranges': {'type': 'Sequence[Union[Mapping[str, str], str]]', 'required': True, 'ranges': True}, 'keyed': {'type': 'bool', 'default': False}}}, 'matrix_stats': {'group': 'metric', 'parameters': {'fields': {'type': 'list', 'required': True}, 'mode': {'type': 'str', 'default': 'avg'}, 'missing': {'type': 'Any'}}, 'returns': ['fields']}, 'max': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'median_absolute_deviation': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'compression': {'type': 'int', 'default': 1000}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'min': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'missing': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}}}, 'percentile_ranks': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'values': {'type': 'list', 'required': True}, 'keyed': {'type': 'bool', 'default': True}, 'hdr.number_of_significant_value_digits': {'type': 'int'}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['values']}, 'percentiles': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'percents': {'type': 'list', 'default': '(1, 5, 25, 50, 75, 95, 99)'}, 'keyed': {'type': 'bool', 'default': True}, 'tdigest.compression': {'type': 'int', 'default': 100}, 'hdr.number_of_significant_value_digits': {'type': 'int'}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['values']}, 'range': {'group': 'bucket', 'parameters': {'ranges': {'type': 'Sequence[Union[Mapping[str, Any], Any]]', 'required': True, 'ranges': True}, 'field': {'type': 'str'}, 'keyed': {'type': 'bool', 'default': False}, 'script': {'type': 'dict'}}}, 'rare_terms': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'max_doc_count': {'type': 'int', 'default': 1}, 'include': {'type': 'Union[str, Sequence[str], Mapping[str, int]]'}, 'exclude': {'type': 'Union[str, Sequence[str]]'}, 'missing': {'type': 'Any'}}}, 'rate': {'group': 'metric', 'parameters': {'unit': {'type': 'str', 'required': True}, 'field': {'type': 'str'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'sampler': {'group': 'bucket', 'parameters': {'shard_size': {'type': 'int', 'default': 100}}}, 'scripted_metric': {'group': 'metric', 'parameters': {'map_script': {'type': 'str', 'required': True}, 'combine_script': {'type': 'str', 'required': True}, 'reduce_script': {'type': 'str', 'required': True}, 'init_script': {'type': 'str'}, 'params': {'type': 'dict'}}, 'returns': ['value']}, 'stats': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}}, 'returns': ['count', 'min', 'max', 'sum', 'count', 'avg']}, 'string_stats': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'show_distribution': {'type': 'bool', 'default': False}, 'missing': {'type': 'Any'}}, 'returns': ['count', 'min_length', 'max_length', 'avg_length', 'entropy', 'distribution']}, 'sum': {'group': 'metric', 'parameters': {'field': {'type': 'str', 'required': True}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 't_test': {'group': 'metric', 'parameters': {'a.field': {'type': 'str', 'required': True}, 'b.field': {'type': 'str', 'required': True}, 'type': {'type': 'str', 'required': True}, 'a.filter': {'type': 'dict'}, 'b.filter': {'type': 'dict'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'terms': {'group': 'bucket', 'parameters': {'field': {'type': 'str', 'required': True}, 'size': {'type': 'int', 'default': 10}, 'shard_size': {'type': 'int'}, 'show_term_doc_count_error': {'type': 'bool'}, 'order': {'type': 'Union[Mapping, str]', 'order': True}, 'min_doc_count': {'type': 'int', 'default': 1}, 'shard_min_doc_count': {'type': 'int'}, 'include': {'type': 'Union[str, Sequence[str], Mapping[str, int]]'}, 'exclude': {'type': 'Union[str, Sequence[str]]'}, 'missing': {'type': 'Any'}, 'script': {'type': 'dict'}}}, 'top_hits': {'group': 'metric', 'parameters': {'size': {'type': 'int', 'required': True}, 'sort': {'type': 'dict'}, '_source': {'type': 'dict'}}, 'returns': ['hits']}, 'top_metrics': {'group': 'metric', 'parameters': {'metrics': {'type': 'dict', 'required': True}, 'sort': {'type': 'dict'}}, 'returns': ['top']}, 'value_count': {'group': 'metric', 'parameters': {'field': {'type': 'str'}, 'script': {'type': 'dict'}}, 'returns': ['value']}, 'weighted_avg': {'group': 'metric', 'parameters': {'value.field': {'type': 'str', 'required': True}, 'weight.field': {'type': 'str', 'required': True}, 'value.missing': {'type': 'Any'}, 'weight.missing': {'type': 'Any'}, 'format': {'type': 'str'}, 'value_type': {'type': 'str'}, 'script': {'type': 'dict'}}, 'returns': ['value']}}
+
+    def agg_adjacency_matrix(
+            self,
+            *aggregation_name: Optional[str],
+            filters: Mapping[str, Union[Mapping, 'QueryInterface']],
+            separator: Optional[str] = None,
+    ):
+        """
+        A bucket aggregation returning a form of adjacency matrix. The request
+        provides a collection of named filter expressions, similar to the filters
+        aggregation request. Each bucket in the response represents a non-empty cell
+        in the matrix of intersecting filters.
+
+        The matrix is said to be symmetric so we only return half of it. To do this
+        we sort the filter name strings and always use the lowest of a pair as the
+        value to the left of the "&" separator.
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-adjacency-matrix-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :param filters: Mapping[str, Union[Mapping, 'QueryInterface']]
+
+        :param separator: Optional[str]
+            An alternative separator parameter can be passed in the request if
+            clients wish to use a separator string other than the default of the
+            ampersand.
+
+        :returns: 'AggregationInterface'
+            A new instance is created and returned
+        """
+        agg = self.agg(
+            *(aggregation_name + ("adjacency_matrix", )),
+            filters=filters,
+            separator=separator,
+        )
+        return agg
 
     def agg_auto_date_histogram(
             self,
@@ -90,8 +128,7 @@ class AggregationInterface(AggregationInterfaceBase):
             Generating the terms using a script
 
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
-            is returned.
+            A new instance is created and returned
         """
         agg = self.agg(
             *(aggregation_name + ("auto_date_histogram", )),
@@ -112,6 +149,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field: str,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         A single-value metrics aggregation that computes the average of numeric
@@ -130,8 +168,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -140,7 +183,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def pipeline_avg_bucket(
             self,
@@ -148,6 +191,7 @@ class AggregationInterface(AggregationInterfaceBase):
             buckets_path: str,
             gap_policy: str = 'skip',
             format: Optional[str] = None,
+            return_self: bool = False,
     ):
         """
         A sibling pipeline aggregation which calculates the (mean) average value of
@@ -172,8 +216,13 @@ class AggregationInterface(AggregationInterfaceBase):
         :param format: Optional[str]
             Format to apply to the output value of this aggregation
 
+        :param return_self: bool
+            If True, this call returns the created pipeline, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.pipeline(
@@ -182,7 +231,7 @@ class AggregationInterface(AggregationInterfaceBase):
             gap_policy=gap_policy,
             format=format,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_boxplot(
             self,
@@ -190,6 +239,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field: str,
             compression: int = 100,
             missing: Optional[Any] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-boxplot-aggregation.html
@@ -203,8 +253,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param missing: Optional[Any]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -213,7 +268,65 @@ class AggregationInterface(AggregationInterfaceBase):
             compression=compression,
             missing=missing,
         )
-        return agg
+        return agg if return_self else self
+
+    def pipeline_bucket_script(
+            self,
+            *aggregation_name: Optional[str],
+            script: str,
+            buckets_path: Mapping[str, str],
+            gap_policy: str = 'skip',
+            format: Optional[str] = None,
+            return_self: bool = False,
+    ):
+        """
+        A parent pipeline aggregation which executes a script which can perform per
+        bucket computations on specified metrics in the parent multi-bucket
+        aggregation. The specified metric must be numeric and the script must return
+        a numeric value.
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-bucket-script-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :param script: str
+            The script to run for this aggregation. The script can be inline, file
+            or indexed. (see
+            [Scripting](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting.html)
+            for more details)
+
+        :param buckets_path: Mapping[str, str]
+            A map of script variables and their associated path to the buckets we
+            wish to use for the variable (see [buckets_path
+            Syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#buckets-path-syntax)
+            for more details)
+
+        :param gap_policy: str
+            The policy to apply when gaps are found in the data (see [Dealing with
+            gaps](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#gap-policy)
+            in the data for more details)
+
+        :param format: Optional[str]
+            Format to apply to the output value of this aggregation
+
+        :param return_self: bool
+            If True, this call returns the created pipeline, otherwise the parent is
+            returned.
+
+        :returns: 'AggregationInterface'
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
+            is returned.
+        """
+        agg = self.pipeline(
+            *(aggregation_name + ("bucket_script", )),
+            script=script,
+            buckets_path=buckets_path,
+            gap_policy=gap_policy,
+            format=format,
+        )
+        return agg if return_self else self
 
     def metric_cardinality(
             self,
@@ -222,6 +335,7 @@ class AggregationInterface(AggregationInterfaceBase):
             precision_threshold: int = 3000,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-cardinality-aggregation.html
@@ -237,8 +351,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -247,6 +366,132 @@ class AggregationInterface(AggregationInterfaceBase):
             precision_threshold=precision_threshold,
             missing=missing,
             script=script,
+        )
+        return agg if return_self else self
+
+    def agg_children(
+            self,
+            *aggregation_name: Optional[str],
+            type: str,
+    ):
+        """
+        A special single bucket aggregation that selects child documents that have
+        the specified type, as defined in a [join
+        field](https://www.elastic.co/guide/en/elasticsearch/reference/current/parent-join.html).
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-children-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :param type: str
+            The child type that should be selected.
+
+        :returns: 'AggregationInterface'
+            A new instance is created and returned
+        """
+        agg = self.agg(
+            *(aggregation_name + ("children", )),
+            type=type,
+        )
+        return agg
+
+    def agg_composite(
+            self,
+            *aggregation_name: Optional[str],
+            sources: Sequence[Mapping],
+            size: int = 10,
+            after: Optional[Union[str, int, float, datetime]] = None,
+    ):
+        """
+        A multi-bucket aggregation that creates composite buckets from different
+        sources.
+
+        Unlike the other multi-bucket aggregations, you can use the composite
+        aggregation to paginate all buckets from a multi-level aggregation
+        efficiently. This aggregation provides a way to stream all buckets of a
+        specific aggregation, similar to what
+        [scroll](https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#scroll-search-results)
+        does for documents.
+
+        The composite buckets are built from the combinations of the values
+        extracted/created for each document and each combination is considered as a
+        composite bucket.
+
+        For optimal performance the [index
+        sort](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-index-sorting.html)
+        should be set on the index so that it matches parts or fully the source
+        order in the composite aggregation.
+
+        Sub-buckets: Like any multi-bucket aggregations the composite aggregation
+        can hold sub-aggregations. These sub-aggregations can be used to compute
+        other buckets or statistics on each composite bucket created by this parent
+        aggregation.
+
+        Pipeline aggregations: The composite agg is not currently compatible with
+        pipeline aggregations, nor does it make sense in most cases. E.g. due to the
+        paging nature of composite aggs, a single logical partition (one day for
+        example) might be spread over multiple pages. Since pipeline aggregations
+        are purely post-processing on the final list of buckets, running something
+        like a derivative on a composite page could lead to inaccurate results as it
+        is only taking into account a "partial" result on that page.
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-composite-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :param sources: Sequence[Mapping]
+            The sources parameter defines the source fields to use when building
+            composite buckets. The order that the sources are defined controls the
+            order that the keys are returned.
+
+            The sources parameter can be any of the following types:
+                - Terms
+                - Histogram
+                - Date histogram
+                - GeoTile grid
+
+            Note: You must use a unique name when defining sources.
+
+        :param size: int
+            The size parameter can be set to define how many composite buckets
+            should be returned. Each composite bucket is considered as a single
+            bucket, so setting a size of 10 will return the first 10 composite
+            buckets created from the value sources. The response contains the values
+            for each composite bucket in an array containing the values extracted
+            from each value source.
+
+            Pagination: If the number of composite buckets is too high (or unknown)
+            to be returned in a single response it is possible to split the
+            retrieval in multiple requests. Since the composite buckets are flat by
+            nature, the requested size is exactly the number of composite buckets
+            that will be returned in the response (assuming that they are at least
+            size composite buckets to return). If all composite buckets should be
+            retrieved it is preferable to use a small size (100 or 1000 for
+            instance) and then use the after parameter to retrieve the next results.
+
+        :param after: Optional[Union[str, int, float, datetime]]
+            To get the next set of buckets, resend the same aggregation with the
+            after parameter set to the after_key value returned in the response.
+
+            Note: The after_key is usually the key to the last bucket returned in
+            the response, but that isn’t guaranteed. Always use the returned
+            after_key instead of derriving it from the buckets.
+
+            In order to optimize the early termination it is advised to set
+            track_total_hits in the request to false. The number of total hits that
+            match the request can be retrieved on the first request and it would be
+            costly to compute this number on every page.
+
+        :returns: 'AggregationInterface'
+            A new instance is created and returned
+        """
+        agg = self.agg(
+            *(aggregation_name + ("composite", )),
+            sources=sources,
+            size=size,
+            after=after,
         )
         return agg
 
@@ -350,8 +595,7 @@ class AggregationInterface(AggregationInterfaceBase):
             Generating the terms using a script
 
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
-            is returned.
+            A new instance is created and returned
         """
         agg = self.agg(
             *(aggregation_name + ("date_histogram", )),
@@ -368,6 +612,100 @@ class AggregationInterface(AggregationInterfaceBase):
         )
         return agg
 
+    def agg_date_range(
+            self,
+            *aggregation_name: Optional[str],
+            ranges: Sequence[Union[Mapping[str, str], str]],
+            field: Optional[str] = None,
+            format: Optional[str] = None,
+            time_zone: Optional[str] = None,
+            keyed: bool = False,
+            missing: Optional[Any] = None,
+            script: Optional[dict] = None,
+    ):
+        """
+        A range aggregation that is dedicated for date values. The main difference
+        between this aggregation and the normal
+        [range](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html)
+        aggregation is that the from and to values can be expressed in [Date
+        Math](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math)
+        expressions, and it is also possible to specify a date format by which the
+        from and to response fields will be returned. Note that this aggregation
+        includes the from value and excludes the to value for each range.
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :param ranges: Sequence[Union[Mapping[str, str], str]]
+            List of ranges to define the buckets
+
+            Example:
+                [
+                    {"to": "1970-01-01"},
+                    {"from": "1970-01-01", "to": "1980-01-01"},
+                    {"from": "1980-01-01"},
+                ]
+
+            Instead of date values any [Date
+            Math](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math)
+            expression can be used as well.
+
+            Alternatively this parameter can be a list of strings. The above example
+            can be rewritten as:
+                ["1970-01-01", "1980-01-01"]
+
+            Note: This aggregation includes the from value and excludes the to value
+            for each range.
+
+        :param field: Optional[str]
+            The date field
+
+            If no field is specified it will default to the 'timestamp_field' of the
+            Search class.
+
+        :param format: Optional[str]
+            The format of the response bucket keys as available for the
+            [DateTimeFormatter](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html)
+
+        :param time_zone: Optional[str]
+            Dates can be converted from another time zone to UTC by specifying the
+            time_zone parameter.
+
+            Time zones may either be specified as an ISO 8601 UTC offset (e.g.
+            +01:00 or -08:00) or as one of the time zone ids from the TZ database.
+
+            The time_zone parameter is also applied to rounding in date math
+            expressions.
+
+        :param keyed: bool
+            Setting the keyed flag to true associates a unique string key with each
+            bucket and returns the ranges as a hash rather than an array.
+
+        :param missing: Optional[Any]
+            The missing parameter defines how documents that are missing a value
+            should be treated. By default they will be ignored but it is also
+            possible to treat them as if they had a value.
+
+        :param script: Optional[dict]
+            Generating the terms using a script
+
+        :returns: 'AggregationInterface'
+            A new instance is created and returned
+        """
+        agg = self.agg(
+            *(aggregation_name + ("date_range", )),
+            ranges=ranges,
+            field=field,
+            format=format,
+            time_zone=time_zone,
+            keyed=keyed,
+            missing=missing,
+            script=script,
+        )
+        return agg
+
     def pipeline_derivative(
             self,
             *aggregation_name: Optional[str],
@@ -375,6 +713,7 @@ class AggregationInterface(AggregationInterfaceBase):
             gap_policy: str = 'skip',
             format: Optional[str] = None,
             units: Optional[str] = None,
+            return_self: bool = False,
     ):
         """
         A parent pipeline aggregation which calculates the derivative of a specified
@@ -406,8 +745,13 @@ class AggregationInterface(AggregationInterfaceBase):
             normalized_value which reports the derivative value in the desired
             x-axis units.
 
+        :param return_self: bool
+            If True, this call returns the created pipeline, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.pipeline(
@@ -416,6 +760,99 @@ class AggregationInterface(AggregationInterfaceBase):
             gap_policy=gap_policy,
             format=format,
             units=units,
+        )
+        return agg if return_self else self
+
+    def agg_diversified_sampler(
+            self,
+            *aggregation_name: Optional[str],
+            field: Optional[str] = None,
+            script: Optional[Mapping] = None,
+            shard_size: int = 100,
+            max_docs_per_value: int = 1,
+    ):
+        """
+        Like the sampler aggregation this is a filtering aggregation used to limit
+        any sub aggregations' processing to a sample of the top-scoring documents.
+        The diversified_sampler aggregation adds the ability to limit the number of
+        matches that share a common value such as an "author".
+
+        Note: Any good market researcher will tell you that when working with
+        samples of data it is important that the sample represents a healthy variety
+        of opinions rather than being skewed by any single voice. The same is true
+        with aggregations and sampling with these diversify settings can offer a way
+        to remove the bias in your content (an over-populated geography, a large
+        spike in a timeline or an over-active forum spammer).
+
+        Example use cases:
+            - Tightening the focus of analytics to high-relevance matches rather
+            than the potentially very long tail of low-quality matches
+            - Removing bias from analytics by ensuring fair representation of
+            content from different sources
+            - Reducing the running cost of aggregations that can produce useful
+            results using only samples e.g. significant_terms
+
+        A choice of field or script setting is used to provide values used for
+        de-duplication and the max_docs_per_value setting controls the maximum
+        number of documents collected on any one shard which share a common value.
+        The default setting for max_docs_per_value is 1.
+
+        Note: The aggregation will throw an error if the choice of field or script
+        produces multiple values for a single document (de-duplication using
+        multi-valued fields is not supported due to efficiency concerns).
+
+        [Limitations:](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-diversified-sampler-aggregation.html#_limitations_5)
+
+            Cannot be nested under breadth_first aggregations
+                Being a quality-based filter the diversified_sampler aggregation
+                needs access to the relevance score produced for each document. It
+                therefore cannot be nested under a terms aggregation which has the
+                collect_mode switched from the default depth_first mode to
+                breadth_first as this discards scores. In this situation an error
+                will be thrown.
+
+            Limited de-dup logic.
+                The de-duplication logic applies only at a shard level so will not
+                apply across shards.
+
+            No specialized syntax for geo/date fields
+                Currently the syntax for defining the diversifying values is defined
+                by a choice of field or script - there is no added syntactical sugar
+                for expressing geo or date units such as "7d" (7 days). This support
+                may be added in a later release and users will currently have to
+                create these sorts of values using a script.
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-diversified-sampler-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :param field: Optional[str]
+            The field to search on. Can alternatively be a script
+
+        :param script: Optional[Mapping]
+            The script that specifies the aggregation. Can alternatively be a
+            'field'
+
+        :param shard_size: int
+            The shard_size parameter limits how many top-scoring documents are
+            collected in the sample processed on each shard. The default value is
+            100.
+
+        :param max_docs_per_value: int
+            The max_docs_per_value is an optional parameter and limits how many
+            documents are permitted per choice of de-duplicating value. The default
+            setting is 1.
+
+        :returns: 'AggregationInterface'
+            A new instance is created and returned
+        """
+        agg = self.agg(
+            *(aggregation_name + ("diversified_sampler", )),
+            field=field,
+            script=script,
+            shard_size=shard_size,
+            max_docs_per_value=max_docs_per_value,
         )
         return agg
 
@@ -426,6 +863,7 @@ class AggregationInterface(AggregationInterfaceBase):
             sigma: float = 3.0,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-extendedstats-aggregation.html
@@ -441,8 +879,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -452,12 +895,12 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def agg_filter(
             self,
             *aggregation_name: Optional[str],
-            filter: 'QueryInterface',
+            filter: Union[Mapping, 'QueryInterface'],
     ):
         """
         Defines a single bucket of all the documents in the current document set
@@ -469,11 +912,10 @@ class AggregationInterface(AggregationInterfaceBase):
         :param aggregation_name: Optional[str]
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param filter: 'QueryInterface'
+        :param filter: Union[Mapping, 'QueryInterface']
 
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
-            is returned.
+            A new instance is created and returned
         """
         agg = self.agg(
             *(aggregation_name + ("filter", )),
@@ -484,7 +926,7 @@ class AggregationInterface(AggregationInterfaceBase):
     def agg_filters(
             self,
             *aggregation_name: Optional[str],
-            filters: Mapping[str, 'QueryInterface'],
+            filters: Mapping[str, Union[Mapping, 'QueryInterface']],
     ):
         """
         Defines a multi bucket aggregation where each bucket is associated with a
@@ -496,11 +938,10 @@ class AggregationInterface(AggregationInterfaceBase):
         :param aggregation_name: Optional[str]
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param filters: Mapping[str, 'QueryInterface']
+        :param filters: Mapping[str, Union[Mapping, 'QueryInterface']]
 
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
-            is returned.
+            A new instance is created and returned
         """
         agg = self.agg(
             *(aggregation_name + ("filters", )),
@@ -513,19 +954,44 @@ class AggregationInterface(AggregationInterfaceBase):
             *aggregation_name: Optional[str],
             field: str,
             wrap_longitude: bool = True,
+            return_self: bool = False,
     ):
         """
+        A metric aggregation that computes the bounding box containing all geo
+        values for a field.
+
+        The Geo Bounds Aggregation is also supported on geo_shape fields.
+
+        If wrap_longitude is set to true (the default), the bounding box can overlap
+        the international date line and return a bounds where the top_left longitude
+        is larger than the top_right longitude.
+
+        For example, the upper right longitude will typically be greater than the
+        lower left longitude of a geographic bounding box. However, when the area
+        crosses the 180° meridian, the value of the lower left longitude will be
+        greater than the value of the upper right longitude. See Geographic bounding
+        box on the Open Geospatial Consortium website for more information.
+
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-geobounds-aggregation.html
 
         :param aggregation_name: Optional[str]
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
         :param field: str
+            The field defining the geo_point or geo_shape
 
         :param wrap_longitude: bool
+            An optional parameter which specifies whether the bounding box should be
+            allowed to overlap the international date line. The default value is
+            true.
+
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
 
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -533,28 +999,561 @@ class AggregationInterface(AggregationInterfaceBase):
             field=field,
             wrap_longitude=wrap_longitude,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_geo_centroid(
             self,
             *aggregation_name: Optional[str],
             field: str,
+            return_self: bool = False,
     ):
         """
+        A metric aggregation that computes the weighted
+        [centroid](https://en.wikipedia.org/wiki/Centroid) from all coordinate
+        values for geo fields.
+
+        The centroid metric for geo-shapes is more nuanced than for points. The
+        centroid of a specific aggregation bucket containing shapes is the centroid
+        of the highest-dimensionality shape type in the bucket. For example, if a
+        bucket contains shapes comprising of polygons and lines, then the lines do
+        not contribute to the centroid metric. Each type of shape’s centroid is
+        calculated differently. Envelopes and circles ingested via the
+        [Circle](https://www.elastic.co/guide/en/elasticsearch/reference/current/ingest-circle-processor.html)
+        are treated as polygons.
+
+        Warning: Using geo_centroid as a sub-aggregation of geohash_grid
+            The geohash_grid aggregation places documents, not individual
+            geo-points, into buckets. If a document’s geo_point field contains
+            multiple values, the document could be assigned to multiple buckets,
+            even if one or more of its geo-points are outside the bucket boundaries.
+
+            If a geocentroid sub-aggregation is also used, each centroid is
+            calculated using all geo-points in a bucket, including those outside the
+            bucket boundaries. This can result in centroids outside of bucket
+            boundaries.
+
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-geocentroid-aggregation.html
 
         :param aggregation_name: Optional[str]
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
         :param field: str
+            The field defining the geo_point or geo_shape
+
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
 
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
             *(aggregation_name + ("geo_centroid", )),
             field=field,
+        )
+        return agg if return_self else self
+
+    def agg_geo_distance(
+            self,
+            *aggregation_name: Optional[str],
+            field: str,
+            ranges: Sequence[Union[Mapping[str, float], float]],
+            origin: Union[str, Mapping[str, float], Sequence[float]],
+            unit: str = 'm',
+            distance_type: str = 'arc',
+            keyed: bool = False,
+    ):
+        """
+        A multi-bucket aggregation that works on geo_point fields and conceptually
+        works very similar to the
+        [range](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html)
+        aggregation. The user can define a point of origin and a set of distance
+        range buckets. The aggregation evaluate the distance of each document value
+        from the origin point and determines the buckets it belongs to based on the
+        ranges (a document belongs to a bucket if the distance between the document
+        and the origin falls within the distance range of the bucket).
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-geodistance-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :param field: str
+            The specified field must be of type geo_point (which can only be set
+            explicitly in the mappings). And it can also hold an array of geo_point
+            fields, in which case all will be taken into account during aggregation.
+
+        :param ranges: Sequence[Union[Mapping[str, float], float]]
+            A list of ranges that define the separate buckets, e.g:
+                [
+                    { "to": 100000 },
+                    { "from": 100000, "to": 300000 },
+                    { "from": 300000 }
+                ]
+
+            Alternatively this parameter can be a list of numbers. The above example
+            can be rewritten as:
+                [100000, 300000]
+
+        :param origin: Union[str, Mapping[str, float], Sequence[float]]
+            The origin point can accept all formats supported by the [geo_point
+            type](https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-point.html):
+                - Object format: { "lat" : 52.3760, "lon" : 4.894 } - this is the
+                safest format as it is the most explicit about the lat & lon values
+                - String format: "52.3760, 4.894" - where the first number is the
+                lat and the second is the lon
+                - Array format: [4.894, 52.3760] - which is based on the GeoJson
+                standard and where the first number is the lon and the second one is
+                the lat
+
+        :param unit: str
+            By default, the distance unit is m (meters) but it can also accept: mi
+            (miles), in (inches), yd (yards), km (kilometers), cm (centimeters), mm
+            (millimeters).
+
+        :param distance_type: str
+            There are two distance calculation modes: arc (the default), and plane.
+            The arc calculation is the most accurate. The plane is the fastest but
+            least accurate. Consider using plane when your search context is
+            "narrow", and spans smaller geographical areas (~5km). plane will return
+            higher error margins for searches across very large areas (e.g. cross
+            continent search)
+
+        :param keyed: bool
+            Setting the keyed flag to true will associate a unique string key with
+            each bucket and return the ranges as a hash rather than an array.
+
+        :returns: 'AggregationInterface'
+            A new instance is created and returned
+        """
+        agg = self.agg(
+            *(aggregation_name + ("geo_distance", )),
+            field=field,
+            ranges=ranges,
+            origin=origin,
+            unit=unit,
+            distance_type=distance_type,
+            keyed=keyed,
+        )
+        return agg
+
+    def agg_geohash_grid(
+            self,
+            *aggregation_name: Optional[str],
+            field: str,
+            precision: Union[int, str] = 5,
+            bounds: Optional[Mapping] = None,
+            size: int = 10000,
+            shard_size: Optional[int] = None,
+    ):
+        """
+        A multi-bucket aggregation that works on geo_point fields and groups points
+        into buckets that represent cells in a grid. The resulting grid can be
+        sparse and only contains cells that have matching data. Each cell is labeled
+        using a [geohash](https://en.wikipedia.org/wiki/Geohash) which is of
+        user-definable precision.
+            - High precision geohashes have a long string length and represent cells
+            that cover only a small area.
+            - Low precision geohashes have a short string length and represent cells
+            that each cover a large area.
+
+        Geohashes used in this aggregation can have a choice of precision between 1
+        and 12.
+
+        The highest-precision geohash of length 12 produces cells that cover less
+        than a square metre of land and so high-precision requests can be very
+        costly in terms of RAM and result sizes.
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-geohashgrid-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :param field: str
+            The specified field must be of type geo_point or geo_shape (which can
+            only be set explicitly in the mappings). And it can also hold an array
+            of geo_point fields, in which case all will be taken into account during
+            aggregation.
+
+            Aggregating on Geo-shape fields works just as it does for points, except
+            that a single shape can be counted for in multiple tiles. A shape will
+            contribute to the count of matching values if any part of its shape
+            intersects with that tile.
+
+        :param precision: Union[int, str]
+            The required precision of the grid in the range [1, 12]. Higher means
+            more precise.
+
+            Alternatively, the precision level can be approximated from a distance
+            measure like "1km", "10m". The precision level is calculate such that
+            cells will not exceed the specified size (diagonal) of the required
+            precision. When this would lead to precision levels higher than the
+            supported 12 levels, (e.g. for distances <5.6cm) the value is rejected.
+
+            Note: When requesting detailed buckets (typically for displaying a
+            "zoomed in" map) a filter like
+            [geo_bounding_box](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-bounding-box-query.html)
+            should be applied to narrow the subject area otherwise potentially
+            millions of buckets will be created and returned.
+
+        :param bounds: Optional[Mapping]
+            The geohash_grid aggregation supports an optional bounds parameter that
+            restricts the points considered to those that fall within the bounds
+            provided. The bounds parameter accepts the bounding box in all the same
+            [accepted
+            formats](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-bounding-box-query.html#query-dsl-geo-bounding-box-query-accepted-formats)
+            of the bounds specified in the Geo Bounding Box Query. This bounding box
+            can be used with or without an additional geo_bounding_box query
+            filtering the points prior to aggregating. It is an independent bounding
+            box that can intersect with, be equal to, or be disjoint to any
+            additional geo_bounding_box queries defined in the context of the
+            aggregation.
+
+        :param size: int
+            The maximum number of geohash buckets to return (defaults to 10,000).
+            When results are trimmed, buckets are prioritised based on the volumes
+            of documents they contain.
+
+        :param shard_size: Optional[int]
+            To allow for more accurate counting of the top cells returned in the
+            final result the aggregation defaults to returning max(10,(size x
+            number-of-shards)) buckets from each shard. If this heuristic is
+            undesirable, the number considered from each shard can be over-ridden
+            using this parameter.
+
+        :returns: 'AggregationInterface'
+            A new instance is created and returned
+        """
+        agg = self.agg(
+            *(aggregation_name + ("geohash_grid", )),
+            field=field,
+            precision=precision,
+            bounds=bounds,
+            size=size,
+            shard_size=shard_size,
+        )
+        return agg
+
+    def agg_geotile_grid(
+            self,
+            *aggregation_name: Optional[str],
+            field: str,
+            precision: Union[int, str] = 7,
+            bounds: Optional[Mapping] = None,
+            size: int = 10000,
+            shard_size: Optional[int] = None,
+    ):
+        """
+        A multi-bucket aggregation that works on geo_point fields and groups points
+        into buckets that represent cells in a grid. The resulting grid can be
+        sparse and only contains cells that have matching data. Each cell
+        corresponds to a [map tile](https://en.wikipedia.org/wiki/Tiled_web_map) as
+        used by many online map sites. Each cell is labeled using a "{zoom}/{x}/{y}"
+        format, where zoom is equal to the user-specified precision.
+            - High precision keys have a larger range for x and y, and represent
+            tiles that cover only a small area.
+            - Low precision keys have a smaller range for x and y, and represent
+            tiles that each cover a large area.
+
+        Warning: he highest-precision geotile of length 29 produces cells that cover
+        less than a 10cm by 10cm of land and so high-precision requests can be very
+        costly in terms of RAM and result sizes. Please see the example below on how
+        to first filter the aggregation to a smaller geographic area before
+        requesting high-levels of detail.
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-geotilegrid-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :param field: str
+            The specified field must be of type geo_point (which can only be set
+            explicitly in the mappings). And it can also hold an array of geo_point
+            fields, in which case all will be taken into account during aggregation.
+
+        :param precision: Union[int, str]
+            The required precision of the grid in the range [1, 29]. Higher means
+            more precise.
+
+            Note: When requesting detailed buckets (typically for displaying a
+            "zoomed in" map) a filter like
+            [geo_bounding_box](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-bounding-box-query.html)
+            should be applied to narrow the subject area otherwise potentially
+            millions of buckets will be created and returned.
+
+        :param bounds: Optional[Mapping]
+            The geotile_grid aggregation supports an optional bounds parameter that
+            restricts the points considered to those that fall within the bounds
+            provided. The bounds parameter accepts the bounding box in all the same
+            [accepted
+            formats](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-bounding-box-query.html#query-dsl-geo-bounding-box-query-accepted-formats)
+            of the bounds specified in the Geo Bounding Box Query. This bounding box
+            can be used with or without an additional geo_bounding_box query
+            filtering the points prior to aggregating. It is an independent bounding
+            box that can intersect with, be equal to, or be disjoint to any
+            additional geo_bounding_box queries defined in the context of the
+            aggregation.
+
+        :param size: int
+            The maximum number of geohash buckets to return (defaults to 10,000).
+            When results are trimmed, buckets are prioritised based on the volumes
+            of documents they contain.
+
+        :param shard_size: Optional[int]
+            To allow for more accurate counting of the top cells returned in the
+            final result the aggregation defaults to returning max(10,(size x
+            number-of-shards)) buckets from each shard. If this heuristic is
+            undesirable, the number considered from each shard can be over-ridden
+            using this parameter.
+
+        :returns: 'AggregationInterface'
+            A new instance is created and returned
+        """
+        agg = self.agg(
+            *(aggregation_name + ("geotile_grid", )),
+            field=field,
+            precision=precision,
+            bounds=bounds,
+            size=size,
+            shard_size=shard_size,
+        )
+        return agg
+
+    def agg_global(
+            self,
+            *aggregation_name: Optional[str],
+    ):
+        """
+        Defines a single bucket of all the documents within the search execution
+        context. This context is defined by the indices and the document types
+        you’re searching on, but is not influenced by the search query itself.
+
+        Note: Global aggregators can only be placed as top level aggregators because
+        it doesn’t make sense to embed a global aggregator within another bucket
+        aggregator.
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-global-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :returns: 'AggregationInterface'
+            A new instance is created and returned
+        """
+        agg = self.agg(
+            *(aggregation_name + ("global", )),
+        )
+        return agg
+
+    def agg_histogram(
+            self,
+            *aggregation_name: Optional[str],
+            field: str,
+            interval: int,
+            min_doc_count: int = 0,
+            offset: Optional[int] = None,
+            extended_bounds: Optional[Mapping[str, int]] = None,
+            hard_bounds: Optional[Mapping[str, int]] = None,
+            format: Optional[str] = None,
+            order: Optional[Union[Mapping, str]] = None,
+            keyed: bool = False,
+            missing: Optional[Any] = None,
+    ):
+        """
+        A multi-bucket values source based aggregation that can be applied on
+        numeric values or numeric range values extracted from the documents. It
+        dynamically builds fixed size (a.k.a. interval) buckets over the values. For
+        example, if the documents have a field that holds a price (numeric), we can
+        configure this aggregation to dynamically build buckets with interval 5 (in
+        case of price it may represent $5). When the aggregation executes, the price
+        field of every document will be evaluated and will be rounded down to its
+        closest bucket - for example, if the price is 32 and the bucket size is 5
+        then the rounding will yield 30 and thus the document will "fall" into the
+        bucket that is associated with the key 30. To make this more formal, here is
+        the rounding function that is used:
+
+            bucket_key = Math.floor((value - offset) / interval) * interval + offset
+
+        For range values, a document can fall into multiple buckets. The first
+        bucket is computed from the lower bound of the range in the same way as a
+        bucket for a single value is computed. The final bucket is computed in the
+        same way from the upper bound of the range, and the range is counted in all
+        buckets in between and including those two.
+
+        The interval must be a positive decimal, while the offset must be a decimal
+        in [0, interval) (a decimal greater than or equal to 0 and less than
+        interval)
+
+        Histogram fields: Running a histogram aggregation over histogram fields
+        computes the total number of counts for each interval. See
+        [example](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-histogram-aggregation.html#search-aggregations-bucket-histogram-aggregation-histogram-fields)
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-histogram-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :param field: str
+            A numeric field to be indexed by the histogram.
+
+        :param interval: int
+            A positive decimal defining the interval between buckets.
+
+        :param min_doc_count: int
+            By default the response will fill gaps in the histogram with empty
+            buckets. It is possible change that and request buckets with a higher
+            minimum count thanks to the min_doc_count setting
+
+            By default the histogram returns all the buckets within the range of the
+            data itself, that is, the documents with the smallest values (on which
+            with histogram) will determine the min bucket (the bucket with the
+            smallest key) and the documents with the highest values will determine
+            the max bucket (the bucket with the highest key). Often, when requesting
+            empty buckets, this causes a confusion, specifically, when the data is
+            also filtered.
+
+            To understand why, let’s look at an example:
+                Lets say the you’re filtering your request to get all docs with
+                values between 0 and 500, in addition you’d like to slice the data
+                per price using a histogram with an interval of 50. You also specify
+                "min_doc_count" : 0 as you’d like to get all buckets even the empty
+                ones. If it happens that all products (documents) have prices higher
+                than 100, the first bucket you’ll get will be the one with 100 as
+                its key. This is confusing, as many times, you’d also like to get
+                those buckets between 0 - 100.
+
+        :param offset: Optional[int]
+            By default the bucket keys start with 0 and then continue in even spaced
+            steps of interval, e.g. if the interval is 10, the first three buckets
+            (assuming there is data inside them) will be [0, 10), [10, 20), [20,
+            30). The bucket boundaries can be shifted by using the offset option.
+
+            This can be best illustrated with an example. If there are 10 documents
+            with values ranging from 5 to 14, using interval 10 will result in two
+            buckets with 5 documents each. If an additional offset 5 is used, there
+            will be only one single bucket [5, 15) containing all the 10 documents.
+
+        :param extended_bounds: Optional[Mapping[str, int]]
+            With extended_bounds setting, you now can "force" the histogram
+            aggregation to start building buckets on a specific min value and also
+            keep on building buckets up to a max value (even if there are no
+            documents anymore). Using extended_bounds only makes sense when
+            min_doc_count is 0 (the empty buckets will never be returned if
+            min_doc_count is greater than 0).
+
+            Note that (as the name suggest) extended_bounds is not filtering
+            buckets. Meaning, if the extended_bounds.min is higher than the values
+            extracted from the documents, the documents will still dictate what the
+            first bucket will be (and the same goes for the extended_bounds.max and
+            the last bucket). For filtering buckets, one should nest the histogram
+            aggregation under a range filter aggregation with the appropriate
+            from/to settings.
+
+            When aggregating ranges, buckets are based on the values of the returned
+            documents. This means the response may include buckets outside of a
+            query’s range. For example, if your query looks for values greater than
+            100, and you have a range covering 50 to 150, and an interval of 50,
+            that document will land in 3 buckets - 50, 100, and 150. In general,
+            it’s best to think of the query and aggregation steps as independent -
+            the query selects a set of documents, and then the aggregation buckets
+            those documents without regard to how they were selected. See note on
+            bucketing range fields for more information and an example.
+
+        :param hard_bounds: Optional[Mapping[str, int]]
+            The hard_bounds is a counterpart of extended_bounds and can limit the
+            range of buckets in the histogram. It is particularly useful in the case
+            of open [data
+            ranges](https://www.elastic.co/guide/en/elasticsearch/reference/current/range.html)
+            that can result in a very large number of buckets.
+
+        :param format: Optional[str]
+            Specifies the format of the 'key_as_string' response.
+            See:
+            https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html
+
+        :param order: Optional[Union[Mapping, str]]
+            By default the returned buckets are sorted by their key ascending,
+            though the order behaviour can be controlled using the order setting.
+            Supports the same order functionality as the [Terms
+            Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-order).
+
+        :param keyed: bool
+            Setting the keyed flag to true associates a unique string key with each
+            bucket and returns the ranges as a hash rather than an array.
+
+        :param missing: Optional[Any]
+            The missing parameter defines how documents that are missing a value
+            should be treated. By default they will be ignored but it is also
+            possible to treat them as if they had a value.
+
+        :returns: 'AggregationInterface'
+            A new instance is created and returned
+        """
+        agg = self.agg(
+            *(aggregation_name + ("histogram", )),
+            field=field,
+            interval=interval,
+            min_doc_count=min_doc_count,
+            offset=offset,
+            extended_bounds=extended_bounds,
+            hard_bounds=hard_bounds,
+            format=format,
+            order=order,
+            keyed=keyed,
+            missing=missing,
+        )
+        return agg
+
+    def agg_ip_range(
+            self,
+            *aggregation_name: Optional[str],
+            field: str,
+            ranges: Sequence[Union[Mapping[str, str], str]],
+            keyed: bool = False,
+    ):
+        """
+        Just like the dedicated [date
+        range](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html)
+        aggregation, there is also a dedicated range aggregation for IP typed
+        fields:
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-iprange-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :param field: str
+            The IPv4 field
+
+        :param ranges: Sequence[Union[Mapping[str, str], str]]
+            List of ranges to define the buckets, either as straight IPv4 or as CIDR
+            masks.
+
+            Example:
+                [
+                    {"to": "10.0.0.5"},
+                    {"from": "10.0.0.5", "to": "10.0.0.127"},
+                    {"from": "10.0.0.127"},
+                ]
+
+            Alternatively this parameter can be a list of strings. The above example
+            can be rewritten as:
+                ["10.0.0.5", "10.0.0.127"]
+
+        :param keyed: bool
+            Setting the keyed flag to true associates a unique string key with each
+            bucket and returns the ranges as a hash rather than an array.
+
+        :returns: 'AggregationInterface'
+            A new instance is created and returned
+        """
+        agg = self.agg(
+            *(aggregation_name + ("ip_range", )),
+            field=field,
+            ranges=ranges,
+            keyed=keyed,
         )
         return agg
 
@@ -564,6 +1563,7 @@ class AggregationInterface(AggregationInterfaceBase):
             fields: list,
             mode: str = 'avg',
             missing: Optional[Any] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-matrix-stats-aggregation.html
@@ -577,8 +1577,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param missing: Optional[Any]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -587,7 +1592,7 @@ class AggregationInterface(AggregationInterfaceBase):
             mode=mode,
             missing=missing,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_max(
             self,
@@ -595,6 +1600,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field: str,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-max-aggregation.html
@@ -608,8 +1614,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -618,7 +1629,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_median_absolute_deviation(
             self,
@@ -627,6 +1638,7 @@ class AggregationInterface(AggregationInterfaceBase):
             compression: int = 1000,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-median-absolute-deviation-aggregation.html
@@ -642,8 +1654,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -653,7 +1670,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_min(
             self,
@@ -661,6 +1678,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field: str,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-min-aggregation.html
@@ -674,8 +1692,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -683,6 +1706,37 @@ class AggregationInterface(AggregationInterfaceBase):
             field=field,
             missing=missing,
             script=script,
+        )
+        return agg if return_self else self
+
+    def agg_missing(
+            self,
+            *aggregation_name: Optional[str],
+            field: str,
+    ):
+        """
+        A field data based single bucket aggregation, that creates a bucket of all
+        documents in the current document set context that are missing a field value
+        (effectively, missing a field or having the configured NULL value set). This
+        aggregator will often be used in conjunction with other field data bucket
+        aggregators (such as ranges) to return information for all the documents
+        that could not be placed in any of the other buckets due to missing field
+        data values.
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-missing-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :param field: str
+            The field we wish to investigate for missing values
+
+        :returns: 'AggregationInterface'
+            A new instance is created and returned
+        """
+        agg = self.agg(
+            *(aggregation_name + ("missing", )),
+            field=field,
         )
         return agg
 
@@ -695,6 +1749,7 @@ class AggregationInterface(AggregationInterfaceBase):
             hdr__number_of_significant_value_digits: Optional[int] = None,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-rank-aggregation.html
@@ -714,8 +1769,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -727,7 +1787,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_percentiles(
             self,
@@ -739,6 +1799,7 @@ class AggregationInterface(AggregationInterfaceBase):
             hdr__number_of_significant_value_digits: Optional[int] = None,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-aggregation.html
@@ -760,8 +1821,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -774,6 +1840,142 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
+        return agg if return_self else self
+
+    def agg_range(
+            self,
+            *aggregation_name: Optional[str],
+            ranges: Sequence[Union[Mapping[str, Any], Any]],
+            field: Optional[str] = None,
+            keyed: bool = False,
+            script: Optional[dict] = None,
+    ):
+        """
+        A multi-bucket value source based aggregation that enables the user to
+        define a set of ranges - each representing a bucket. During the aggregation
+        process, the values extracted from each document will be checked against
+        each bucket range and "bucket" the relevant/matching document. Note that
+        this aggregation includes the from value and excludes the to value for each
+        range.
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :param ranges: Sequence[Union[Mapping[str, Any], Any]]
+            List of ranges to define the buckets
+
+            Example:
+                [
+                    {"to": 10},
+                    {"from": 10, "to": 20},
+                    {"from": 20},
+                ]
+
+            Alternatively this parameter can be a list of strings. The above example
+            can be rewritten as:
+                [10, 20]
+
+            Note: This aggregation includes the from value and excludes the to value
+            for each range.
+
+        :param field: Optional[str]
+            The field to index by the aggregation
+
+        :param keyed: bool
+            Setting the keyed flag to true associates a unique string key with each
+            bucket and returns the ranges as a hash rather than an array.
+
+        :param script: Optional[dict]
+            Generating the terms using a script
+
+        :returns: 'AggregationInterface'
+            A new instance is created and returned
+        """
+        agg = self.agg(
+            *(aggregation_name + ("range", )),
+            ranges=ranges,
+            field=field,
+            keyed=keyed,
+            script=script,
+        )
+        return agg
+
+    def agg_rare_terms(
+            self,
+            *aggregation_name: Optional[str],
+            field: str,
+            max_doc_count: int = 1,
+            include: Optional[Union[str, Sequence[str], Mapping[str, int]]] = None,
+            exclude: Optional[Union[str, Sequence[str]]] = None,
+            missing: Optional[Any] = None,
+    ):
+        """
+        A multi-bucket value source based aggregation which finds "rare"
+        terms — terms that are at the long-tail of the distribution and are not
+        frequent. Conceptually, this is like a terms aggregation that is sorted by
+        _count ascending. As noted in the [terms aggregation
+        docs](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-order),
+        actually ordering a terms agg by count ascending has unbounded error.
+        Instead, you should use the rare_terms aggregation.
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-rare-terms-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :param field: str
+            The field we wish to find rare terms in
+
+        :param max_doc_count: int
+            The maximum number of documents a term should appear in.
+
+            The max_doc_count parameter is used to control the upper bound of
+            document counts that a term can have. There is not a size limitation on
+            the rare_terms agg like terms agg has. This means that terms which match
+            the max_doc_count criteria will be returned. The aggregation functions
+            in this manner to avoid the order-by-ascending issues that afflict the
+            terms aggregation.
+
+            This does, however, mean that a large number of results can be returned
+            if chosen incorrectly. To limit the danger of this setting, the maximum
+            max_doc_count is 100.
+
+        :param include: Optional[Union[str, Sequence[str], Mapping[str, int]]]
+            A
+            [regexp](https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html)
+            pattern that filters the documents which will be aggregated.
+
+            Alternatively can be a list of strings.
+
+            [Parition
+            expressions](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#_filtering_values_with_partitions)
+            are also possible.
+
+        :param exclude: Optional[Union[str, Sequence[str]]]
+            A
+            [regexp](https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html)
+            pattern that filters the documents which will be aggregated.
+
+            Alternatively can be a list of strings.
+
+        :param missing: Optional[Any]
+            The missing parameter defines how documents that are missing a value
+            should be treated. By default they will be ignored but it is also
+            possible to treat them as if they had a value.
+
+        :returns: 'AggregationInterface'
+            A new instance is created and returned
+        """
+        agg = self.agg(
+            *(aggregation_name + ("rare_terms", )),
+            field=field,
+            max_doc_count=max_doc_count,
+            include=include,
+            exclude=exclude,
+            missing=missing,
+        )
         return agg
 
     def metric_rate(
@@ -782,6 +1984,7 @@ class AggregationInterface(AggregationInterfaceBase):
             unit: str,
             field: Optional[str] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-rate-aggregation.html
@@ -795,8 +1998,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -804,6 +2012,40 @@ class AggregationInterface(AggregationInterfaceBase):
             unit=unit,
             field=field,
             script=script,
+        )
+        return agg if return_self else self
+
+    def agg_sampler(
+            self,
+            *aggregation_name: Optional[str],
+            shard_size: int = 100,
+    ):
+        """
+        A filtering aggregation used to limit any sub aggregations' processing to a
+        sample of the top-scoring documents.
+
+        Example use cases:
+            - Tightening the focus of analytics to high-relevance matches rather
+            than the potentially very long tail of low-quality matches
+            - Reducing the running cost of aggregations that can produce useful
+            results using only samples e.g. significant_terms
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-sampler-aggregation.html
+
+        :param aggregation_name: Optional[str]
+            Optional name of the aggregation. Otherwise it will be auto-generated.
+
+        :param shard_size: int
+            The shard_size parameter limits how many top-scoring documents are
+            collected in the sample processed on each shard. The default value is
+            100.
+
+        :returns: 'AggregationInterface'
+            A new instance is created and returned
+        """
+        agg = self.agg(
+            *(aggregation_name + ("sampler", )),
+            shard_size=shard_size,
         )
         return agg
 
@@ -815,6 +2057,7 @@ class AggregationInterface(AggregationInterfaceBase):
             reduce_script: str,
             init_script: Optional[str] = None,
             params: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-scripted-metric-aggregation.html
@@ -832,8 +2075,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param params: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -844,13 +2092,14 @@ class AggregationInterface(AggregationInterfaceBase):
             init_script=init_script,
             params=params,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_stats(
             self,
             *aggregation_name: Optional[str],
             field: str,
             missing: Optional[Any] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-stats-aggregation.html
@@ -862,8 +2111,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param missing: Optional[Any]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -871,7 +2125,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field=field,
             missing=missing,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_string_stats(
             self,
@@ -879,6 +2133,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field: str,
             show_distribution: bool = False,
             missing: Optional[Any] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-string-stats-aggregation.html
@@ -892,8 +2147,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param missing: Optional[Any]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -902,7 +2162,7 @@ class AggregationInterface(AggregationInterfaceBase):
             show_distribution=show_distribution,
             missing=missing,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_sum(
             self,
@@ -910,6 +2170,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field: str,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-sum-aggregation.html
@@ -923,8 +2184,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -933,7 +2199,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_t_test(
             self,
@@ -944,6 +2210,7 @@ class AggregationInterface(AggregationInterfaceBase):
             a__filter: Optional[dict] = None,
             b__filter: Optional[dict] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-ttest-aggregation.html
@@ -963,8 +2230,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -976,7 +2248,7 @@ class AggregationInterface(AggregationInterfaceBase):
             b__filter=b__filter,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def agg_terms(
             self,
@@ -985,9 +2257,11 @@ class AggregationInterface(AggregationInterfaceBase):
             size: int = 10,
             shard_size: Optional[int] = None,
             show_term_doc_count_error: Optional[bool] = None,
-            order: Optional[dict] = None,
+            order: Optional[Union[Mapping, str]] = None,
             min_doc_count: int = 1,
             shard_min_doc_count: Optional[int] = None,
+            include: Optional[Union[str, Sequence[str], Mapping[str, int]]] = None,
+            exclude: Optional[Union[str, Sequence[str]]] = None,
             missing: Optional[Any] = None,
             script: Optional[dict] = None,
     ):
@@ -1044,7 +2318,7 @@ class AggregationInterface(AggregationInterfaceBase):
             in the document counts cannot be determined and is given a value of -1
             to indicate this.
 
-        :param order: Optional[dict]
+        :param order: Optional[Union[Mapping, str]]
             The order of the buckets can be customized by setting the order
             parameter. By default, the buckets are ordered by their doc_count
             descending.
@@ -1103,6 +2377,24 @@ class AggregationInterface(AggregationInterfaceBase):
             high will cause terms to be filtered out on a shard level. This value
             should be set much lower than min_doc_count/#shards.
 
+        :param include: Optional[Union[str, Sequence[str], Mapping[str, int]]]
+            A
+            [regexp](https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html)
+            pattern that filters the documents which will be aggregated.
+
+            Alternatively can be a list of strings.
+
+            [Parition
+            expressions](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#_filtering_values_with_partitions)
+            are also possible.
+
+        :param exclude: Optional[Union[str, Sequence[str]]]
+            A
+            [regexp](https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html)
+            pattern that filters the documents which will be aggregated.
+
+            Alternatively can be a list of strings.
+
         :param missing: Optional[Any]
             The missing parameter defines how documents that are missing a value
             should be treated. By default they will be ignored but it is also
@@ -1112,8 +2404,7 @@ class AggregationInterface(AggregationInterfaceBase):
             Generating the terms using a script
 
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
-            is returned.
+            A new instance is created and returned
         """
         agg = self.agg(
             *(aggregation_name + ("terms", )),
@@ -1124,6 +2415,8 @@ class AggregationInterface(AggregationInterfaceBase):
             order=order,
             min_doc_count=min_doc_count,
             shard_min_doc_count=shard_min_doc_count,
+            include=include,
+            exclude=exclude,
             missing=missing,
             script=script,
         )
@@ -1135,6 +2428,7 @@ class AggregationInterface(AggregationInterfaceBase):
             size: int,
             sort: Optional[dict] = None,
             _source: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-top-hits-aggregation.html
@@ -1148,8 +2442,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param _source: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -1158,13 +2457,14 @@ class AggregationInterface(AggregationInterfaceBase):
             sort=sort,
             _source=_source,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_top_metrics(
             self,
             *aggregation_name: Optional[str],
             metrics: dict,
             sort: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-top-metrics.html
@@ -1176,8 +2476,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param sort: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -1185,26 +2490,51 @@ class AggregationInterface(AggregationInterfaceBase):
             metrics=metrics,
             sort=sort,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_value_count(
             self,
             *aggregation_name: Optional[str],
-            field: str,
+            field: Optional[str] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
+        A single-value metrics aggregation that counts the number of values that are
+        extracted from the aggregated documents. These values can be extracted
+        either from specific fields in the documents, or be generated by a provided
+        script. Typically, this aggregator will be used in conjunction with other
+        single-value aggregations. For example, when computing the avg one might be
+        interested in the number of values the average is computed over.
+
+        value_count does not de-duplicate values, so even if a field has duplicates
+        (or a script generates multiple identical values for a single document),
+        each value will be counted individually.
+
+        Note: Because value_count is designed to work with any field it internally
+        treats all values as simple bytes. Due to this implementation, if _value
+        script variable is used to fetch a value instead of accessing the field
+        directly (e.g. a "value script"), the field value will be returned as a
+        string instead of it’s native format.
+
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-valuecount-aggregation.html
 
         :param aggregation_name: Optional[str]
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field: Optional[str]
+            The field who's values should be counted
 
         :param script: Optional[dict]
+            Alternatively counting the values generated by a script
+
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
 
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -1212,7 +2542,7 @@ class AggregationInterface(AggregationInterfaceBase):
             field=field,
             script=script,
         )
-        return agg
+        return agg if return_self else self
 
     def metric_weighted_avg(
             self,
@@ -1224,20 +2554,41 @@ class AggregationInterface(AggregationInterfaceBase):
             format: Optional[str] = None,
             value_type: Optional[str] = None,
             script: Optional[dict] = None,
+            return_self: bool = False,
     ):
         """
+        A single-value metrics aggregation that computes the weighted average of
+        numeric values that are extracted from the aggregated documents. These
+        values can be extracted either from specific numeric fields in the
+        documents.
+
+        When calculating a regular average, each datapoint has an equal "weight" …​
+        it contributes equally to the final value. Weighted averages, on the other
+        hand, weight each datapoint differently. The amount that each datapoint
+        contributes to the final value is extracted from the document, or provided
+        by a script.
+
+        As a formula, a weighted average is the ∑(value * weight) / ∑(weight)
+
+        A regular average can be thought of as a weighted average where every value
+        has an implicit weight of 1
+
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-weight-avg-aggregation.html
 
         :param aggregation_name: Optional[str]
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
         :param value__field: str
+            The field that values should be extracted from
 
         :param weight__field: str
+            The field that weights should be extracted from
 
         :param value__missing: Optional[Any]
+            A value to use if the field is missing entirely
 
         :param weight__missing: Optional[Any]
+            A weight to use if the field is missing entirely
 
         :param format: Optional[str]
 
@@ -1245,8 +2596,13 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param script: Optional[dict]
 
+        :param return_self: bool
+            If True, this call returns the created metric, otherwise the parent is
+            returned.
+
         :returns: 'AggregationInterface'
-            A new instance is created and attached to the parent, the new instance
+            A new instance is created and attached to the parent and the parent is
+            returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
         agg = self.metric(
@@ -1259,4 +2615,4 @@ class AggregationInterface(AggregationInterfaceBase):
             value_type=value_type,
             script=script,
         )
-        return agg
+        return agg if return_self else self

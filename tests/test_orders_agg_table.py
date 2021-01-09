@@ -5,7 +5,7 @@ import unittest
 
 import elasticsearch
 
-from elastipy import get_elastic_client, Search
+from elastipy import Search
 
 from . import data
 
@@ -15,16 +15,14 @@ class TestOrdersAggregationsTable(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.maxDiff = int(1e5)
-        cls.client = get_elastic_client()
-        data.export_data(data.orders.orders1, data.orders.OrderExporter, cls.client)
-        time.sleep(1.1)  # give time to update index
+        data.export_data(data.orders.orders1, data.orders.OrderExporter)
 
     @classmethod
     def tearDownClass(cls):
-        data.orders.OrderExporter(client=cls.client).delete_index()
+        data.orders.OrderExporter().delete_index()
 
     def query(self):
-        return Search(index=data.orders.OrderExporter.INDEX_NAME, client=self.client)
+        return Search(index=data.orders.OrderExporter.INDEX_NAME)
 
     def test_named_nested_aggregations_to_rows(self):
         query = self.query()

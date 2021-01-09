@@ -9,10 +9,10 @@ class QueryInterface(QueryInterfaceBase):
 
     def bool(
             self,
-            must: Optional[Sequence['QueryInterface']] = None,
-            must_not: Optional[Sequence['QueryInterface']] = None,
-            should: Optional[Sequence['QueryInterface']] = None,
-            filter: Optional[Sequence['QueryInterface']] = None,
+            must: Optional[Union['QueryInterface', Sequence['QueryInterface']]] = None,
+            must_not: Optional[Union['QueryInterface', Sequence['QueryInterface']]] = None,
+            should: Optional[Union['QueryInterface', Sequence['QueryInterface']]] = None,
+            filter: Optional[Union['QueryInterface', Sequence['QueryInterface']]] = None,
     ) -> 'QueryInterface':
         """
         A query that matches documents matching boolean combinations of other
@@ -25,20 +25,20 @@ class QueryInterface(QueryInterfaceBase):
 
         https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html
 
-        :param must: Optional[Sequence['QueryInterface']]
+        :param must: Optional[Union['QueryInterface', Sequence['QueryInterface']]]
             The clause (query) must appear in matching documents and will contribute
             to the score.
 
-        :param must_not: Optional[Sequence['QueryInterface']]
+        :param must_not: Optional[Union['QueryInterface', Sequence['QueryInterface']]]
             The clause (query) must not appear in the matching documents. Clauses
             are executed in filter context meaning that scoring is ignored and
             clauses are considered for caching. Because scoring is ignored, a score
             of 0 for all documents is returned.
 
-        :param should: Optional[Sequence['QueryInterface']]
+        :param should: Optional[Union['QueryInterface', Sequence['QueryInterface']]]
             The clause (query) should appear in the matching document.
 
-        :param filter: Optional[Sequence['QueryInterface']]
+        :param filter: Optional[Union['QueryInterface', Sequence['QueryInterface']]]
             The clause (query) must appear in matching documents. However unlike
             must the score of the query will be ignored. Filter clauses are executed
             in filter context, meaning that scoring is ignored and clauses are
@@ -202,6 +202,245 @@ class QueryInterface(QueryInterfaceBase):
             "match_none",
         )
 
+    def query_string(
+            self,
+            query: str,
+            default_field: Optional[str] = None,
+            allow_leading_wildcard: bool = True,
+            analyze_wildcard: bool = False,
+            analyzer: Optional[str] = None,
+            auto_generate_synonyms_phrase_query: Optional[bool] = None,
+            boost: float = 1.0,
+            default_operator: Optional[str] = None,
+            enable_position_increments: bool = True,
+            fields: Optional[Sequence[str]] = None,
+            fuzziness: Optional[str] = None,
+            fuzzy_max_expansions: int = 50,
+            fuzzy_prefix_length: int = 0,
+            fuzzy_transpositions: bool = True,
+            lenient: bool = False,
+            max_determinized_states: int = 10000,
+            minimum_should_match: Optional[str] = None,
+            quote_analyzer: Optional[str] = None,
+            phrase_slop: int = 0,
+            quote_field_suffix: Optional[str] = None,
+            rewrite: Optional[str] = None,
+            time_zone: Optional[str] = None,
+    ) -> 'QueryInterface':
+        """
+        Returns documents based on a provided query string, using a parser with a
+        strict syntax.
+
+        This query uses a
+        [syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax)
+        to parse and split the provided query string based on operators, such as AND
+        or NOT. The query then
+        [analyzes](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html)
+        each split text independently before returning matching documents.
+
+        You can use the query_string query to create a complex search that includes
+        wildcard characters, searches across multiple fields, and more. While
+        versatile, the query is strict and returns an error if the query string
+        includes any invalid syntax.
+
+        Warning:
+            Because it returns an error for any invalid syntax, we don’t recommend
+            using the query_string query for search boxes.
+
+            If you don’t need to support a query syntax, consider using the
+            [match](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html)
+            query. If you need the features of a query syntax, use the
+            [simple_query_string](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html)
+            query, which is less strict.
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+
+        :param query: str
+            Query string you wish to parse and use for search. See [Query string
+            syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
+
+        :param default_field: Optional[str]
+            Default field you wish to search if no field is provided in the query
+            string.
+
+            Defaults to the index.query.default_field index setting, which has a
+            default value of *. The * value extracts all fields that are eligible
+            for term queries and filters the metadata fields. All extracted fields
+            are then combined to build a query if no prefix is specified.
+
+            Searching across all eligible fields does not include nested documents.
+            Use a nested query to search those documents.
+
+            For mappings with a large number of fields, searching across all
+            eligible fields could be expensive.
+
+            There is a limit on the number of fields that can be queried at once. It
+            is defined by the indices.query.bool.max_clause_count search setting,
+            which defaults to 1024.
+
+        :param allow_leading_wildcard: bool
+            If true, the wildcard characters * and ? are allowed as the first
+            character of the query string. Defaults to true.
+
+        :param analyze_wildcard: bool
+            If true, the query attempts to analyze wildcard terms in the query
+            string. Defaults to false.
+
+        :param analyzer: Optional[str]
+            [Analyzer](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html)
+            used to convert text in the query string into tokens. Defaults to the
+            [index-time
+            analyzer](https://www.elastic.co/guide/en/elasticsearch/reference/current/specify-analyzer.html#specify-index-time-analyzer)
+            mapped for the default_field. If no analyzer is mapped, the index’s
+            default analyzer is used.
+
+        :param auto_generate_synonyms_phrase_query: Optional[bool]
+            If true, [match
+            phrase](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query-phrase.html)
+            queries are automatically created for multi-term synonyms. Defaults to
+            true. See [Synonyms and the query_string
+            query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-synonyms)
+            for an example.
+
+        :param boost: float
+            Floating point number used to decrease or increase the [relevance
+            scores](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-context.html#relevance-scores)
+            of the query. Defaults to 1.0.
+
+            Boost values are relative to the default value of 1.0. A boost value
+            between 0 and 1.0 decreases the relevance score. A value greater than
+            1.0 increases the relevance score.
+
+        :param default_operator: Optional[str]
+            Default boolean logic used to interpret text in the query string if no
+            operators are specified. Valid values are:
+                OR (Default)
+                    For example, a query string of capital of Hungary is interpreted
+                    as capital OR of OR Hungary.
+                AND
+                    For example, a query string of capital of Hungary is interpreted
+                    as capital AND of AND Hungary.
+
+        :param enable_position_increments: bool
+            If true, enable position increments in queries constructed from a
+            query_string search. Defaults to true.
+
+        :param fields: Optional[Sequence[str]]
+            Array of fields you wish to search.
+
+            You can use this parameter query to search across multiple fields. See
+            [Search multiple
+            fields](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-multi-field).
+
+        :param fuzziness: Optional[str]
+            Maximum edit distance allowed for matching. See Fuzziness for valid
+            values and more information. See Fuzziness in the match query for an
+            example.
+
+        :param fuzzy_max_expansions: int
+            Maximum number of terms to which the query will expand. Defaults to 50.
+
+        :param fuzzy_prefix_length: int
+            Number of beginning characters left unchanged for fuzzy matching.
+            Defaults to 0.
+
+        :param fuzzy_transpositions: bool
+            If true, edits for fuzzy matching include transpositions of two adjacent
+            characters (ab → ba). Defaults to true.
+
+        :param lenient: bool
+            If true, format-based errors, such as providing a text query value for a
+            numeric field, are ignored. Defaults to false.
+
+        :param max_determinized_states: int
+            Maximum number of [automaton
+            states](https://en.wikipedia.org/wiki/Deterministic_finite_automaton)
+            required for the query. Default is 10000.
+
+            Elasticsearch uses Apache Lucene internally to parse regular
+            expressions. Lucene converts each regular expression to a finite
+            automaton containing a number of determinized states.
+
+            You can use this parameter to prevent that conversion from
+            unintentionally consuming too many resources. You may need to increase
+            this limit to run complex regular expressions.
+
+        :param minimum_should_match: Optional[str]
+            Minimum number of clauses that must match for a document to be returned.
+            See the minimum_should_match parameter for valid values and more
+            information.
+
+        :param quote_analyzer: Optional[str]
+            [Analyzer](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html)
+            used to convert quoted text in the query string into tokens. Defaults to
+            the search_quote_analyzer mapped for the default_field.
+
+            For quoted text, this parameter overrides the analyzer specified in the
+            analyzer parameter.
+
+        :param phrase_slop: int
+            Maximum number of positions allowed between matching tokens for phrases.
+            Defaults to 0. If 0, exact phrase matches are required. Transposed terms
+            have a slop of 2.
+
+        :param quote_field_suffix: Optional[str]
+            Suffix appended to quoted text in the query string.
+
+            You can use this suffix to use a different analysis method for exact
+            matches. See [Mixing exact search with
+            stemming](https://www.elastic.co/guide/en/elasticsearch/reference/current/mixing-exact-search-with-stemming.html).
+
+        :param rewrite: Optional[str]
+            Method used to rewrite the query. For valid values and more information,
+            see the [rewrite
+            parameter](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-multi-term-rewrite.html).
+
+        :param time_zone: Optional[str]
+            [Coordinated Universal Time (UTC)
+            offset](https://en.wikipedia.org/wiki/List_of_UTC_time_offsets) or [IANA
+            time zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+            used to convert date values in the query string to UTC.
+
+            Valid values are ISO 8601 UTC offsets, such as +01:00 or -08:00, and
+            IANA time zone IDs, such as America/Los_Angeles.
+
+            Note: The time_zone parameter does not affect the [date
+            math](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math)
+            value of now. now is always the current system time in UTC. However, the
+            time_zone parameter does convert dates calculated using now and [date
+            math
+            rounding](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math).
+            For example, the time_zone parameter will convert a value of now/d.
+
+        :returns: 'QueryInterface'
+            A new instance is created
+        """
+        return self.add_query(
+            "query_string",
+            query=query,
+            default_field=default_field,
+            allow_leading_wildcard=allow_leading_wildcard,
+            analyze_wildcard=analyze_wildcard,
+            analyzer=analyzer,
+            auto_generate_synonyms_phrase_query=auto_generate_synonyms_phrase_query,
+            boost=boost,
+            default_operator=default_operator,
+            enable_position_increments=enable_position_increments,
+            fields=fields,
+            fuzziness=fuzziness,
+            fuzzy_max_expansions=fuzzy_max_expansions,
+            fuzzy_prefix_length=fuzzy_prefix_length,
+            fuzzy_transpositions=fuzzy_transpositions,
+            lenient=lenient,
+            max_determinized_states=max_determinized_states,
+            minimum_should_match=minimum_should_match,
+            quote_analyzer=quote_analyzer,
+            phrase_slop=phrase_slop,
+            quote_field_suffix=quote_field_suffix,
+            rewrite=rewrite,
+            time_zone=time_zone,
+        )
+
     def range(
             self,
             field: str,
@@ -297,7 +536,7 @@ class QueryInterface(QueryInterfaceBase):
     def term(
             self,
             field: str,
-            value: str,
+            value: Union[str, int, float, bool, datetime],
             boost: Optional[float] = None,
             case_insensitive: Optional[bool] = None,
     ) -> 'QueryInterface':
@@ -312,7 +551,7 @@ class QueryInterface(QueryInterfaceBase):
         :param field: str
             Field you wish to search.
 
-        :param value: str
+        :param value: Union[str, int, float, bool, datetime]
             Term you wish to find in the provided <field>. To return a document, the
             term must exactly match the field value, including whitespace and
             capitalization.
@@ -347,7 +586,7 @@ class QueryInterface(QueryInterfaceBase):
     def terms(
             self,
             field: str,
-            value: Sequence[str],
+            value: Sequence[Union[str, int, float, bool, datetime]],
             boost: Optional[float] = None,
     ) -> 'QueryInterface':
         """
@@ -361,7 +600,7 @@ class QueryInterface(QueryInterfaceBase):
         :param field: str
             Field you wish to search.
 
-        :param value: Sequence[str]
+        :param value: Sequence[Union[str, int, float, bool, datetime]]
             The value of this parameter is an array of terms you wish to find in the
             provided field. To return a document, one or more terms must exactly
             match a field value, including whitespace and capitalization.
