@@ -7,7 +7,7 @@ class UnicodeCharacters:
 
     also interesting: https://en.wikipedia.org/wiki/Box-drawing_character
     """
-    quadrants = ("▖", "▘", "", "▝", "▗")
+    quadrants = ("▖", "▘", "▝", "▗")
     quadrants3 = ("▙", "▛", "▜", "▟")
     quadrants2 = ("▞", "▚")
     block = "█"
@@ -19,6 +19,7 @@ class UnicodeCharacters:
     line_hori = "─"
     line_vert = "│"
     line_cross = "┼"
+    line_corners = ("└", "┌", "┐", "┘")
 
 
 class AsciiCharacters:
@@ -28,6 +29,7 @@ class AsciiCharacters:
     line_vert = "|"
     line_hori = "-"
     line_cross = "+"
+    line_corners = ("\\", "/", "\\", "/")
 
 
 class Characters:
@@ -40,6 +42,7 @@ class Characters:
         self.line_vert = klass.line_vert
         self.line_hori = klass.line_hori
         self.line_cross = klass.line_cross
+        self.line_corners = klass.line_corners
         if klass is UnicodeCharacters:
             self.quadrants = klass.quadrants
             self.quadrants2 = klass.quadrants2

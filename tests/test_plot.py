@@ -2,7 +2,7 @@ import time
 import unittest
 
 from elastipy import Search
-from elastipy.plot.text.characters import Characters
+from elastipy.plot.text.console import Characters
 
 from . import data
 
@@ -53,7 +53,7 @@ class TestPlot(unittest.TestCase):
             ch.hbar(.5, 3),
         )
 
-    def x_test_orders_terms_sku(self):
+    def test_orders_terms_sku(self):
         query = self.search()
         agg_sku_count = query.agg_terms(field="sku")
         agg_sku_qty = agg_sku_count.metric("sum", field="quantity")

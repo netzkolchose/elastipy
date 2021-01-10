@@ -1,9 +1,13 @@
 import os
 
-from .characters import Characters
+from .console import Characters, Colors
 
 
 class TextPlotter:
+
+    def __init__(self, ascii=False, colors=True):
+        self.ch = Characters(ascii=ascii)
+        self.co = Colors(enable=colors)
 
     def hbar(self, keys, values, width=None, zero_based=True, digits=3, file=None):
         values_str = [str(round(v, digits)) for v in values]
@@ -32,15 +36,20 @@ class TextPlotter:
             bar_width,
             digits=digits,
         )
-        print((" " * left_width) + axis_values)
-        print((" " * left_width) + axis_ticks)
+
+        print((" " * left_width) + axis_values, file=file)
+        print((" " * (left_width - 2)) + self.ch.line_corners[1] + self.ch.line_hori + axis_ticks, file=file)
+
         for key, value, value_str in zip(keys, values, values_str):
             if zero_based:
                 bar_value = value * value_fac
             else:
                 bar_value = (value - values_min) * value_fac
-            bar = Characters.hbar(bar_value, bar_width)
-            print(f"{key:{key_len}} | {value_str:{value_len}} | {bar}", file=file)
+            bar = self.co.LIGHT_BLUE + self.ch.hbar(bar_value, bar_width) + self.co.END
+            print(f"{key:{key_len}} | {value_str:{value_len}} {self.ch.line_cross} {bar}", file=file)
+
+        print((" " * (left_width - 2)) + self.ch.line_corners[0] + self.ch.line_hori + axis_ticks, file=file)
+        print((" " * left_width) + axis_values, file=file)
 
     def get_terminal_size(self):
         size = os.get_terminal_size()
@@ -50,13 +59,13 @@ class TextPlotter:
         distance = max_value - min_value
         if not distance:
             return (
-                Characters.line_cross + Characters.line_hori * (width - 1),
+                self.ch.line_cross + self.ch.line_hori * (width - 1),
                 str(round(min_value, digits)),
             )
 
         factor = digits + 3
         while factor < width:
-            ticks = Characters.line_hori * width
+            ticks = self.ch.line_hori * width
             values = " " * width
 
             for i in range(0, width, factor):
@@ -68,7 +77,7 @@ class TextPlotter:
                     break
                 if i + len(x_str) < width:
                     values = values[:i] + x_str + values[i+len(x_str):]
-                    ticks = ticks[:i] + Characters.line_cross + ticks[i + 1:]
+                    ticks = ticks[:i] + self.ch.line_cross + ticks[i + 1:]
 
             if values:
                 return ticks, values

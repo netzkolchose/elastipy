@@ -4,7 +4,7 @@ from typing import Mapping, Sequence
 from io import StringIO
 from decimal import Decimal, InvalidOperation
 
-from .characters import Characters, Colors
+from .console import Characters, Colors
 
 
 class Table:

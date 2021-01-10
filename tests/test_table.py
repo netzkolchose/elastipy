@@ -3,7 +3,7 @@ import unittest
 from decimal import Decimal
 
 from elastipy import Search
-from elastipy.plot.text.characters import Characters
+from elastipy.plot.text.console import Characters
 from elastipy.plot.text import Table
 
 
