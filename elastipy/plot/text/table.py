@@ -2,6 +2,7 @@ import os
 from itertools import chain
 from typing import Mapping, Sequence
 from io import StringIO
+from collections import deque
 from decimal import Decimal, InvalidOperation
 
 from .console import Characters, Colors
@@ -94,16 +95,8 @@ class Table:
                 key: column_width[key] - value_width[key]
                 for key in value_bounds
             }
-            max_bar_width = max(bar_width.values())
 
-            while free_width:
-                for key in bar_width:
-                    if not free_width:
-                        break
-                    if bar_width[key] < max_width:
-                        bar_width[key] += 1
-                        max_bar_width = max(max_bar_width, bar_width[key])
-                        free_width -= 1
+            self._spend_extra_width(bar_width, free_width)
 
             # final column width
             for key in bar_width:
@@ -112,6 +105,7 @@ class Table:
                     value_width[key] + bar_width[key]
                 )
 
+            max_bar_width = max(bar_width.values())
             bar_offset = max(0.01, min(.25, 1. / max_bar_width))
 
         # -- print the thing --
@@ -143,6 +137,9 @@ class Table:
                 cells.append(cell)
 
             line = f" {ch.line_vert} ".join(cells)
+            if max_width and len(line) > max_width > 2:
+                line = line[:max_width-2] + ".."
+
             print(line, file=file)
 
             if y == 0:
@@ -150,6 +147,9 @@ class Table:
                     ch.line_hori * column_width[key]
                     for key in self.headers
                 )
+                if max_width and len(line) > max_width > 2:
+                    line = line[:max_width-2] + ".."
+
                 print(line, file=file)
 
     def _extract_source(self):
@@ -178,6 +178,34 @@ class Table:
             return
 
         raise TypeError(f"Invalid source {type(self.source).__name__}")
+
+    def _spend_extra_width(self, width: dict, extra_width: int):
+        max_bar_width = max(width.values())
+        keys = deque(width.keys())
+        count = extra_width
+        while extra_width > 0 and count:
+            count -= 1
+            added = False
+
+            # add to the ones that are below current max
+            for key in width:
+                if not extra_width:
+                    break
+                if width[key] < max_bar_width:
+                    width[key] += 1
+                    extra_width -= 1
+                    added = True
+            if not extra_width:
+                break
+
+            # add to columns in round-robin order
+            if not added:
+                if not keys:
+                    keys = deque(width.keys())
+                key = keys.pop()
+                width[key] += 1
+                max_bar_width = max(max_bar_width, width[key])
+                extra_width -= 1
 
 
 def all_dict_row_keys(rows):

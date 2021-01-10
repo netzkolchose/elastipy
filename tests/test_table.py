@@ -72,8 +72,26 @@ class TestTable(unittest.TestCase):
             z   | 30 ####### | 8.0 :
             """,
             bars=True,
-            ascii=True,
             max_width=30,
+        )
+
+    def test_table_bars_maxwidth(self):
+        self.assertTableStr(
+            [
+                ["a", "b", "ccccccccccccc"],
+                ["x", 1, Decimal(10)],
+                ["yyy", 9, 4],
+                ["z", 30, 8.],
+            ],
+            """
+            a   | b    | ccccccccccccc
+            ----+------+--------------
+            x   |  1   |  10 #########
+            yyy |  9 . |   4 :
+            z   | 30 # | 8.0 ######
+            """,
+            bars=True,
+            max_width=26,
         )
 
 
