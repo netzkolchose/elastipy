@@ -62,7 +62,7 @@ def accidents_by_city():
     # make sure we have a population value
     s = s.range(field="population", gt=0)
 
-    agg = s.agg_terms("city", field="city", size=30, order="-population")
+    agg = s.agg_terms("city", field="city", size=30)
 
     # the pipeline aggregation below does not have access to the city.doc_count
     #   so we repeat the count value here as a metric
@@ -83,7 +83,7 @@ def accidents_by_city():
     s.execute()
 
     print("\n### Accidents by city\n")
-    agg.print.table(digits=3)
+    agg.print.table(digits=2, sort="-accidents_per_population_percent", zero_based=True)
 
 
 def accidents_by_weekday():
@@ -125,7 +125,7 @@ def accidents_by_condition():
     agg.print.table()
 
     # the to_dict method returns the values of the chosen aggregation
-    #   but all keys that lead to it
+    #   and all bucket keys that lead to it
     data = agg.to_dict()
     print("number of accidents on slick roads in the dark", data[("darkness", "slick")])
 
@@ -133,19 +133,23 @@ def accidents_by_condition():
 def accidents_by_vehicle_combination():
     s = search()
     agg = s \
-        .agg_adjacency_matrix(filters={
+        .agg_adjacency_matrix("combi", filters={
             "truck": query.Term(field="truck", value=1),
             "car": query.Term(field="car", value=1),
             "motorcycle": query.Term(field="motorcycle", value=1),
             "bicycle": query.Term(field="bicycle", value=1),
             "pedestrian": query.Term(field="pedestrian", value=1),
             "other": query.Term(field="other", value=1),
-        })
+        }) \
+        .metric_avg("lightly", field="lightly_i") \
+        .metric_avg("seriously", field="seriously_i") \
+        .metric_avg("deadly", field="deadly_i")
+        #.metric_percentile_ranks("category", field="category_i", values=[0, 1, 2])
 
     s.execute()
 
     print("\n### Accidents by vehicle combination\n")
-    agg.print.table()
+    agg.print.table(sort="-combi.doc_count", digits=2, zero_based=True)
 
 
 def accidents_geo_centroid_per_state():
@@ -157,7 +161,9 @@ def accidents_geo_centroid_per_state():
     s.execute()
 
     print("\n### Accidents geo-centroid per state\n")
-    agg.print.table(digits=5)
+    # it's not possible to order the terms aggregation along a centroid coordinate
+    # but we can at least order the table output
+    agg.print.table(digits=5, sort="centroid.lat")
 
 
 def accidents_geo_bounds_per_state():

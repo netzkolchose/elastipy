@@ -5,7 +5,7 @@ from io import StringIO
 from collections import deque
 from decimal import Decimal, InvalidOperation
 
-from .console import Characters, Colors
+from .console import Characters, Colors, ColorCodes
 
 
 class Table:
@@ -16,13 +16,47 @@ class Table:
         self.headers = []
         self._extract_source()
 
-    def to_str(self, digits=None, header=True, bars=True, colors=True, ascii=False, max_width=None):
+    def to_str(self, sort=None, digits=None, header=True, bars=True, colors=True, ascii=False, max_width=None):
         file = StringIO()
-        self.print(digits=digits, header=header, bars=bars, colors=colors, ascii=ascii, max_width=max_width, file=file)
+        self.print(sort=sort, digits=digits, header=header, bars=bars, colors=colors, ascii=ascii, max_width=max_width, file=file)
         file.seek(0)
         return file.read()
 
-    def print(self, digits=None, header=True, bars=True, colors=True, ascii=False, max_width=None, file=None):
+    def print(self,
+              sort: str = None,
+              digits: int = None,
+              header: bool = True,
+              bars: bool = True,
+              zero_based: bool = True,
+              colors: bool = True,
+              ascii: bool = False,
+              max_width: int = None,
+              max_bar_width: int = 40,
+              file=None
+    ):
+        """
+        :param sort: str
+            optional sort column name which must match a 'header' key
+            can be prefixed with '-' to reverse order
+        :param digits: int, optional number of digits for rounding
+        :param header: bool, if True, include the names in the first row
+        :param bars: bool
+            Enable display of horizontal bars in each number column.
+            The table width will stretch out in size while limited
+            to 'max_width' and 'max_bar_width'
+        :param zero_based: bool
+            if True, the bar axis starts at zero,
+            otherwise it starts at each columns minimum value
+        :param colors: bool, enable console colors
+        :param ascii: bool, if True fall back to ascii characters
+        :param max_width: int
+            Will limit the expansion of the table when bars are enabled.
+            If left None, the terminal width is used.
+        :param max_bar_width: int
+            The maximum size a bar should have
+        :param file: optional text stream to print to
+        :return:
+        """
         def _to_str(v):
             if v is None:
                 return "-"
@@ -68,11 +102,19 @@ class Table:
 
             table_rows.append(table_row)
 
+        if sort:
+            sort_key, reverse = sort.lstrip("-"), sort.startswith("-")
+            table_rows.sort(key=lambda row: row[sort_key]["value"], reverse=reverse)
+
         for key, bound in list(value_bounds.items()):
             if bound["min"] != bound["max"]:
                 pass
             else:
                 value_bounds.pop(key)
+
+        if zero_based:
+            for bound in value_bounds.values():
+                bound["min"] = min(0, bound["min"])
 
         # width of whole column
         column_width = {
@@ -96,7 +138,7 @@ class Table:
                 for key in value_bounds
             }
 
-            self._spend_extra_width(bar_width, free_width)
+            self._spend_extra_width(bar_width, free_width, max_bar_width)
 
             # final column width
             for key in bar_width:
@@ -106,8 +148,8 @@ class Table:
                 )
 
             if bar_width:
-                max_bar_width = max(bar_width.values())
-                bar_offset = max(0.01, min(.25, 1. / max_bar_width))
+                bar_width_max = max(bar_width.values())
+                bar_offset = max(0.01, min(.25, 1. / bar_width_max))
 
         # -- print the thing --
 
@@ -138,8 +180,7 @@ class Table:
                 cells.append(cell)
 
             line = f" {ch.line_vert} ".join(cells)
-            if max_width and len(line) > max_width > 2:
-                line = line[:max_width-2] + ".."
+            line = clip_line(line, max_width)
 
             print(line, file=file)
 
@@ -148,8 +189,7 @@ class Table:
                     ch.line_hori * column_width[key]
                     for key in self.headers
                 )
-                if max_width and len(line) > max_width > 2:
-                    line = line[:max_width-2] + ".."
+                line = clip_line(line, max_width)
 
                 print(line, file=file)
 
@@ -180,8 +220,8 @@ class Table:
 
         raise TypeError(f"Invalid source {type(self.source).__name__}")
 
-    def _spend_extra_width(self, width: dict, extra_width: int, recursive=True):
-        max_width = max(width.values())
+    def _spend_extra_width(self, width: dict, extra_width: int, max_width: int = None, recursive=True):
+        cur_max_width = max(width.values())
         keys = deque(width.keys())
         count = extra_width
         while extra_width > 0 and count:
@@ -192,7 +232,7 @@ class Table:
             for key in width:
                 if not extra_width:
                     break
-                if width[key] < max_width:
+                if width[key] < cur_max_width and (max_width is None or width[key] < max_width):
                     width[key] += 1
                     extra_width -= 1
                     added = True
@@ -204,9 +244,10 @@ class Table:
                 if not keys:
                     keys = deque(width.keys())
                 key = keys.pop()
-                width[key] += 1
-                max_width = max(max_width, width[key])
-                extra_width -= 1
+                if max_width is None or width[key] < max_width:
+                    width[key] += 1
+                    cur_max_width = max(cur_max_width, width[key])
+                    extra_width -= 1
 
         for key in list(width.keys()):
             if width[key] < 2:
@@ -214,7 +255,7 @@ class Table:
                 width.pop(key)
 
         if recursive:
-            self._spend_extra_width(width, extra_width, recursive=False)
+            self._spend_extra_width(width, extra_width, max_width, recursive=False)
 
 
 def all_dict_row_keys(rows):
@@ -227,6 +268,7 @@ def all_dict_row_keys(rows):
 
 
 def get_number(value):
+    """Convert any number format-able thing to int or float"""
     try:
         v = int(value)
         if v == float(value):
@@ -238,3 +280,19 @@ def get_number(value):
         return float(value)
     except (TypeError, ValueError):
         pass
+
+
+def clip_line(line, max_width=None):
+    if max_width is None:
+        return line
+
+    return line
+
+    # TODO: this is currently not working when colors are involved
+    if len(line) > max_width > 2:
+        line, rest = line[:max_width-2], line[max(0, max_width - 2 - len(ColorCodes.END)):]
+        if ColorCodes.END in rest:
+            line += ColorCodes.END
+        line += ".."
+
+    return line

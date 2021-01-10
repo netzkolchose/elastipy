@@ -141,7 +141,7 @@ class ColorCodes:
     NEGATIVE = "\033[7m"
     CROSSED = "\033[9m"
     END = "\033[0m"
-    
+
 
 class Colors:
     def __init__(self, enable=True):

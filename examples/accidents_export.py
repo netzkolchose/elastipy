@@ -114,6 +114,9 @@ class AccidentExporter(Exporter):
             # we keep the untranslated integer just in case someone wants to math with it
             "category_i": {"type": "integer"},
             "category": {"type": "keyword"},
+            "lightly_i": {"type": "integer"},
+            "seriously_i": {"type": "integer"},
+            "deadly_i": {"type": "integer"},
             "kind_i": {"type": "integer"},
             "kind": {"type": "keyword"},
             "type_i": {"type": "integer"},
@@ -161,6 +164,9 @@ class AccidentExporter(Exporter):
                 "hour": data["USTUNDE"],
                 "category_i": data["UKATEGORIE"],
                 "category": CATEGORIES[int(data["UKATEGORIE"]) - 1],
+                "deadly_i": 1 if int(data["UKATEGORIE"]) == 1 else 0,
+                "seriously_i": 1 if int(data["UKATEGORIE"]) == 2 else 0,
+                "lightly_i": 1 if int(data["UKATEGORIE"]) == 3 else 0,
                 "kind_i": data["UART"],
                 "kind": KINDS[int(data["UART"])],
                 "type_i": data["UTYP1"],
@@ -279,9 +285,10 @@ def export_data():
 
     # create the index or update it's mapping
     exporter.update_index()
+    # exporter.delete_index()
 
     # export everything
-    exporter.export_list(data, verbose=True, chunk_size=10000)
+    exporter.export_list(data, verbose=True, chunk_size=1000)
 
     # well... 'open' administrative data is still 'administrative'
     if exporter.codes_not_found:
