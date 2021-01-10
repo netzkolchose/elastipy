@@ -20,4 +20,8 @@ class PrintWrapper:
         :param digits: int, optional number of digits for rounding
         :param file: optional text stream to print to
         """
-        Visitor(self.agg).dump_table(header=header, digits=digits, file=file)
+        from ..plot.text import Table
+        Table(self.agg).print(
+            digits=digits, header=header,
+            file=file
+        )

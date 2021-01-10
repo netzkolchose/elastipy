@@ -1,6 +1,6 @@
 import os
 
-from .characters import UnicodeCharacters
+from .characters import Characters
 
 
 class TextPlotter:
@@ -39,7 +39,7 @@ class TextPlotter:
                 bar_value = value * value_fac
             else:
                 bar_value = (value - values_min) * value_fac
-            bar = UnicodeCharacters.hbar(bar_value, bar_width)
+            bar = Characters.hbar(bar_value, bar_width)
             print(f"{key:{key_len}} | {value_str:{value_len}} | {bar}", file=file)
 
     def get_terminal_size(self):
@@ -50,13 +50,13 @@ class TextPlotter:
         distance = max_value - min_value
         if not distance:
             return (
-                UnicodeCharacters.line_cross + UnicodeCharacters.line_hori * (width - 1),
+                Characters.line_cross + Characters.line_hori * (width - 1),
                 str(round(min_value, digits)),
             )
 
         factor = digits + 3
         while factor < width:
-            ticks = UnicodeCharacters.line_hori * width
+            ticks = Characters.line_hori * width
             values = " " * width
 
             for i in range(0, width, factor):
@@ -68,7 +68,7 @@ class TextPlotter:
                     break
                 if i + len(x_str) < width:
                     values = values[:i] + x_str + values[i+len(x_str):]
-                    ticks = ticks[:i] + UnicodeCharacters.line_cross + ticks[i+1:]
+                    ticks = ticks[:i] + Characters.line_cross + ticks[i + 1:]
 
             if values:
                 return ticks, values

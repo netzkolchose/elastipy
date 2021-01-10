@@ -2,12 +2,12 @@ import time
 import unittest
 
 from elastipy import Search
-from elastipy.plot.text.characters import UnicodeCharacters
+from elastipy.plot.text.characters import Characters
 
 from . import data
 
 
-class TestOrdersAggregations(unittest.TestCase):
+class TestPlot(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -23,39 +23,37 @@ class TestOrdersAggregations(unittest.TestCase):
         return Search(index=data.orders.OrderExporter.INDEX_NAME)
 
     def test_unicode_bar(self):
-        #for i in range(9):
-        #    t = i / 8
-        #    print(f"{round(t, 3):6}: {UnicodeCharacters.hbar(t, 1)}")
+        ch = Characters()
         self.assertEqual(
-            "",
-            UnicodeCharacters.hbar(.124, 1),
+            " ",
+            ch.hbar(.124, 1),
         )
         self.assertEqual(
-            UnicodeCharacters.left8th[0],
-            UnicodeCharacters.hbar(.125, 1),
+            ch.left8th[0],
+            ch.hbar(.125, 1),
         )
         self.assertEqual(
-            UnicodeCharacters.left8th[3],
-            UnicodeCharacters.hbar(.5, 1),
+            ch.left8th[3],
+            ch.hbar(.5, 1),
         )
         self.assertEqual(
-            UnicodeCharacters.left8th[6],
-            UnicodeCharacters.hbar(.875, 1),
+            ch.left8th[6],
+            ch.hbar(.875, 1),
         )
         self.assertEqual(
-            UnicodeCharacters.block * 3,
-            UnicodeCharacters.hbar(1, 3),
+            ch.block * 3,
+            ch.hbar(1, 3),
         )
         self.assertEqual(
-            UnicodeCharacters.block,
-            UnicodeCharacters.hbar(.5, 2),
+            ch.block + " ",
+            ch.hbar(.5, 2),
         )
         self.assertEqual(
-            UnicodeCharacters.block + UnicodeCharacters.left8th[3],
-            UnicodeCharacters.hbar(.5, 3),
+            ch.block + ch.left8th[3] + " ",
+            ch.hbar(.5, 3),
         )
 
-    def test_orders_terms_sku(self):
+    def x_test_orders_terms_sku(self):
         query = self.search()
         agg_sku_count = query.agg_terms(field="sku")
         agg_sku_qty = agg_sku_count.metric("sum", field="quantity")
