@@ -105,8 +105,9 @@ class Table:
                     value_width[key] + bar_width[key]
                 )
 
-            max_bar_width = max(bar_width.values())
-            bar_offset = max(0.01, min(.25, 1. / max_bar_width))
+            if bar_width:
+                max_bar_width = max(bar_width.values())
+                bar_offset = max(0.01, min(.25, 1. / max_bar_width))
 
         # -- print the thing --
 
@@ -179,8 +180,8 @@ class Table:
 
         raise TypeError(f"Invalid source {type(self.source).__name__}")
 
-    def _spend_extra_width(self, width: dict, extra_width: int):
-        max_bar_width = max(width.values())
+    def _spend_extra_width(self, width: dict, extra_width: int, recursive=True):
+        max_width = max(width.values())
         keys = deque(width.keys())
         count = extra_width
         while extra_width > 0 and count:
@@ -191,7 +192,7 @@ class Table:
             for key in width:
                 if not extra_width:
                     break
-                if width[key] < max_bar_width:
+                if width[key] < max_width:
                     width[key] += 1
                     extra_width -= 1
                     added = True
@@ -204,8 +205,16 @@ class Table:
                     keys = deque(width.keys())
                 key = keys.pop()
                 width[key] += 1
-                max_bar_width = max(max_bar_width, width[key])
+                max_width = max(max_width, width[key])
                 extra_width -= 1
+
+        for key in list(width.keys()):
+            if width[key] < 2:
+                extra_width += width[key]
+                width.pop(key)
+
+        if recursive:
+            self._spend_extra_width(width, extra_width, recursive=False)
 
 
 def all_dict_row_keys(rows):

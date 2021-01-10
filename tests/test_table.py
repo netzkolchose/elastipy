@@ -76,6 +76,7 @@ class TestTable(unittest.TestCase):
         )
 
     def test_table_bars_maxwidth(self):
+        # cccc... has a long header so it get's extra space for bars
         self.assertTableStr(
             [
                 ["a", "b", "ccccccccccccc"],
@@ -92,6 +93,26 @@ class TestTable(unittest.TestCase):
             """,
             bars=True,
             max_width=26,
+        )
+
+        # 'b' would only have space for the 'space' character not for a bar itself
+        # so the bar is removed and extra space given to cccc..
+        self.assertTableStr(
+            [
+                ["a", "b", "ccccccccccccc"],
+                ["x", 1, Decimal(10)],
+                ["yyy", 9, 4],
+                ["z", 30, 8.],
+            ],
+            """
+            a   | b  | ccccccccccccc
+            ----+----+---------------
+            x   |  1 |  10 ##########
+            yyy |  9 |   4 :
+            z   | 30 | 8.0 ######:
+            """,
+            bars=True,
+            max_width=25,
         )
 
 
