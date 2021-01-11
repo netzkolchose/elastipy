@@ -13,9 +13,9 @@ else:
     from setuptools import setup, find_namespace_packages
 
     def get_long_description():
-        return "%s\n" % (
+        return "%s\n%s" % (
             open("./README.md").read(),
-            # open("./HISTORY.md").read(),
+            open("./CHANGES.md").read(),
         )
 
     def get_packages():
