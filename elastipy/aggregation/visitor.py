@@ -1,3 +1,4 @@
+import fnmatch
 from copy import copy, deepcopy
 from itertools import chain
 from typing import Sequence, Union, Optional, Iterable, Tuple, TextIO, Any
@@ -45,20 +46,68 @@ class Visitor:
                 if filter is None or c.group in filter:
                     yield from self._child_aggregations(c, depth_first=depth_first)
 
-    def dict_rows(self) -> Iterable[dict]:
+    def dict_rows(
+            self,
+            include: Union[str, Sequence[str]] = None,
+            exclude: Union[str, Sequence[str]] = None,
+    ) -> Iterable[dict]:
         """
         Iterates through all result values from this aggregation branch.
 
         This will include all parent aggregations (up to the root) and all children
         aggregations (including metrics).
 
+        :param include: str or list of str
+            Can be one or more (OR-combined) wildcard patterns.
+            If used, any column that does not fit a pattern is removed
+        :param exclude: str or list of str
+            Can be one or more (OR-combined) wildcard patterns.
+            If used, any column that fits a pattern is removed
+
         :return: generator of dict
         """
         root = self.agg.root
-        yield from self._dict_rows(root, root.search.response.aggregations[root.name])
+        for row in self._dict_rows(root, root.search.response.aggregations[root.name]):
+            if include:
+                row = {
+                    key: value
+                    for key, value in row.items()
+                    if wildcard_match(key, include)
+                }
+            if exclude:
+                row = {
+                    key: value
+                    for key, value in row.items()
+                    if not wildcard_match(key, exclude)
+                }
+            yield row
 
-    def rows(self, header=True) -> Iterable[Sequence]:
-        return dict_rows_to_list_rows(self.dict_rows(), header=header)
+    def rows(
+            self,
+            header=True,
+            include: Union[str, Sequence[str]] = None,
+            exclude: Union[str, Sequence[str]] = None,
+    ) -> Iterable[list]:
+        """
+        Iterates through all result values from this aggregation branch.
+
+        Each row is a list. The first row contains the names if 'header' == True.
+
+        This will include all parent aggregations (up to the root) and all children
+        aggregations (including metrics).
+
+        :param header: bool
+            If True, the first row contains the names of the columns
+        :param include: str or list of str
+            Can be one or more (OR-combined) wildcard patterns.
+            If used, any column that does not fit a pattern is removed
+        :param exclude: str or list of str
+            Can be one or more (OR-combined) wildcard patterns.
+            If used, any column that fits a pattern is removed
+
+        :return: generator of list
+        """
+        yield from dict_rows_to_list_rows(self.dict_rows(include=include, exclude=exclude), header=header)
 
     def keys(self, key_separator=None) -> Iterable[Union[str, int, float]]:
         """
@@ -260,3 +309,12 @@ class Visitor:
             else:
                 value = bucket["doc_count"]
                 yield _make_default(value)
+
+
+def wildcard_match(name, pattern):
+    if isinstance(pattern, str):
+        return fnmatch.fnmatch(name, pattern)
+    for p in pattern:
+        if fnmatch.fnmatch(name, p):
+            return True
+    return False

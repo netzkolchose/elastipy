@@ -240,6 +240,7 @@ class Exporter:
             try:
                 import tqdm
                 yield from tqdm.tqdm(iter, total=count, file=file)
+                return
             except ImportError:
                 pass
 
