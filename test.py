@@ -2,7 +2,13 @@
 import os
 import subprocess
 import argparse
+import json
+import time
 from typing import Sequence, Mapping
+
+import elasticsearch
+
+from elastipy import connections
 
 
 def parse_arguments():
@@ -17,7 +23,7 @@ def parse_arguments():
         help="Stop at first error"
     )
     parser.add_argument(
-        "-es", "--elasticsearch", type=str,
+        "-es", "--elasticsearch", type=str, default=None,
         help="Json representation of elasticsearch server settings"
     )
     parser.add_argument(
@@ -26,6 +32,33 @@ def parse_arguments():
     )
 
     return parser.parse_args()
+
+
+def check_cluster_ready(params: str = None, max_seconds: int = 60, interval: int = 5):
+    """
+    Wait that elasticsearch cluster is connected and ready
+    """
+    # override default connection
+    if params:
+        connections.set("default", json.loads(params))
+
+    for i in range(0, max_seconds, interval):
+        try:
+            health = connections.get("default").cat.health(format="json")
+
+            health = health[0]  # expect at least one node
+
+            if health["status"] != "red":
+                return
+            print("waiting for elasticsearch status change:", health["status"])
+
+        except elasticsearch.ConnectionError:
+            print("waiting for elasticsearch server")
+
+        time.sleep(interval)
+
+    print("elasticsearch server not available")
+    exit(1)
 
 
 def run_test(package_names: Sequence[str], extra_args, extra_env: Mapping = None):
@@ -49,6 +82,7 @@ if __name__ == "__main__":
 
     if options.live:
         package_names.append("tests.live")
+        check_cluster_ready(options.elasticsearch)
 
     if options.failfast:
         extra_args.append("--failfast")
