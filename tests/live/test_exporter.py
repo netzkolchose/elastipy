@@ -4,6 +4,7 @@ from io import StringIO
 import unittest
 
 from elastipy import Search, query, Exporter
+from tests.live.base import TestCase
 
 
 # some basic fields, and no id
@@ -65,7 +66,7 @@ class TestExporterIndexPrefix(TestExporter):
         return self.index_name().replace("*", "-%s" % str(es_data.get("tag")).lower())
 
 
-class TestTheExporter(unittest.TestCase):
+class TestTheExporter(TestCase):
 
     def assertDocuments(self, documents, response):
         self.assertEqual(len(documents), len(response.documents))

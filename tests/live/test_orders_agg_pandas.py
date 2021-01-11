@@ -7,10 +7,11 @@ import pandas as pd
 
 from elastipy import Search
 
-from . import data
+from tests import data
+from tests.live.base import TestCase
 
 
-class TestOrdersAggregationsPandas(unittest.TestCase):
+class TestOrdersAggregationsPandas(TestCase):
 
     @classmethod
     def setUpClass(cls):

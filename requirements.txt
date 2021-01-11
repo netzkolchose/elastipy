@@ -1,3 +1,6 @@
 elasticsearch>=7.10.1
 PyYAML>=5.3.1
 tqdm>=4.55.1
+pandas
+coverage
+coveralls

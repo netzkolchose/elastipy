@@ -7,10 +7,11 @@ import elasticsearch
 
 from elastipy import Search, query
 
-from . import data
+from tests import data
+from tests.live.base import TestCase
 
 
-class TestOrdersAggregations(unittest.TestCase):
+class TestOrdersAggregations(TestCase):
 
     @classmethod
     def setUpClass(cls):

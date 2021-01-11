@@ -13,10 +13,11 @@ from collections import Counter
 from elastipy import Search, query
 from definition.data import AGGREGATION_DEFINITION
 
-from . import data
+from tests import data
+from tests.live.base import TestCase
 
 
-class TestOrdersAggregationsAuto(unittest.TestCase):
+class TestOrdersAggregationsAuto(TestCase):
     """
     Auto-generates all combinations of aggregations (which are defined in the yaml files)
     and tests the Aggregation.to_dict() and dict_rows() methods
@@ -47,7 +48,7 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
         :return:
         """
         # all metrics at top-level
-        for agg_type, definition in self.iter_aggs("metric"):
+        for agg_type, definition in self.iter_aggs("metric", exclude=("rate", )):
             s = search.copy()
             self.create_agg(s, agg_type)
             yield s
@@ -61,6 +62,8 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
         # buckets with metrics on top
         for agg_type, definition in self.iter_aggs("bucket"):
             for agg_type2, definition2 in self.iter_aggs("metric"):
+                if agg_type2 == "rate" and agg_type != "date_histogram":
+                    continue
                 s = search.copy()
                 agg = self.create_agg(s, agg_type)
                 if not agg:
@@ -72,6 +75,9 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
         for agg_type1, _ in self.iter_aggs("bucket"):
             for agg_type2, _ in self.iter_aggs("bucket", exclude=("global", )):
                 for agg_type3, _ in self.iter_aggs("metric"):
+                    if agg_type3 == "rate" and agg_type2 != "date_histogram":
+                        continue
+
                     s = agg = search.copy()
                     if agg:
                         for agg_type in (agg_type1, agg_type2, agg_type3):
@@ -86,7 +92,7 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
 
         # --- buckets ---
 
-        if agg_type in ("children", "ip_range"):
+        if agg_type in ("children", "ip_range", "top_metrics"):
             warnings.warn(f"{agg_type} tests currently not supported")
             return
 
@@ -137,7 +143,7 @@ class TestOrdersAggregationsAuto(unittest.TestCase):
         if agg_type == "percentile_ranks":
             params["values"] = [1, 50, 99]
         if agg_type == "rate":
-            params["unit"] = "d"
+            params["unit"] = "day"
         if agg_type == "scripted_metric":
             params.update({
                 "init_script": "state.something = 0",

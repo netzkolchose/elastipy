@@ -4,10 +4,11 @@ import unittest
 from elastipy import Search
 from elastipy.plot.text.console import Characters
 
-from . import data
+from tests import data
+from tests.live.base import TestCase
 
 
-class TestPlot(unittest.TestCase):
+class TestPlot(TestCase):
 
     @classmethod
     def setUpClass(cls):

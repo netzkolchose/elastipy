@@ -73,6 +73,7 @@ class TestTable(unittest.TestCase):
             """,
             bars=True,
             max_width=30,
+            zero_based=False,
         )
 
     def test_table_bars_maxwidth(self):
@@ -93,6 +94,7 @@ class TestTable(unittest.TestCase):
             """,
             bars=True,
             max_width=26,
+            zero_based=False,
         )
 
         # 'b' would only have space for the 'space' character not for a bar itself
@@ -113,6 +115,7 @@ class TestTable(unittest.TestCase):
             """,
             bars=True,
             max_width=25,
+            zero_based=False,
         )
 
 

@@ -9,10 +9,11 @@ from elastipy import Search, query
 from elastipy.query import factory
 from definition.data import QUERY_DEFINITION
 
-from . import data
+from tests import data
+from tests.live.base import TestCase
 
 
-class TestOrdersQueryAuto(unittest.TestCase):
+class TestOrdersQueryAll(TestCase):
 
     @classmethod
     def setUpClass(cls):

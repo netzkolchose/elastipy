@@ -1,11 +1,37 @@
 ## elastipy
 
+[![Build Status](https://travis-ci.com/defgsus/elastipy.svg?branch=development)](https://travis-ci.com/defgsus/elastipy)
+[![Coverage Status](https://coveralls.io/repos/github/defgsus/elastipy/badge.svg?branch=feature/travis)](https://coveralls.io/github/defgsus/elastipy?branch=feature/travis)
+
+
 A python wrapper to make elasticsearch queries and aggregations more fun.
 
 Actually i'm just learning this stuff and have the following requests:
 - some generic convenient data access to nested bucketed aggregations and such
 - the IDE/auto-completion should help a bit/lot with all the elasticsearch parameters
 
+#### configuration
+
+By default all request go against **localhost:9200**. There are currently two ways 
+to specify a different connection.
+
+```python
+from elasticsearch import Elasticsearch
+from elastipy import Search, connections
+
+# Use an explicit Elasticsearch client (or compatible class)
+s = Search(index="bla", client=Elasticsearch(hosts=[...], http_auth=[...]))
+# can also be done later
+s = s.client(Elasticsearch(...))
+
+# Or override the "default" connection
+connections.set("default", Elasticsearch(...))
+# .. or as parameters
+connections.set("default", {"hosts": [...]})
+
+# then just say
+s = Search(index="bla")
+```
 
 #### aggregation example
 
@@ -15,12 +41,15 @@ from elastipy import Search
 # get a search object
 q = Search(index="world")
 
-# if we leave out the field parameter it fall's back to Search.timestamp_field 
-#   which is "timestamp" by default
+# create an Aggregation class connected to the Search
 agg = q.agg_date_histogram(calendar_interval="1w")
+# (for date-specific aggregations we can leave out the 'field' parameter 
+#  it fall's back to Search.timestamp_field which is "timestamp" by default)
 
 # submit the whole request
 q.execute()
+
+# access the response
 
 list(agg.keys())
 # ["2020-01-01T00:00:00Z", "2020-01-08T00:00:00Z", ...]
@@ -190,12 +219,25 @@ Exporter().delete_index()
   peculiarities
   - complete the yaml definitions by carefully reading all the 
    [online documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html)
-  - a convenient way to declare the client connection settings
 
 
 ### development / testing
 
-Still a bit *bastlerisch* at this point. 
+To run the tests call:
+```bash
+python test.py
+````
 
-The unit-tests run against elasticsearch at localhost:9200 with all indices 
-prefixed with **elastipy---unittest-**
+To include testing against a live elasticsearch:
+```bash
+python test.py --live
+```
+
+This runs by default against **localhost:9200**. If you need to change the connection
+pass any arguments as json:
+```bash
+python test.py --live --elasticsearch '{"hosts": [{"host": "127.0.0.5", "port": 1200}], "http_auth": ["user", "password"]}'
+```
+
+The live tests will create new indices and immediately destroy them afterwards. 
+They are prefixed with **elastipy---unittest-**
