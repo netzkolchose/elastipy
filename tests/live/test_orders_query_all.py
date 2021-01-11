@@ -9,7 +9,7 @@ from elastipy import Search, query
 from elastipy.query import factory
 from definition.data import QUERY_DEFINITION
 
-from . import data
+from tests import data
 
 
 class TestOrdersQueryAuto(unittest.TestCase):

@@ -13,7 +13,7 @@ from collections import Counter
 from elastipy import Search, query
 from definition.data import AGGREGATION_DEFINITION
 
-from . import data
+from tests import data
 
 
 class TestOrdersAggregationsAuto(unittest.TestCase):

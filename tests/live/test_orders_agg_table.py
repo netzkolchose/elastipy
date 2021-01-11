@@ -7,7 +7,7 @@ import elasticsearch
 
 from elastipy import Search
 
-from . import data
+from tests import data
 
 
 class TestOrdersAggregationsTable(unittest.TestCase):

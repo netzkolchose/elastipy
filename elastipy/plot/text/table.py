@@ -16,9 +16,24 @@ class Table:
         self.headers = []
         self._extract_source()
 
-    def to_str(self, sort=None, digits=None, header=True, bars=True, colors=True, ascii=False, max_width=None):
+    def to_str(
+            self,
+            sort: str = None,
+            digits: int = None,
+            header: bool = True,
+            bars: bool = True,
+            zero_based: bool = True,
+            colors: bool = True,
+            ascii: bool = False,
+            max_width: int = None,
+            max_bar_width: int = 40,
+    ):
         file = StringIO()
-        self.print(sort=sort, digits=digits, header=header, bars=bars, colors=colors, ascii=ascii, max_width=max_width, file=file)
+        self.print(
+            sort=sort, digits=digits, header=header, bars=bars, colors=colors, ascii=ascii, max_width=max_width,
+            zero_based=zero_based, max_bar_width=max_bar_width,
+            file=file,
+        )
         file.seek(0)
         return file.read()
 

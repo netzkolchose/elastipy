@@ -4,7 +4,7 @@ import unittest
 from elastipy import Search
 from elastipy.plot.text.console import Characters
 
-from . import data
+from tests import data
 
 
 class TestPlot(unittest.TestCase):

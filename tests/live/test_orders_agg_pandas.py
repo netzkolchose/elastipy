@@ -7,7 +7,7 @@ import pandas as pd
 
 from elastipy import Search
 
-from . import data
+from tests import data
 
 
 class TestOrdersAggregationsPandas(unittest.TestCase):
