@@ -6,6 +6,28 @@ Actually i'm just learning this stuff and have the following requests:
 - some generic convenient data access to nested bucketed aggregations and such
 - the IDE/auto-completion should help a bit/lot with all the elasticsearch parameters
 
+#### configuration
+
+By default all request go against **localhost:9200**. There are currently two ways 
+to specify a different connection.
+
+```python
+from elasticsearch import Elasticsearch
+from elastipy import Search, connections
+
+# Use an explicit Elasticsearch client (or compatible class)
+s = Search(index="bla", client=Elasticsearch(hosts=[...], http_auth=[...]))
+# can also be done later
+s = s.client(Elasticsearch(...))
+
+# Or override the "default" connection
+connections.set("default", Elasticsearch(...))
+# .. or as parameters
+connections.set("default", {"hosts": [...]})
+
+# then just say
+s = Search(index="bla")
+```
 
 #### aggregation example
 
@@ -15,12 +37,15 @@ from elastipy import Search
 # get a search object
 q = Search(index="world")
 
-# if we leave out the field parameter it fall's back to Search.timestamp_field 
-#   which is "timestamp" by default
+# create an Aggregation class connected to the Search
 agg = q.agg_date_histogram(calendar_interval="1w")
+# (for date-specific aggregations we can leave out the 'field' parameter 
+#  it fall's back to Search.timestamp_field which is "timestamp" by default)
 
 # submit the whole request
 q.execute()
+
+# access the response
 
 list(agg.keys())
 # ["2020-01-01T00:00:00Z", "2020-01-08T00:00:00Z", ...]
