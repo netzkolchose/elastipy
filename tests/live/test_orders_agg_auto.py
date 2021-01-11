@@ -92,7 +92,7 @@ class TestOrdersAggregationsAuto(TestCase):
 
         # --- buckets ---
 
-        if agg_type in ("children", "ip_range"):
+        if agg_type in ("children", "ip_range", "top_metrics"):
             warnings.warn(f"{agg_type} tests currently not supported")
             return
 
