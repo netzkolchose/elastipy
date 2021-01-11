@@ -20,6 +20,10 @@ def parse_arguments():
         "-es", "--elasticsearch", type=str,
         help="Json representation of elasticsearch server settings"
     )
+    parser.add_argument(
+        "-m", "--missing", type=bool, default=False, nargs="?", const=True,
+        help="Show missing line numbers in coverage report"
+    )
 
     return parser.parse_args()
 
@@ -56,4 +60,9 @@ if __name__ == "__main__":
     if code:
         exit(code)
 
-    subprocess.call(["coverage", "report"])
+    report_args = []
+
+    if options.missing:
+        report_args.append("--show-missing")
+
+    subprocess.call(["coverage", "report", *report_args])
