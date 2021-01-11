@@ -14,9 +14,10 @@ from elastipy import Search, query
 from definition.data import AGGREGATION_DEFINITION
 
 from tests import data
+from tests.live.base import TestCase
 
 
-class TestOrdersAggregationsAuto(unittest.TestCase):
+class TestOrdersAggregationsAuto(TestCase):
     """
     Auto-generates all combinations of aggregations (which are defined in the yaml files)
     and tests the Aggregation.to_dict() and dict_rows() methods

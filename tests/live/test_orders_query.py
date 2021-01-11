@@ -8,9 +8,10 @@ import elasticsearch
 from elastipy import Search
 
 from tests import data
+from tests.live.base import TestCase
 
 
-class TestOrdersQuery(unittest.TestCase):
+class TestOrdersQuery(TestCase):
 
     @classmethod
     def setUpClass(cls):

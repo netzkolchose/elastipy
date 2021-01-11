@@ -190,12 +190,25 @@ Exporter().delete_index()
   peculiarities
   - complete the yaml definitions by carefully reading all the 
    [online documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html)
-  - a convenient way to declare the client connection settings
 
 
 ### development / testing
 
-Still a bit *bastlerisch* at this point. 
+To run the tests call:
+```bash
+python test.py
+````
 
-The unit-tests run against elasticsearch at localhost:9200 with all indices 
-prefixed with **elastipy---unittest-**
+To include testing against a live elasticsearch:
+```bash
+python test.py --live
+```
+
+This runs by default against **localhost:9200**. If you need to change the connection
+pass any arguments as json:
+```bash
+python test.py --live --elasticsearch '{"hosts": [{"host": "127.0.0.5", "port": 1200}], "http_auth": ["user", "password"]}'
+```
+
+The live tests will create new indices and immediately destroy them afterwards. 
+They are prefixed with **elastipy---unittest-**
