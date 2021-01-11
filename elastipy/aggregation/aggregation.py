@@ -61,30 +61,24 @@ class Aggregation(AggregationInterface):
         Returns the name of the aggregation group.
         :return: str, either "bucket", "metric" or "pipeline"
         """
-        if "group" not in self.definition:
+        if "group" not in self.definition:  # pragma: no cover
             warn(f"Aggregation '{self.name}'/{self.type} has no definition, 'group' is unknown.")
         return self.definition.get("group") or None
 
     def is_bucket(self):
-        if "group" not in self.definition:
+        if "group" not in self.definition:  # pragma: no cover
             warn(f"Aggregation '{self.name}'/{self.type} has no definition, is_bucket() is unknown")
         return self.definition.get("group") == "bucket"
 
     def is_metric(self):
-        if "group" not in self.definition:
+        if "group" not in self.definition:  # pragma: no cover
             warn(f"Aggregation '{self.name}'/{self.type} has no definition, is_metric() is unknown")
         return self.definition.get("group") == "metric"
 
     def is_pipeline(self):
-        if "group" not in self.definition:
+        if "group" not in self.definition:  # pragma: no cover
             warn(f"Aggregation '{self.name}'/{self.type} has no definition, is_pipeline() is unknown")
         return self.definition.get("group") == "pipeline"
-
-    # Not defined in yamls and not used yet
-    #def is_single_bucket(self):
-    #    if not self.definition:
-    #        warn(f"Aggregation '{self.name}'/{self.type} has no definition, is_single_bucket() is unknown")
-    #    return self.definition.get("single_bucket")
 
     def metrics(self):
         """
