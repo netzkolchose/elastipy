@@ -16,7 +16,7 @@ class TestOrdersQuery(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.maxDiff = int(1e5)
-        data.export_data(data.orders.orders1, data.orders.OrderExporter)
+        data.export_data(data.orders.orders, data.orders.OrderExporter)
 
     @classmethod
     def tearDownClass(cls):
@@ -29,7 +29,7 @@ class TestOrdersQuery(TestCase):
         search = self.search()
         response = search.execute()
 
-        num_items = sum(len(o["items"]) for o in data.orders.orders1)
+        num_items = sum(len(o["items"]) for o in data.orders.orders)
         self.assertEqual(num_items, response.total_hits)
 
     def test_total_hits_term(self):
@@ -39,7 +39,7 @@ class TestOrdersQuery(TestCase):
             self.assertEqual(
                 sum(
                     len(o["items"])
-                    for o in data.orders.orders1
+                    for o in data.orders.orders
                     if o["country"] == country
                 ),
                 search.term("country", country).execute().total_hits
@@ -48,7 +48,7 @@ class TestOrdersQuery(TestCase):
             self.assertEqual(
                 sum(
                     len(o["items"])
-                    for o in data.orders.orders1
+                    for o in data.orders.orders
                     if o["country"] != country
                 ),
                 (~search.term("country", country)).execute().total_hits
@@ -62,13 +62,13 @@ class TestOrdersQuery(TestCase):
         search = self.search()
         search = search.terms(field="country", value=["DE", "GB"])
         self.assertEqual(
-            sum(len(o["items"]) for o in data.orders.orders1),
+            sum(len(o["items"]) for o in data.orders.orders),
             search.execute().total_hits
         )
 
     def test_total_hits_query_string(self):
         self.assertEqual(
-            sum(len(o["items"]) for o in data.orders.orders1 if o["country"] == "DE"),
+            sum(len(o["items"]) for o in data.orders.orders if o["country"] == "DE"),
             self.search().query_string(query="country: DE").execute().total_hits
         )
 

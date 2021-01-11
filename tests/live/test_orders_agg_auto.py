@@ -25,7 +25,7 @@ class TestOrdersAggregationsAuto(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.maxDiff = int(1e5)
-        data.export_data(data.orders.orders1, data.orders.OrderExporter)
+        data.export_data(data.orders.orders, data.orders.OrderExporter)
 
     @classmethod
     def tearDownClass(cls):
@@ -92,7 +92,7 @@ class TestOrdersAggregationsAuto(TestCase):
 
         # --- buckets ---
 
-        if agg_type in ("children", "ip_range", "top_metrics"):
+        if agg_type in ("children", "ip_range", "top_metrics", "nested"):
             warnings.warn(f"{agg_type} tests currently not supported")
             return
 
