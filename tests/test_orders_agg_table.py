@@ -48,6 +48,29 @@ class TestOrdersAggregationsTable(unittest.TestCase):
             list(agg_qty.rows())
         )
 
+        # test the exclude/include params
+
+        self.assertEqual(
+            ["sku", "sku.doc_count", "channel", "channel.doc_count", "country", "country.doc_count", "quantity"],
+            list(agg_qty.rows())[0],
+        )
+        self.assertEqual(
+            ["sku", "channel", "channel.doc_count", "country", "country.doc_count", "quantity"],
+            list(agg_qty.rows(exclude="sku.doc_count"))[0],
+        )
+        self.assertEqual(
+            ["sku", "channel", "country", "quantity"],
+            list(agg_qty.rows(exclude="*.doc_count"))[0],
+        )
+        self.assertEqual(
+            ["sku", "sku.doc_count", "quantity"],
+            list(agg_qty.rows(include=["sku*", "quantity"]))[0],
+        )
+        self.assertEqual(
+            ["sku.doc_count", "country.doc_count"],
+            list(agg_qty.rows(include="*.doc_count", exclude="channel*"))[0],
+        )
+
     def test_named_nested_aggregations_multival_to_rows(self):
         query = self.query()
         agg_sku = query.agg_terms("sku", field="sku")

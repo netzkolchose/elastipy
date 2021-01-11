@@ -48,7 +48,7 @@ def dict_rows_to_list_rows(dict_rows: Iterable[Mapping], default=None, header: b
     rows = []
 
     if not dict_rows:
-        return rows
+        return
 
     # gather all keys but keep order
     column_keys = list(dict_rows[0].keys())
@@ -58,9 +58,8 @@ def dict_rows_to_list_rows(dict_rows: Iterable[Mapping], default=None, header: b
                 column_keys.append(key)
 
     if header:
-        rows.append(column_keys)
+        yield column_keys
 
     for row in dict_rows:
-        rows.append([row.get(key, default) for key in column_keys])
+        yield [row.get(key, default) for key in column_keys]
 
-    return rows
