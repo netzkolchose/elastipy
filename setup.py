@@ -1,7 +1,8 @@
 import sys
 
+from elastipy import VERSION
 
-VERSION = "0.0.1"
+VERSION = ".".join(str(v) for v in VERSION)
 
 
 if len(sys.argv) > 1 and sys.argv[1] == "--version":
