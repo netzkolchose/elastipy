@@ -138,7 +138,7 @@ class TestOrdersAggregationsAuto(TestCase):
         if agg_type == "percentile_ranks":
             params["values"] = [1, 50, 99]
         if agg_type == "rate":
-            params["unit"] = "d"
+            params["unit"] = "day"
         if agg_type == "scripted_metric":
             params.update({
                 "init_script": "state.something = 0",
