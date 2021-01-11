@@ -214,7 +214,7 @@ class Aggregation(AggregationInterface):
         """
         yield from zip(self.keys(key_separator=key_separator), self.values(default=default))
 
-    def dict_rows(self) -> Iterable[dict]:
+    def dict_rows(self, exclude: Union[str, Sequence[str]] = None) -> Iterable[dict]:
         """
         Iterates through all result values from this aggregation branch.
 
@@ -224,7 +224,7 @@ class Aggregation(AggregationInterface):
         :return: generator of dict
         """
         from .visitor import Visitor
-        return Visitor(self).dict_rows()
+        return Visitor(self).dict_rows(exclude=exclude)
 
     def rows(self, header=True) -> Iterable[Sequence]:
         from .visitor import Visitor
@@ -241,6 +241,25 @@ class Aggregation(AggregationInterface):
             key: value
             for key, value in self.items(key_separator=key_separator, default=default)
         }
+
+    def to_pandas(self, index: str = None, exclude: Union[str, Sequence[str]] = None):
+        import pandas as pd
+        import numpy as np
+        from dateutil.parser import ParserError
+        df = pd.DataFrame(self.dict_rows(exclude=exclude))
+        for key in df:
+            if df[key].dtype == np.dtype("O"):
+                try:
+                    df[key] = pd.to_datetime(df[key])
+                except (TypeError, ParserError):
+                    pass
+        if index is None:
+            index = self.root.name
+        df.index = df.pop(index)
+        return df
+
+    # synonym
+    df = to_pandas
 
     def key_name(self) -> str:
         """

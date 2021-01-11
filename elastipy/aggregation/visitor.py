@@ -1,3 +1,4 @@
+import fnmatch
 from copy import copy, deepcopy
 from itertools import chain
 from typing import Sequence, Union, Optional, Iterable, Tuple, TextIO, Any
@@ -45,7 +46,7 @@ class Visitor:
                 if filter is None or c.group in filter:
                     yield from self._child_aggregations(c, depth_first=depth_first)
 
-    def dict_rows(self) -> Iterable[dict]:
+    def dict_rows(self, exclude: Union[str, Sequence[str]] = None) -> Iterable[dict]:
         """
         Iterates through all result values from this aggregation branch.
 
@@ -55,7 +56,15 @@ class Visitor:
         :return: generator of dict
         """
         root = self.agg.root
-        yield from self._dict_rows(root, root.search.response.aggregations[root.name])
+        for row in self._dict_rows(root, root.search.response.aggregations[root.name]):
+            if not exclude:
+                yield row
+            else:
+                yield {
+                    key: value
+                    for key, value in row.items()
+                    if not wildcard_match(key, exclude)
+                }
 
     def rows(self, header=True) -> Iterable[Sequence]:
         return dict_rows_to_list_rows(self.dict_rows(), header=header)
@@ -260,3 +269,12 @@ class Visitor:
             else:
                 value = bucket["doc_count"]
                 yield _make_default(value)
+
+
+def wildcard_match(name, pattern):
+    if isinstance(pattern, str):
+        return fnmatch.fnmatch(name, pattern)
+    for p in pattern:
+        if fnmatch.fnmatch(name, p):
+            return True
+    return False
