@@ -1,5 +1,9 @@
 ## elastipy
 
+[![Build Status](https://travis-ci.com/defgsus/elastipy.svg?branch=development)](https://travis-ci.com/defgsus/elastipy)
+[![Coverage Status](https://coveralls.io/repos/github/defgsus/elastipy/badge.svg?branch=feature/travis)](https://coveralls.io/github/defgsus/elastipy?branch=feature/travis)
+
+
 A python wrapper to make elasticsearch queries and aggregations more fun.
 
 Actually i'm just learning this stuff and have the following requests:
