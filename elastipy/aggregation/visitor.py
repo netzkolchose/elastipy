@@ -1,15 +1,16 @@
 import fnmatch
 from copy import copy, deepcopy
 from itertools import chain
-from typing import Sequence, Union, Optional, Iterable, Tuple, TextIO, Any
+from typing import Sequence, Union, Optional, Iterable, Tuple, TextIO, Any, Mapping
 
 from elastipy.aggregation import Aggregation
-from elastipy._print import print_dict_rows, dict_rows_to_list_rows
 
 
 class Visitor:
     """
-    Helper to access the results of aggregations
+    Helper to access the results of aggregations.
+
+    This is not a public API! Use the methods exposed on the Aggregation class
     """
 
     def __init__(self, agg: Aggregation):
@@ -22,15 +23,6 @@ class Visitor:
 
     def children(self, depth_first: bool = True):
         yield from self._child_aggregations(self.agg, depth_first=depth_first)
-
-    def dump_table(self, header: bool = True, digits: Optional[int] = None, file: TextIO = None):
-        """
-        Print the result of the dict_rows() function as table to console.
-        :param header: bool, if True, include the names in the first row
-        :param digits: int, optional number of digits for rounding
-        :param file: optional text stream to print to
-        """
-        print_dict_rows(self.dict_rows(), header=header, digits=digits, file=file)
 
     def _child_aggregations(self, agg: Aggregation, filter=None, depth_first: bool = True):
         if depth_first:
@@ -318,3 +310,25 @@ def wildcard_match(name, pattern):
         if fnmatch.fnmatch(name, p):
             return True
     return False
+
+
+def dict_rows_to_list_rows(dict_rows: Iterable[Mapping], default=None, header: bool = False) -> Iterable[Sequence]:
+    if not isinstance(dict_rows, Sequence):
+        dict_rows = list(dict_rows)
+
+    if not dict_rows:
+        return
+
+    # gather all keys but keep order
+    column_keys = list(dict_rows[0].keys())
+    for row in dict_rows:
+        for key in row:
+            if key not in column_keys:
+                column_keys.append(key)
+
+    if header:
+        yield column_keys
+
+    for row in dict_rows:
+        yield [row.get(key, default) for key in column_keys]
+
