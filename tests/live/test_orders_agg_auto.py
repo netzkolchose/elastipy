@@ -48,13 +48,13 @@ class TestOrdersAggregationsAuto(TestCase):
         :return:
         """
         # all metrics at top-level
-        for agg_type, definition in self.iter_aggs("metric"):
+        for agg_type, definition in self.iter_aggs("metric", exclude=("rate", )):
             s = search.copy()
             self.create_agg(s, agg_type)
             yield s
 
         # all buckets at top-level
-        for agg_type, definition in self.iter_aggs("bucket", exclude=("rate", )):
+        for agg_type, definition in self.iter_aggs("bucket"):
             s = search.copy()
             self.create_agg(s, agg_type)
             yield s
