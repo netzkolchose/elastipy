@@ -1,0 +1,3 @@
+# query classes
+
+ elastipy.query

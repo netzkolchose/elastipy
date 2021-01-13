@@ -4,3 +4,5 @@ tqdm>=4.55.1
 pandas
 coverage
 coveralls
+Sphinx==3.4.3
+recommonmark==0.7.1
