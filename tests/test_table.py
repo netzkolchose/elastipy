@@ -73,7 +73,7 @@ class TestTable(unittest.TestCase):
             """,
             bars=True,
             max_width=30,
-            zero_based=False,
+            zero=False,
         )
 
     def test_table_bars_maxwidth(self):
@@ -94,7 +94,7 @@ class TestTable(unittest.TestCase):
             """,
             bars=True,
             max_width=26,
-            zero_based=False,
+            zero=False,
         )
 
         # 'b' would only have space for the 'space' character not for a bar itself
@@ -115,8 +115,112 @@ class TestTable(unittest.TestCase):
             """,
             bars=True,
             max_width=25,
-            zero_based=False,
+            zero=False,
         )
+
+    def test_zero_param(self):
+        for zero in (True, False):
+            self.assertTableStr(
+                [
+                    ["number"],
+                    [0],
+                    [5],
+                ],
+                """
+                number
+                --------------------
+                0 :
+                5 ##################
+                """,
+                max_width=20,
+                zero=True,
+            )
+        self.assertTableStr(
+            [
+                ["number"],
+                [3],
+                [5],
+            ],
+            """
+            number
+            --------------------
+            3 ###########
+            5 ##################
+            """,
+            max_width=20,
+            zero=True,
+        )
+        self.assertTableStr(
+            [
+                ["number"],
+                [3],
+                [5],
+            ],
+            """
+            number
+            --------------------
+            3 :
+            5 ##################
+            """,
+            max_width=20,
+            zero=False,
+        )
+
+    def test_zero_param_neg(self):
+        for zero in (True, False):
+            self.assertTableStr(
+                [
+                    ["number"],
+                    [-5],
+                    [0],
+                    [5],
+                ],
+                """
+                number
+                --------------------
+                -5 :
+                 0 ########:
+                 5 #################
+                """,
+                max_width=20,
+                zero=zero,
+            )
+        self.assertTableStr(
+            [
+                ["number"],
+                [-5],
+                [0],
+                [5],
+            ],
+            """
+            number
+            --------------------
+            -5 
+             0 :
+             5 #################
+            """,
+            max_width=20,
+            zero=0,
+        )
+        self.assertTableStr(
+            [
+                ["number"],
+                [-5],
+                [0],
+                [5],
+            ],
+            """
+            number
+            --------------------
+            -5 ######
+             0 ###########:
+             5 #################
+            """,
+            max_width=20,
+            zero=-10,
+        )
+
+
 
 
 if __name__ == "__main__":

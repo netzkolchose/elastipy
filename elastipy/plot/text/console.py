@@ -61,6 +61,7 @@ class Characters:
         return self._bar(v, width, self.left8th)
 
     def _bar(self, v, width, characters):
+        v = max(0., min(1., v))
         v = v * width
         v_floor = int(v)
         v_fract = v - int(v)

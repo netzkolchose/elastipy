@@ -19,7 +19,7 @@ class PrintWrapper:
             digits: int = None,
             header: bool = True,
             bars: bool = True,
-            zero_based: bool = True,
+            zero: Union[bool, float] = True,
             colors: bool = True,
             ascii: bool = False,
             max_width: int = None,
@@ -37,9 +37,10 @@ class PrintWrapper:
             Enable display of horizontal bars in each number column.
             The table width will stretch out in size while limited
             to 'max_width' and 'max_bar_width'
-        :param zero_based: bool
-            if True, the bar axis starts at zero,
-            otherwise it starts at each columns minimum value
+        :param zero:
+                If True: the bar axis starts at zero (or at a negative value if appropriate)
+                If False: the bar starts at the minimum of all values in the column
+                If a number is provides, the bar starts there, regardless of the minimum of all values
         :param colors: bool, enable console colors
         :param ascii: bool, if True fall back to ascii characters
         :param max_width: int
@@ -55,7 +56,7 @@ class PrintWrapper:
             digits=digits,
             header=header,
             bars=bars,
-            zero_based=zero_based,
+            zero=zero,
             colors=colors,
             ascii=ascii,
             max_width=max_width,

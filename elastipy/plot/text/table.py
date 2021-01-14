@@ -1,6 +1,6 @@
 import os
 from itertools import chain
-from typing import Mapping, Sequence
+from typing import Mapping, Sequence, Union
 from io import StringIO
 from collections import deque
 from decimal import Decimal, InvalidOperation
@@ -22,7 +22,7 @@ class Table:
             digits: int = None,
             header: bool = True,
             bars: bool = True,
-            zero_based: bool = True,
+            zero: Union[bool, float] = True,
             colors: bool = True,
             ascii: bool = False,
             max_width: int = None,
@@ -31,23 +31,24 @@ class Table:
         file = StringIO()
         self.print(
             sort=sort, digits=digits, header=header, bars=bars, colors=colors, ascii=ascii, max_width=max_width,
-            zero_based=zero_based, max_bar_width=max_bar_width,
+            zero=zero, max_bar_width=max_bar_width,
             file=file,
         )
         file.seek(0)
         return file.read()
 
-    def print(self,
-              sort: str = None,
-              digits: int = None,
-              header: bool = True,
-              bars: bool = True,
-              zero_based: bool = True,
-              colors: bool = True,
-              ascii: bool = False,
-              max_width: int = None,
-              max_bar_width: int = 40,
-              file=None
+    def print(
+            self,
+            sort: str = None,
+            digits: int = None,
+            header: bool = True,
+            bars: bool = True,
+            zero: Union[bool, float] = True,
+            colors: bool = True,
+            ascii: bool = False,
+            max_width: int = None,
+            max_bar_width: int = 40,
+            file=None
     ):
         """
         :param sort: str
@@ -59,9 +60,10 @@ class Table:
             Enable display of horizontal bars in each number column.
             The table width will stretch out in size while limited
             to 'max_width' and 'max_bar_width'
-        :param zero_based: bool
-            if True, the bar axis starts at zero,
-            otherwise it starts at each columns minimum value
+        :param zero:
+            If True: the bar axis starts at zero (or at a negative value if appropriate)
+            If False: the bar starts at the minimum of all values in the column
+            If a number is provides, the bar starts there, regardless of the minimum of all values
         :param colors: bool, enable console colors
         :param ascii: bool, if True fall back to ascii characters
         :param max_width: int
@@ -107,7 +109,7 @@ class Table:
                 value_width[key] = max(value_width.get(key, 0), len(value_str))
 
                 number = get_number(value)
-                if number:
+                if number is not None:
                     table_row[key]["value"] = number
                     if key not in value_bounds:
                         value_bounds[key] = {"min": number, "max": number}
@@ -127,9 +129,14 @@ class Table:
             else:
                 value_bounds.pop(key)
 
-        if zero_based:
+        if zero is True:
             for bound in value_bounds.values():
                 bound["min"] = min(0, bound["min"])
+        elif zero is False:
+            pass  # keep the calculated lower bound
+        else:
+            for bound in value_bounds.values():
+                bound["min"] = zero
 
         # width of whole column
         column_width = {
