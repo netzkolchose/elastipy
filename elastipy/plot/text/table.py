@@ -120,8 +120,7 @@ class Table:
             table_rows.append(table_row)
 
         if sort:
-            sort_key, reverse = sort.lstrip("-"), sort.startswith("-")
-            table_rows.sort(key=lambda row: row[sort_key]["value"], reverse=reverse)
+            table_rows = sorted_rows(table_rows, key=sort.lstrip("-"), reverse=sort.startswith("-"))
 
         for key, bound in list(value_bounds.items()):
             if bound["min"] != bound["max"]:
@@ -318,3 +317,28 @@ def clip_line(line, max_width=None):
         line += ".."
 
     return line
+
+
+def sorted_rows(rows, key: str, reverse: bool):
+    try:
+        return sorted(rows, key=lambda row: row[key]["value"], reverse=reverse)
+    except TypeError:
+        rows = [RowCompare(row, key) for row in rows]
+        rows.sort(reverse=reverse)
+        return [row.row for row in rows]
+
+
+class RowCompare:
+
+    def __init__(self, row, key):
+        self.row = row
+        self.key = key
+
+    def __lt__(self, other):
+        v1 = self.row[self.key]["value"]
+        v2 = other.row[self.key]["value"]
+        if v1 is None:
+            return True
+        if v2 is None:
+            return False
+        return v1 < v2

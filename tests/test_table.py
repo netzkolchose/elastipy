@@ -1,5 +1,6 @@
 import time
 import unittest
+import datetime
 from decimal import Decimal
 
 from elastipy import Search
@@ -56,7 +57,68 @@ class TestTable(unittest.TestCase):
             header=False,
         )
 
-    def test_table_bars(self):
+    def test_sort(self):
+        table = [
+            ["string", "number", "date"],
+            ["a", 3, datetime.date(2000, 1, 2)],
+            ["c", 1, None],
+            ["b", None, datetime.date(2000, 1, 3)],
+            [None, 2, datetime.date(2000, 1, 1)],
+        ]
+        self.assertTableStr(
+            table,
+            """
+            string | number | date
+            -------+--------+-----------
+            -      | 2      | 2000-01-01
+            a      | 3      | 2000-01-02 
+            b      | -      | 2000-01-03
+            c      | 1      | -
+            """,
+            bars=False,
+            sort="string",
+        )
+        self.assertTableStr(
+            table,
+            """
+            string | number | date
+            -------+--------+-----------
+            b      | -      | 2000-01-03
+            c      | 1      | -
+            -      | 2      | 2000-01-01
+            a      | 3      | 2000-01-02 
+            """,
+            bars=False,
+            sort="number",
+        )
+        self.assertTableStr(
+            table,
+            """
+            string | number | date
+            -------+--------+-----------
+            c      | 1      | -
+            -      | 2      | 2000-01-01
+            a      | 3      | 2000-01-02 
+            b      | -      | 2000-01-03
+            """,
+            bars=False,
+            sort="date",
+        )
+        self.assertTableStr(
+            table,
+            """
+            string | number | date
+            -------+--------+-----------
+            b      | -      | 2000-01-03
+            a      | 3      | 2000-01-02 
+            -      | 2      | 2000-01-01
+            c      | 1      | -
+            """,
+            bars=False,
+            sort="-date",
+        )
+
+    def test_bars(self):
         self.assertTableStr(
             [
                 ["a", "b", "cccc"],
@@ -76,7 +138,7 @@ class TestTable(unittest.TestCase):
             zero=False,
         )
 
-    def test_table_bars_maxwidth(self):
+    def test_bars_maxwidth(self):
         # cccc... has a long header so it get's extra space for bars
         self.assertTableStr(
             [
@@ -118,7 +180,7 @@ class TestTable(unittest.TestCase):
             zero=False,
         )
 
-    def test_zero_param(self):
+    def test_bars_zero_param(self):
         for zero in (True, False):
             self.assertTableStr(
                 [
@@ -166,7 +228,7 @@ class TestTable(unittest.TestCase):
             zero=False,
         )
 
-    def test_zero_param_neg(self):
+    def test_bars_zero_param_neg(self):
         for zero in (True, False):
             self.assertTableStr(
                 [
