@@ -5,7 +5,7 @@ from io import StringIO
 from collections import deque
 from decimal import Decimal, InvalidOperation
 
-from .console import Characters, Colors, ColorCodes
+from .console import Characters, Colors, ColorCodes, get_terminal_size
 
 
 class Table:
@@ -142,7 +142,7 @@ class Table:
         bar_offset = 0.
         if bars and value_bounds:
             if max_width is None:
-                max_width, _ = os.get_terminal_size()
+                max_width, _ = get_terminal_size()
 
             needed_width = sum(column_width.values()) + (len(column_width) - 1) * 3
             free_width = max_width - needed_width

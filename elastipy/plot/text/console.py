@@ -170,3 +170,32 @@ class Colors:
         self.CROSSED = ColorCodes.CROSSED if enable else ""
         self.END = ColorCodes.END if enable else ""
 
+
+def get_terminal_size():
+    """
+    Return size of terminal.
+
+    If running in a notebook it returns some default values
+    which fit at least on my local setup..
+
+    :return: tuple(int, int) width and height
+    """
+    if is_notebook():
+        return 110, 30
+
+    w, h = os.get_terminal_size()
+    return w, h
+
+
+def is_notebook() -> bool:
+    """
+    Returns True if inside ipython notebook, False otherwise.
+
+    See lengthy discussion: https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook
+    :return: bool
+    """
+    try:
+        name = type(get_ipython()).__name__
+        return name == "ZMQInteractiveShell"
+    except NameError:
+        return False
