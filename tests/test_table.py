@@ -54,6 +54,48 @@ class TestTable(unittest.TestCase):
             header=False,
         )
 
+    def test_digits(self):
+        table = [
+            ["a", "b"],
+            [0.12345678, 0.12],
+            [0.98765432, "a"],
+            [None, 9.87654]
+        ]
+        self.assertTableStr(
+            table,
+            """
+            a          | b
+            -----------+--------
+            0.12345678 |    0.12
+            0.98765432 |       a
+                     - | 9.87654
+            """,
+            bars=False,
+        )
+        self.assertTableStr(
+            table,
+            """
+            a     | b
+            ------+------
+            0.123 |  0.12
+            0.988 |     a
+                - | 9.877
+            """,
+            bars=False,
+            digits=3
+        )
+
+    def test_auto_max_width(self):
+        self.assertTableStr(
+            [["a", "b"], [1, 2]],
+            """
+            a | b
+            --+--
+            1 | 2
+            """,
+            max_width=None
+        )
+
     def test_sort(self):
         table = [
             ["string", "number", "date"],
@@ -175,6 +217,35 @@ class TestTable(unittest.TestCase):
             bars=True,
             max_width=25,
             zero=False,
+        )
+
+    def test_bars_no_space(self):
+        self.assertTableStr(
+            [
+                ["a", "b"],
+                [0, 0],
+                [10, 10],
+            ],
+            """
+            a  | b   
+            ---+---
+             0 |  0
+            10 | 10
+            """,
+            bars=True,
+            max_width=7,
+        )
+
+    def test_no_data(self):
+        self.assertTableStr(
+            [
+                ["a", "b"],
+            ],
+            """
+            a | b   
+            --+--
+            """,
+            bars=True,
         )
 
     def test_bars_zero_param(self):

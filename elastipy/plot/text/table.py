@@ -139,7 +139,7 @@ class Table:
 
         # width of whole column
         column_width = {
-            key: max(header_width[key], value_width[key])
+            key: max(header_width[key], value_width.get(key, 0))
             for key in self.headers
         }
 
@@ -186,7 +186,7 @@ class Table:
                 if y != 0 and key in value_bounds:
                     cell = " " * (value_width[key] - len(value)) + value
                 else:
-                    cell = f"{value:{value_width[key]}}"
+                    cell = f"{value:{value_width.get(key, 1)}}"
 
                 if y != 0 and bar_width.get(key, 0) > 1:
                     try:
@@ -242,6 +242,8 @@ class Table:
         raise TypeError(f"Invalid source {type(self.source).__name__}")
 
     def _spend_extra_width(self, width: dict, extra_width: int, max_width: int = None, recursive=True):
+        if not width:
+            return
         cur_max_width = max(width.values())
         keys = deque(width.keys())
         count = extra_width
