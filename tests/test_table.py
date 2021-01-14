@@ -1,10 +1,7 @@
-import time
 import unittest
 import datetime
 from decimal import Decimal
 
-from elastipy import Search
-from elastipy.plot.text.console import Characters
 from elastipy.plot.text import Table
 
 
@@ -282,7 +279,38 @@ class TestTable(unittest.TestCase):
             zero=-10,
         )
 
-
+    def test_incomplete_rows(self):
+        self.assertTableStr(
+            [
+                ["a", "b"],
+                [1, 2],
+                [3]
+            ],
+            """
+            a | b
+            --+--
+            1 | 2
+            3 | -
+            """,
+            bars=False,
+        )
+        self.assertTableStr(
+            [
+                {"a": 1, "b": 2},
+                {"a": 3},
+                {"b": 4},
+                {},
+            ],
+            """
+            a | b
+            --+--
+            1 | 2
+            3 | -
+            - | 4
+            - | -
+            """,
+            bars=False,
+        )
 
 
 if __name__ == "__main__":
