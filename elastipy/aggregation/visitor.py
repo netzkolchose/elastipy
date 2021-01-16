@@ -14,10 +14,11 @@ class Visitor:
     This is not a public API! Use the methods exposed on the Aggregation class.
     """
 
-    def __init__(self, agg: Aggregation, key_separator=None, default_value=None):
+    def __init__(self, agg: Aggregation, key_separator: str = None, default_value=None, tuple_key: bool = None):
         self.agg = agg
         self.default_value = default_value
         self.key_separator = key_separator
+        self.tuple_key = tuple_key
 
     def aggregations(self, filter: Optional[Union[str, Sequence[str]]] = None, depth_first: bool = True):
         if filter is None or self.agg.group in filter:
@@ -50,15 +51,6 @@ class Visitor:
             if not key:
                 key = self.agg.name
             yield self.concat_key(key), self.make_default(value)
-
-    def _items(self):
-        if not self.agg.parent:
-            yield from self._iter_items_from_bucket(self.agg, self.agg.response, tuple())
-            return
-
-        aggs = self.root_branch()
-        for b_key, b in self._iter_bucket_items(aggs[0]):
-            yield from self._iter_sub_items_rec(b, aggs[1:], (b_key, ))
 
     def dict_rows(
             self,
@@ -104,13 +96,26 @@ class Visitor:
             a = a.parent
         return aggs
 
+    def key_names(self):
+        aggs = self.root_branch()
+        if len(aggs) == 1:
+            return [aggs[0].name]
+        else:
+            return [a.name for a in aggs if a.is_bucket()]
+
     def concat_key(self, key: Union[Any, Sequence]):
         if isinstance(key, str):
-            return key
-        if isinstance(key, Sequence):
+            pass
+        elif isinstance(key, tuple):
             if self.key_separator:
-                return self.key_separator.join(str(i) for i in key)
-            return key if len(key) > 1 else key[0]
+                key = self.key_separator.join(str(i) for i in key)
+            else:
+                key = key if len(key) > 1 else key[0]
+        else:
+            raise NotImplementedError(f"Unhandled key type {type(key).__name__}")
+
+        if self.tuple_key and not isinstance(key, tuple):
+            key = (key, )
         return key
 
     def make_default(self, value):
@@ -166,6 +171,15 @@ class Visitor:
             return {k: v for k, v in _iter_items(value, prefix)}
         else:
             return value
+
+    def _items(self):
+        if not self.agg.parent:
+            yield from self._iter_items_from_bucket(self.agg, self.agg.response, tuple())
+            return
+
+        aggs = self.root_branch()
+        for b_key, b in self._iter_bucket_items(aggs[0]):
+            yield from self._iter_sub_items_rec(b, aggs[1:], (b_key, ))
 
     def _iter_bucket_items(self, agg: Aggregation, response=None):
         # this could be a place to specialize by class

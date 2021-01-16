@@ -177,40 +177,6 @@ class Aggregation(ConverterMixin, AggregationInterface):
                              f"directly, use keys() and values()")
         return self.response["buckets"]
 
-    def items(self, key_separator=None, default=None) -> Iterable[Tuple]:
-        """
-        Iterates through all key, value tuples.
-        :param key_separator: str, optional separator to concat multiple keys into one string
-        :param default: if not None any None-value will be replaced by this
-        :return: generator
-        """
-        from .visitor import Visitor
-        v = Visitor(self, default_value=default, key_separator=key_separator)
-        yield from v.items()
-
-    def dict_rows(
-            self,
-            include: Union[str, Sequence[str]] = None,
-            exclude: Union[str, Sequence[str]] = None,
-    ) -> Iterable[dict]:
-        """
-        Iterates through all result values from this aggregation branch.
-
-        This will include all parent aggregations (up to the root) and all children
-        aggregations (including metrics).
-
-        :param include: str or list of str
-            Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that does not fit a pattern is removed
-        :param exclude: str or list of str
-            Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that fits a pattern is removed
-
-        :return: generator of dict
-        """
-        from .visitor import Visitor
-        return Visitor(self).dict_rows(include=include, exclude=exclude)
-
     def key_name(self) -> str:
         """
         Return default name of the bucket key field.

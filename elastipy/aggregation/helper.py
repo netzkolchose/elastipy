@@ -32,22 +32,23 @@ def dict_rows_to_list_rows(dict_rows: Iterable[Mapping], default=None, header: b
         yield [row.get(key, default) for key in column_keys]
 
 
-def create_matrix(*sizes):
+def create_matrix(*sizes, scalar=None):
     """
     Creates a N-dimensional matrix of lists
     :param sizes: list of int
+    :param scalar: the content of each cell
     :return: list
         The innermost values will be None.
 
-        If no sizes are given, None is returned.
+        If no sizes are given, scalar is returned.
     """
     num_dim = len(sizes)
 
     if not num_dim:
-        return None
+        return scalar
 
     matrix = [
-        create_matrix(*sizes[1:])
+        create_matrix(*sizes[1:], scalar=scalar)
         for _ in range(sizes[0])
     ]
     return matrix
