@@ -300,6 +300,7 @@ class Aggregation(AggregationInterface):
         :return: DataFrame instance
         """
         import pandas as pd
+        from pandas._libs.tslibs import OutOfBoundsDatetime
         import numpy as np
         from dateutil.parser import ParserError
 
@@ -308,7 +309,7 @@ class Aggregation(AggregationInterface):
             if df[key].dtype == np.dtype("O"):
                 try:
                     df[key] = pd.to_datetime(df[key])
-                except (TypeError, ParserError):
+                except (TypeError, ParserError, OutOfBoundsDatetime):
                     pass
         if index is None:
             index = self.root.name
