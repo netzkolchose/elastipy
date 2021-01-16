@@ -177,29 +177,6 @@ class Aggregation(ConverterMixin, AggregationInterface):
                              f"directly, use keys() and values()")
         return self.response["buckets"]
 
-    def keys(self, key_separator=None):
-        """
-        Iterates through all keys of this aggregation.
-
-        For example, a top-level date_histogram would return all timestamps.
-
-        For a nested bucket aggregation each key is a tuple of all parent keys as well.
-
-        :param key_separator: str, optional separator to concat multiple keys into one string
-        :return: generator
-        """
-        for key, value in self.items(key_separator=key_separator):
-            yield key
-
-    def values(self, default=None):
-        """
-        Iterates through all values of this aggregation.
-        :param default: if not None any None-value will be replaced by this
-        :return: generator
-        """
-        for key, value in self.items(default=default):
-            yield value
-
     def items(self, key_separator=None, default=None) -> Iterable[Tuple]:
         """
         Iterates through all key, value tuples.

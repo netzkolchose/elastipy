@@ -104,12 +104,12 @@ class Visitor:
             a = a.parent
         return aggs
 
-    def concat_key(self, key: Union[Any, Sequence], key_separator: Optional[str] = None):
+    def concat_key(self, key: Union[Any, Sequence]):
         if isinstance(key, str):
             return key
         if isinstance(key, Sequence):
-            if key_separator:
-                return key_separator.join(str(i) for i in key)
+            if self.key_separator:
+                return self.key_separator.join(str(i) for i in key)
             return key if len(key) > 1 else key[0]
         return key
 
