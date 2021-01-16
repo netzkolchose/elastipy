@@ -12,14 +12,12 @@ class Visitor:
     Helper to access the results of aggregations.
 
     This is not a public API! Use the methods exposed on the Aggregation class.
-
-    TODO: the descent through the data via .dict_rows() is a bit spaghetti-like
-        It iterates through keys and with a lot of copied code through values.
-        Should actually iterate through items() with one function chain.
     """
 
-    def __init__(self, agg: Aggregation):
+    def __init__(self, agg: Aggregation, key_separator=None, default_value=None):
         self.agg = agg
+        self.default_value = default_value
+        self.key_separator = key_separator
 
     def aggregations(self, filter: Optional[Union[str, Sequence[str]]] = None, depth_first: bool = True):
         if filter is None or self.agg.group in filter:
@@ -43,45 +41,24 @@ class Visitor:
                 if filter is None or c.group in filter:
                     yield from self._child_aggregations(c, depth_first=depth_first)
 
-    def keys(self, key_separator=None) -> Iterable[Union[str, int, float]]:
+    def items(self) -> Iterable[Tuple]:
         """
-        Iterates through all keys of this aggregation.
-
-        For example, a top-level date_histogram would return all timestamps.
-
-        For a nested bucket aggregation each key is a tuple of all parent keys as well.
-
-        :param key_separator: str, optional separator to concat multiple keys into one string
-        :return: generator of str, int or float
-        """
-        if not self.agg.parent:
-            if "buckets" in self.agg.response:
-                for b_key, b in self._iter_bucket_items(self.agg):
-                    if b_key not in b:
-                        key = b_key
-                    else:
-                        key = b[b_key]
-                    # wrap into concat in case it does something more at some point
-                    yield self._concat_key(key, key_separator=key_separator)
-            else:
-                # wrap into concat in case it does something more at some point
-                yield self._concat_key(self.agg.name, key_separator=key_separator)
-            return
-
-        for k in self._iter_sub_keys(self.root_branch()):
-            yield self._concat_key(k, key_separator=key_separator)
-
-    def values(self, default=None) -> Iterable:
-        """
-        Iterates through all values of this aggregation.
-        :param default: if not None any None-value will be replaced by this
+        Iterates through all keys and values of this aggregation.
         :return: generator
         """
+        for key, value in self._items():
+            if not key:
+                key = self.agg.name
+            yield self.concat_key(key), self.make_default(value)
+
+    def _items(self):
         if not self.agg.parent:
-            yield from self._iter_values_from_bucket(self.agg, self.agg.response, default=default)
+            yield from self._iter_items_from_bucket(self.agg, self.agg.response, tuple())
             return
 
-        yield from self._iter_sub_values(self.root_branch(), default=default)
+        aggs = self.root_branch()
+        for b_key, b in self._iter_bucket_items(aggs[0]):
+            yield from self._iter_sub_items_rec(b, aggs[1:], (b_key, ))
 
     def dict_rows(
             self,
@@ -126,6 +103,20 @@ class Visitor:
             aggs.insert(0, a)
             a = a.parent
         return aggs
+
+    def concat_key(self, key: Union[Any, Sequence], key_separator: Optional[str] = None):
+        if isinstance(key, str):
+            return key
+        if isinstance(key, Sequence):
+            if key_separator:
+                return key_separator.join(str(i) for i in key)
+            return key if len(key) > 1 else key[0]
+        return key
+
+    def make_default(self, value):
+        if self.default_value is not None and value is None:
+            value = self.default_value
+        return value
 
     def _dict_rows(self, agg: Aggregation, response: dict):
         if not agg.is_bucket():
@@ -176,23 +167,15 @@ class Visitor:
         else:
             return value
 
-    def _concat_key(self, key: Union[Any, Sequence], key_separator: Optional[str] = None):
-        if isinstance(key, str):
-            return key
-        if isinstance(key, Sequence):
-            if key_separator:
-                return key_separator.join(str(i) for i in key)
-            return key if len(key) > 1 else key[0]
-        return key
-
     def _iter_bucket_items(self, agg: Aggregation, response=None):
-        assert agg.is_bucket()
         # this could be a place to specialize by class
         #if hasattr(agg, "_iter_bucket_items"):
         #    yield from agg._iter_bucket_items(response)
         #else:
         if response is None:
+            assert agg.is_bucket()
             response = agg.response
+
         if "buckets" in response:
             buckets = response["buckets"]
             if isinstance(buckets, list):
@@ -206,76 +189,35 @@ class Visitor:
             # single bucket aggregations
             yield agg.name, response
 
-    def _iter_sub_keys(self, aggs: Sequence[Aggregation]):
-        for b_key, b in self._iter_bucket_items(aggs[0]):
-            keys = (b_key, )
-            yield from self._iter_sub_keys_rec(b, aggs[1:], keys)
-
-    def _iter_sub_keys_rec(self, bucket: dict, aggs: Sequence[Aggregation], keys: Tuple[Any, ...]):
-        if not aggs[0].name in bucket:
-            raise ValueError(f"Expected agg '{aggs[0].name}' in bucket {bucket}")
-
+    def _iter_sub_items_rec(self, bucket: dict, aggs: Sequence[Aggregation], parent_key: tuple):
         sub_bucket = bucket[aggs[0].name]
-        key_name = aggs[0].key_name()
 
         if len(aggs) == 1:
-            if aggs[0].is_metric():
-                yield keys
-            else:
-                for b_key, b in self._iter_bucket_items(aggs[0], sub_bucket):
-                    if key_name in b:
-                        next_key = b[key_name]
-                    else:
-                        next_key = b_key
-                    yield keys + (next_key, )
+            yield from self._iter_items_from_bucket(aggs[0], sub_bucket, parent_key)
         else:
             for b_key, b in self._iter_bucket_items(aggs[0], sub_bucket):
-                if key_name in b:
-                    next_key = b[key_name]
-                else:
-                    next_key = b_key
-                yield from self._iter_sub_keys_rec(b, aggs[1:], keys + (next_key, ))
+                yield from self._iter_sub_items_rec(b, aggs[1:], parent_key + (b_key, ))
 
-    def _iter_sub_values(self, aggs: Sequence[Aggregation], default=None):
-        for _, b in self._iter_bucket_items(aggs[0]):
-            yield from self._iter_sub_values_rec(b, aggs[1:], default=default)
-
-    def _iter_sub_values_rec(self, bucket: dict, aggs: Sequence[Aggregation], default=None):
-        sub_bucket = bucket[aggs[0].name]
-        if len(aggs) == 1:
-            yield from self._iter_values_from_bucket(aggs[0], sub_bucket, default=default)
-        else:
-            for b_key, b in self._iter_bucket_items(aggs[0], sub_bucket):
-                yield from self._iter_sub_values_rec(b, aggs[1:], default=default)
-
-    def _iter_values_from_bucket(self, agg: Aggregation, bucket: dict, default=None):
-        def _make_default(value):
-            if default is not None and value is None:
-                value = default
-            return value
-
+    def _iter_items_from_bucket(self, agg: Aggregation, bucket: dict, parent_key: tuple):
         if agg.is_metric():
             return_keys = agg.definition.get("returns", "value")
             values = dict()
             for key in return_keys:
                 if key in bucket:
                     value = bucket[key]
-                    values[key] = _make_default(value)
+                    values[key] = self.make_default(value)
 
-            # TODO: it might be empty for some aggregations..
-            #if not values:
-            #    raise ValueError(f"{self} should have returned fields {return_keys}, got {bucket}")
             if len(values) > 1:
-                yield values
+                yield parent_key, values
             elif len(values) == 1:
-                yield values.popitem()[1]
+                yield parent_key, values.popitem()[1]
             else:
-                yield _make_default(None)
+                yield parent_key, self.make_default(None)
         else:
             if "buckets" in bucket:
                 for b_key, b in self._iter_bucket_items(agg, bucket):
                     value = b["doc_count"]
-                    yield _make_default(value)
+                    yield parent_key + (b_key, ), self.make_default(value)
             else:
                 value = bucket["doc_count"]
-                yield _make_default(value)
+                yield parent_key + (agg.name, ), self.make_default(value)

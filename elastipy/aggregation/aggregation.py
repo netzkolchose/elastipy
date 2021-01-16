@@ -188,8 +188,8 @@ class Aggregation(ConverterMixin, AggregationInterface):
         :param key_separator: str, optional separator to concat multiple keys into one string
         :return: generator
         """
-        from .visitor import Visitor
-        return Visitor(self).keys(key_separator=key_separator)
+        for key, value in self.items(key_separator=key_separator):
+            yield key
 
     def values(self, default=None):
         """
@@ -197,8 +197,8 @@ class Aggregation(ConverterMixin, AggregationInterface):
         :param default: if not None any None-value will be replaced by this
         :return: generator
         """
-        from .visitor import Visitor
-        return Visitor(self).values(default=default)
+        for key, value in self.items(default=default):
+            yield value
 
     def items(self, key_separator=None, default=None) -> Iterable[Tuple]:
         """
@@ -207,7 +207,9 @@ class Aggregation(ConverterMixin, AggregationInterface):
         :param default: if not None any None-value will be replaced by this
         :return: generator
         """
-        yield from zip(self.keys(key_separator=key_separator), self.values(default=default))
+        from .visitor import Visitor
+        v = Visitor(self, default_value=default, key_separator=key_separator)
+        yield from v.items()
 
     def dict_rows(
             self,

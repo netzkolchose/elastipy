@@ -114,7 +114,7 @@ class TestOrdersAggregationsMatrix(TestCase):
             matrix
         )
 
-    def test_matrix_3d_metric(self):
+    def TODO_test_matrix_3d_metric(self):
         s = self.search()
         agg = s \
             .agg_terms("channel", field="channel", order="_key") \
@@ -124,7 +124,8 @@ class TestOrdersAggregationsMatrix(TestCase):
 
         s.execute()
         #print(json.dumps(s.response.aggregations, indent=2))
-        agg.print.dict()
+        #agg.print.dict()
+        print(list(agg.keys()))
         keys, matrix = agg.to_matrix()
         self.assertEqual(
             [
