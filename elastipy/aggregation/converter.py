@@ -194,7 +194,7 @@ class ConverterMixin:
         names, keys, matrix = a.to_matrix()
         names == ["color", "shape"]
         keys == [["red", "green", "blue"], ["circle", "triangle"]]
-        matrix = [[23, 42], [84, 69], [4, 10]]
+        matrix == [[23, 42], [84, 69], [4, 10]]
         ```
 
         :param sort:
