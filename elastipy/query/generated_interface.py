@@ -414,13 +414,15 @@ class QueryInterface(QueryInterfaceBase):
             Valid values are ISO 8601 UTC offsets, such as +01:00 or -08:00, and
             IANA time zone IDs, such as America/Los_Angeles.
 
-            Note: The time_zone parameter does not affect the `date math
-            <https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math>`__
-            value of now. now is always the current system time in UTC. However, the
-            time_zone parameter does convert dates calculated using now and `date
-            math rounding
-            <https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math>`__.
-            For example, the time_zone parameter will convert a value of now/d.
+            .. NOTE::
+
+                The time_zone parameter does not affect the `date math
+                <https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math>`__
+                value of now. now is always the current system time in UTC. However,
+                the time_zone parameter does convert dates calculated using now and
+                `date math rounding
+                <https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math>`__.
+                For example, the time_zone parameter will convert a value of now/d.
 
         :returns: 'QueryInterface'
             A new instance is created

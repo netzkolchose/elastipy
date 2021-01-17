@@ -21,6 +21,7 @@ parameters:
             The sources parameter defines the source fields to use when building composite buckets. The order that the sources are defined controls the order that the keys are returned.
 
             The sources parameter can be any of the following types:
+
                 - Terms
                 - Histogram
                 - Date histogram

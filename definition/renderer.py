@@ -7,6 +7,17 @@ MARKDOWN_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 
 
 def doc_to_rst(text):
+    text = markdown_links_to_rst(text)
+    text = sections_to_rst(text)
+    return text
+
+
+def sections_to_rst(text):
+    text = text.replace("Note: ", ".. NOTE::\n\n    ")
+    return text
+
+
+def markdown_links_to_rst(text):
     lines = text.splitlines()
     for i, line in enumerate(lines):
         lines[i] = MARKDOWN_LINK_RE.sub(
@@ -122,7 +133,7 @@ def render_class(class_name, super_class_name, class_parameters, doc=None, funct
     return code.rstrip() + "\n"
 
 
-def change_text_indent(text, indent, max_length=None):
+def change_text_indent(text, indent=0, max_length=None):
     """
     Changes the indentation of a block of text.
     All leading whitespace on each line is stripped up to the

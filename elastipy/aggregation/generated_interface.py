@@ -459,12 +459,15 @@ class AggregationInterface(AggregationInterfaceBase):
             order that the keys are returned.
 
             The sources parameter can be any of the following types:
+
                 - Terms
                 - Histogram
                 - Date histogram
                 - GeoTile grid
 
-            Note: You must use a unique name when defining sources.
+            .. NOTE::
+
+                You must use a unique name when defining sources.
 
         :param size:
             The size parameter can be set to define how many composite buckets
@@ -487,9 +490,11 @@ class AggregationInterface(AggregationInterfaceBase):
             To get the next set of buckets, resend the same aggregation with the
             after parameter set to the after_key value returned in the response.
 
-            Note: The after_key is usually the key to the last bucket returned in
-            the response, but that isn’t guaranteed. Always use the returned
-            after_key instead of derriving it from the buckets.
+            .. NOTE::
+
+                The after_key is usually the key to the last bucket returned in the
+                response, but that isn’t guaranteed. Always use the returned
+                after_key instead of derriving it from the buckets.
 
             In order to optimize the early termination it is advised to set
             track_total_hits in the request to false. The number of total hits that
@@ -670,8 +675,10 @@ class AggregationInterface(AggregationInterfaceBase):
             can be rewritten as:
                 ["1970-01-01", "1980-01-01"]
 
-            Note: This aggregation includes the from value and excludes the to value
-            for each range.
+            .. NOTE::
+
+                This aggregation includes the from value and excludes the to value
+                for each range.
 
         :param field:
             The date field
@@ -795,12 +802,14 @@ class AggregationInterface(AggregationInterfaceBase):
         The diversified_sampler aggregation adds the ability to limit the number of
         matches that share a common value such as an "author".
 
-        Note: Any good market researcher will tell you that when working with
-        samples of data it is important that the sample represents a healthy variety
-        of opinions rather than being skewed by any single voice. The same is true
-        with aggregations and sampling with these diversify settings can offer a way
-        to remove the bias in your content (an over-populated geography, a large
-        spike in a timeline or an over-active forum spammer).
+        .. NOTE::
+
+            Any good market researcher will tell you that when working with samples
+            of data it is important that the sample represents a healthy variety of
+            opinions rather than being skewed by any single voice. The same is true
+            with aggregations and sampling with these diversify settings can offer a
+            way to remove the bias in your content (an over-populated geography, a
+            large spike in a timeline or an over-active forum spammer).
 
         Example use cases:
             - Tightening the focus of analytics to high-relevance matches rather
@@ -815,9 +824,11 @@ class AggregationInterface(AggregationInterfaceBase):
         number of documents collected on any one shard which share a common value.
         The default setting for max_docs_per_value is 1.
 
-        Note: The aggregation will throw an error if the choice of field or script
-        produces multiple values for a single document (de-duplication using
-        multi-valued fields is not supported due to efficiency concerns).
+        .. NOTE::
+
+            The aggregation will throw an error if the choice of field or script
+            produces multiple values for a single document (de-duplication using
+            multi-valued fields is not supported due to efficiency concerns).
 
         `Limitations:
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-diversified-sampler-aggregation.html#_limitations_5>`__
@@ -1219,11 +1230,13 @@ class AggregationInterface(AggregationInterfaceBase):
             precision. When this would lead to precision levels higher than the
             supported 12 levels, (e.g. for distances <5.6cm) the value is rejected.
 
-            Note: When requesting detailed buckets (typically for displaying a
-            "zoomed in" map) a filter like `geo_bounding_box
-            <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-bounding-box-query.html>`__
-            should be applied to narrow the subject area otherwise potentially
-            millions of buckets will be created and returned.
+            .. NOTE::
+
+                When requesting detailed buckets (typically for displaying a "zoomed
+                in" map) a filter like `geo_bounding_box
+                <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-bounding-box-query.html>`__
+                should be applied to narrow the subject area otherwise potentially
+                millions of buckets will be created and returned.
 
         :param bounds:
             The geohash_grid aggregation supports an optional bounds parameter that
@@ -1306,11 +1319,13 @@ class AggregationInterface(AggregationInterfaceBase):
             The required precision of the grid in the range [1, 29]. Higher means
             more precise.
 
-            Note: When requesting detailed buckets (typically for displaying a
-            "zoomed in" map) a filter like `geo_bounding_box
-            <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-bounding-box-query.html>`__
-            should be applied to narrow the subject area otherwise potentially
-            millions of buckets will be created and returned.
+            .. NOTE::
+
+                When requesting detailed buckets (typically for displaying a "zoomed
+                in" map) a filter like `geo_bounding_box
+                <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-bounding-box-query.html>`__
+                should be applied to narrow the subject area otherwise potentially
+                millions of buckets will be created and returned.
 
         :param bounds:
             The geotile_grid aggregation supports an optional bounds parameter that
@@ -1359,9 +1374,11 @@ class AggregationInterface(AggregationInterfaceBase):
         context. This context is defined by the indices and the document types
         you’re searching on, but is not influenced by the search query itself.
 
-        Note: Global aggregators can only be placed as top level aggregators because
-        it doesn’t make sense to embed a global aggregator within another bucket
-        aggregator.
+        .. NOTE::
+
+            Global aggregators can only be placed as top level aggregators because
+            it doesn’t make sense to embed a global aggregator within another bucket
+            aggregator.
 
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-global-aggregation.html>`__
@@ -1917,8 +1934,10 @@ class AggregationInterface(AggregationInterfaceBase):
             can be rewritten as:
                 [10, 20]
 
-            Note: This aggregation includes the from value and excludes the to value
-            for each range.
+            .. NOTE::
+
+                This aggregation includes the from value and excludes the to value
+                for each range.
 
         :param field:
             The field to index by the aggregation
@@ -2413,11 +2432,13 @@ class AggregationInterface(AggregationInterfaceBase):
             shard_min_doc_count is set to 0 per default and has no effect unless you
             explicitly set it.
 
-            Note: Setting min_doc_count=0 will also return buckets for terms that
-            didn’t match any hit. However, some of the returned terms which have a
-            document count of zero might only belong to deleted documents or
-            documents from other types, so there is no warranty that a match_all
-            query would find a positive document count for those terms.
+            .. NOTE::
+
+                Setting min_doc_count=0 will also return buckets for terms that
+                didn’t match any hit. However, some of the returned terms which have
+                a document count of zero might only belong to deleted documents or
+                documents from other types, so there is no warranty that a match_all
+                query would find a positive document count for those terms.
 
             Warning: When NOT sorting on doc_count descending, high values of
             min_doc_count may return a number of buckets which is less than size
@@ -2562,11 +2583,13 @@ class AggregationInterface(AggregationInterfaceBase):
         (or a script generates multiple identical values for a single document),
         each value will be counted individually.
 
-        Note: Because value_count is designed to work with any field it internally
-        treats all values as simple bytes. Due to this implementation, if _value
-        script variable is used to fetch a value instead of accessing the field
-        directly (e.g. a "value script"), the field value will be returned as a
-        string instead of it’s native format.
+        .. NOTE::
+
+            Because value_count is designed to work with any field it internally
+            treats all values as simple bytes. Due to this implementation, if _value
+            script variable is used to fetch a value instead of accessing the field
+            directly (e.g. a "value script"), the field value will be returned as a
+            string instead of it’s native format.
 
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-valuecount-aggregation.html>`__
