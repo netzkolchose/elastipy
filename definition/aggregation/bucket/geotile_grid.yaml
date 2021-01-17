@@ -4,7 +4,7 @@ doc: |
         - High precision keys have a larger range for x and y, and represent tiles that cover only a small area.
         - Low precision keys have a smaller range for x and y, and represent tiles that each cover a large area.
 
-    Warning: he highest-precision geotile of length 29 produces cells that cover less than a 10cm by 10cm of land and so high-precision requests can be very costly in terms of RAM and result sizes. Please see the example below on how to first filter the aggregation to a smaller geographic area before requesting high-levels of detail.
+    Warning: The highest-precision geotile of length 29 produces cells that cover less than a 10cm by 10cm of land and so high-precision requests can be very costly in terms of RAM and result sizes. Please see the example below on how to first filter the aggregation to a smaller geographic area before requesting high-levels of detail.
 
 parameters:
     field:

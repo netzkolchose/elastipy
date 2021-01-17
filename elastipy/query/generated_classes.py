@@ -282,7 +282,8 @@ class QueryString(Query):
     versatile, the query is strict and returns an error if the query string
     includes any invalid syntax.
 
-    Warning:
+    .. WARNING::
+
         Because it returns an error for any invalid syntax, we don’t recommend
         using the query_string query for search boxes.
 
@@ -342,7 +343,8 @@ class QueryString(Query):
         versatile, the query is strict and returns an error if the query string
         includes any invalid syntax.
 
-        Warning:
+        .. WARNING::
+
             Because it returns an error for any invalid syntax, we don’t recommend
             using the query_string query for search boxes.
 

@@ -9,11 +9,22 @@ MARKDOWN_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 def doc_to_rst(text):
     text = markdown_links_to_rst(text)
     text = sections_to_rst(text)
+    text = "\n".join("" if not line.strip() else line for line in text.splitlines())
     return text
 
 
-def sections_to_rst(text):
-    text = text.replace("Note: ", ".. NOTE::\n\n    ")
+def sections_to_rst(text: str) -> str:
+    """
+    Replace a simple 'Note: blabla' with the rst equivalent.
+    TODO: Does not care too much for indentation and existing blocks,
+        it just works a.t.m.
+    """
+    for word, rst_section in (
+            ("Note", "NOTE"),
+            ("Warning", "WARNING"),
+    ):
+        text = text.replace(f"{word}: ", f".. {rst_section}::\n\n    ")
+        text = text.replace(f"{word}:", f".. {rst_section}::\n   ")
     return text
 
 

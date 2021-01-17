@@ -45,6 +45,18 @@ class TestGenerator(unittest.TestCase):
             Note: Important!
             """))
         )
+        self.assertEqualText(change_text_indent(
+            """
+            .. WARNING::
+            
+                Stuff!
+            """),
+            doc_to_rst(change_text_indent(
+                """
+                Warning:
+                    Stuff!
+                """))
+        )
 
 
 if __name__ == "__main__":

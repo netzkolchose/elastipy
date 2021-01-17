@@ -1056,7 +1056,9 @@ class AggregationInterface(AggregationInterfaceBase):
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/ingest-circle-processor.html>`__
         are treated as polygons.
 
-        Warning: Using geo_centroid as a sub-aggregation of geohash_grid
+        .. WARNING::
+
+            Using geo_centroid as a sub-aggregation of geohash_grid
             The geohash_grid aggregation places documents, not individual
             geo-points, into buckets. If a document’s geo_point field contains
             multiple values, the document could be assigned to multiple buckets,
@@ -1298,11 +1300,13 @@ class AggregationInterface(AggregationInterfaceBase):
             - Low precision keys have a smaller range for x and y, and represent
             tiles that each cover a large area.
 
-        Warning: he highest-precision geotile of length 29 produces cells that cover
-        less than a 10cm by 10cm of land and so high-precision requests can be very
-        costly in terms of RAM and result sizes. Please see the example below on how
-        to first filter the aggregation to a smaller geographic area before
-        requesting high-levels of detail.
+        .. WARNING::
+
+            The highest-precision geotile of length 29 produces cells that cover
+            less than a 10cm by 10cm of land and so high-precision requests can be
+            very costly in terms of RAM and result sizes. Please see the example
+            below on how to first filter the aggregation to a smaller geographic
+            area before requesting high-levels of detail.
 
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-geotilegrid-aggregation.html>`__
@@ -2391,14 +2395,16 @@ class AggregationInterface(AggregationInterfaceBase):
             parameter. By default, the buckets are ordered by their doc_count
             descending.
 
-            Warning: Sorting by ascending _count or by sub aggregation is
-            discouraged as it increases the error on document counts. It is fine
-            when a single shard is queried, or when the field that is being
-            aggregated was used as a routing key at index time: in these cases
-            results will be accurate since shards have disjoint values. However
-            otherwise, errors are unbounded. One particular case that could still be
-            useful is sorting by min or max aggregation: counts will not be accurate
-            but at least the top buckets will be correctly picked.
+            .. WARNING::
+
+                Sorting by ascending _count or by sub aggregation is discouraged as
+                it increases the error on document counts. It is fine when a single
+                shard is queried, or when the field that is being aggregated was
+                used as a routing key at index time: in these cases results will be
+                accurate since shards have disjoint values. However otherwise,
+                errors are unbounded. One particular case that could still be useful
+                is sorting by min or max aggregation: counts will not be accurate
+                but at least the top buckets will be correctly picked.
 
         :param min_doc_count:
             It is possible to only return terms that match more than a configured
@@ -2440,12 +2446,15 @@ class AggregationInterface(AggregationInterfaceBase):
                 documents from other types, so there is no warranty that a match_all
                 query would find a positive document count for those terms.
 
-            Warning: When NOT sorting on doc_count descending, high values of
-            min_doc_count may return a number of buckets which is less than size
-            because not enough data was gathered from the shards. Missing buckets
-            can be back by increasing shard_size. Setting shard_min_doc_count too
-            high will cause terms to be filtered out on a shard level. This value
-            should be set much lower than min_doc_count/#shards.
+            .. WARNING::
+
+                When NOT sorting on doc_count descending, high values of
+                min_doc_count may return a number of buckets which is less than size
+                because not enough data was gathered from the shards. Missing
+                buckets can be back by increasing shard_size. Setting
+                shard_min_doc_count too high will cause terms to be filtered out on
+                a shard level. This value should be set much lower than
+                min_doc_count/#shards.
 
         :param include:
             A `regexp
