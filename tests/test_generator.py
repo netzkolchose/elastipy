@@ -2,7 +2,8 @@ import unittest
 import datetime
 from decimal import Decimal
 
-from definition.generator import change_text_indent, doc_to_rst
+from definition.generator import change_text_indent
+from definition.renderer import doc_to_rst
 
 
 class TestGenerator(unittest.TestCase):
