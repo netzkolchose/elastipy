@@ -5,6 +5,7 @@ doc: |
     Note: Any good market researcher will tell you that when working with samples of data it is important that the sample represents a healthy variety of opinions rather than being skewed by any single voice. The same is true with aggregations and sampling with these diversify settings can offer a way to remove the bias in your content (an over-populated geography, a large spike in a timeline or an over-active forum spammer).
 
     Example use cases:
+
         - Tightening the focus of analytics to high-relevance matches rather than the potentially very long tail of low-quality matches
         - Removing bias from analytics by ensuring fair representation of content from different sources
         - Reducing the running cost of aggregations that can produce useful results using only samples e.g. significant_terms
