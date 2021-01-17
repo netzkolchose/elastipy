@@ -2,9 +2,11 @@
 
 [![Build Status](https://travis-ci.com/defgsus/elastipy.svg?branch=development)](https://travis-ci.com/defgsus/elastipy)
 [![Coverage Status](https://coveralls.io/repos/github/defgsus/elastipy/badge.svg?branch=feature/travis)](https://coveralls.io/github/defgsus/elastipy?branch=feature/travis)
-
+[![Documentation Status](https://readthedocs.org/projects/elastipy/badge/?version=latest)](https://elastipy.readthedocs.io/en/latest/?badge=latest)
 
 A python wrapper to make elasticsearch queries and aggregations more fun.
+
+Lean more at [readthedocs.io](https://elastipy.readthedocs.io/en/latest/)
 
 Actually i'm just learning this stuff and have the following requests:
 - some generic convenient data access to nested bucketed aggregations and such
