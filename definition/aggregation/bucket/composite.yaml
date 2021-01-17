@@ -10,9 +10,9 @@ doc: |
 
     For optimal performance the [index sort](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-index-sorting.html) should be set on the index so that it matches parts or fully the source order in the composite aggregation.
 
-    Sub-buckets: Like any multi-bucket aggregations the composite aggregation can hold sub-aggregations. These sub-aggregations can be used to compute other buckets or statistics on each composite bucket created by this parent aggregation.
+    **Sub-buckets**: Like any multi-bucket aggregations the composite aggregation can hold sub-aggregations. These sub-aggregations can be used to compute other buckets or statistics on each composite bucket created by this parent aggregation.
 
-    Pipeline aggregations: The composite agg is not currently compatible with pipeline aggregations, nor does it make sense in most cases. E.g. due to the paging nature of composite aggs, a single logical partition (one day for example) might be spread over multiple pages. Since pipeline aggregations are purely post-processing on the final list of buckets, running something like a derivative on a composite page could lead to inaccurate results as it is only taking into account a "partial" result on that page.
+    **Pipeline aggregations**: The composite agg is not currently compatible with pipeline aggregations, nor does it make sense in most cases. E.g. due to the paging nature of composite aggs, a single logical partition (one day for example) might be spread over multiple pages. Since pipeline aggregations are purely post-processing on the final list of buckets, running something like a derivative on a composite page could lead to inaccurate results as it is only taking into account a "partial" result on that page.
 parameters:
     sources:
         type: Sequence[Mapping]
@@ -21,6 +21,7 @@ parameters:
             The sources parameter defines the source fields to use when building composite buckets. The order that the sources are defined controls the order that the keys are returned.
 
             The sources parameter can be any of the following types:
+
                 - Terms
                 - Histogram
                 - Date histogram

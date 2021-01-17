@@ -151,7 +151,7 @@ class Search(QueryInterface, AggregationInterface):
         """
         Replace the sorting
 
-        https://www.elastic.co/guide/en/elasticsearch/reference/current/sort-search-results.html
+        `sort search results <https://www.elastic.co/guide/en/elasticsearch/reference/current/sort-search-results.html>`__
 
         :param sort: can be str, dict or list
         :return: new Search instance

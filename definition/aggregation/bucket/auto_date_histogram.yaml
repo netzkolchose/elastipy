@@ -33,7 +33,7 @@ parameters:
         type: str
         doc: |
             Specifies the format of the 'key_as_string' response.
-            See: https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html
+            See: [mapping date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html)
     keyed:
         type: bool
         default: False

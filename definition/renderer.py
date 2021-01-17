@@ -1,4 +1,71 @@
+import re
+from typing import Union
+
+
 INDENT = "    "
+
+
+MARKDOWN_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+
+
+def doc_to_rst(text):
+    text = markdown_links_to_rst(text)
+    text = sections_to_rst(text)
+    text = "\n".join("" if not line.strip() else line for line in text.splitlines())
+    text = proper_rst_newlines(text)
+    return text
+
+
+def sections_to_rst(text: str) -> str:
+    """
+    Replace a simple 'Note: blabla' with the rst equivalent.
+    TODO: Does not care too much for indentation and existing blocks,
+        it just works a.t.m.
+    """
+    for word, rst_section in (
+            ("Note", "NOTE"),
+            ("Warning", "WARNING"),
+            ("Code", "CODE"),
+    ):
+        text = text.replace(f"{word}: ", f".. {rst_section}::\n\n    ")
+        text = text.replace(f"{word}:", f".. {rst_section}::\n   ")
+    return text
+
+
+def proper_rst_newlines(text: str) -> str:
+    lines = []
+    last_indent = 0
+    last_empty = False
+    last_bullet = False
+    for line in text.splitlines():
+        empty = not line.strip()
+        if not empty:
+
+            indent = len(line) - len(line.lstrip())
+
+            if indent != last_indent and not last_empty:
+                lines.append("")
+            elif last_bullet and not last_empty:
+                lines.append("")
+
+            last_indent = indent
+            last_bullet = line.lstrip().startswith("- ")
+        last_empty = empty
+
+        lines.append(line)
+
+
+    return "\n".join(lines)
+
+
+def markdown_links_to_rst(text):
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        lines[i] = MARKDOWN_LINK_RE.sub(
+            r"`\1 <\2>`__",
+            line
+        )
+    return "\n".join(lines)
 
 
 def type_to_str(param):
@@ -29,7 +96,8 @@ def type_to_str(param):
 
 def render_function(
         function_name, parameters, doc, body,
-        return_type=None, return_doc=None, annotate_return_type=True, indent=""
+        return_type=None, return_doc=None, annotate_return_type=True, indent="",
+        with_doc_types: bool = True,
 ):
     # -- definition --
 
@@ -54,19 +122,23 @@ def render_function(
 
     code += f'{INDENT}"""\n'
     if doc:
-        code += change_text_indent(doc, INDENT, max_length=80) + "\n"
+        code += change_text_indent(doc_to_rst(doc), INDENT, max_length=80) + "\n"
 
     for param_name, param in parameters.items():
         if param_name != "self":
-            code += f"\n{INDENT}:param {param_name.lstrip('*')}: {type_to_str(param)}\n"
+            code += f"\n{INDENT}:param {param_name.lstrip('*')}:"
+            if with_doc_types:
+                code += f" ``{type_to_str(param)}``\n"
+            else:
+                code += "\n"
             param_doc = get_param_doc(param)
             if param_doc:
-                code += change_text_indent(param_doc, INDENT*2, max_length=80) + "\n"
+                code += change_text_indent(doc_to_rst(param_doc), INDENT*2, max_length=80) + "\n"
 
     if return_type:
-        code += f"\n{INDENT}:returns: {type_to_str(return_type)}\n"
+        code += f"\n{INDENT}:returns: ``{type_to_str(return_type)}``\n"
         if return_doc:
-            code += change_text_indent(return_doc, INDENT*2, max_length=80) + "\n"
+            code += change_text_indent(doc_to_rst(return_doc), INDENT*2, max_length=80) + "\n"
 
     code += f'{INDENT}"""\n'
 
@@ -84,7 +156,7 @@ def render_class(class_name, super_class_name, class_parameters, doc=None, funct
     code = f"class {class_name}({super_class_name}):\n\n"
 
     if doc:
-        code += change_text_indent(f'"""\n{doc.rstrip()}\n"""', INDENT, max_length=80) + "\n"
+        code += change_text_indent(f'"""\n{doc_to_rst(doc.rstrip())}\n"""', INDENT, max_length=80) + "\n"
 
     if class_parameters:
         code += "\n"
@@ -102,7 +174,7 @@ def render_class(class_name, super_class_name, class_parameters, doc=None, funct
     return code.rstrip() + "\n"
 
 
-def change_text_indent(text, indent, max_length=None):
+def change_text_indent(text, indent: Union[str, int]=0, max_length=None):
     """
     Changes the indentation of a block of text.
     All leading whitespace on each line is stripped up to the

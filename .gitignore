@@ -2,6 +2,7 @@
 .coverage
 scratchpad/
 cache/
+docs/_*/
 .idea/
 
 env/

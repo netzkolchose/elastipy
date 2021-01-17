@@ -8,14 +8,14 @@ parameters:
         doc: |
             The path to the buckets we wish to find the average for.
 
-            https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#buckets-path-syntax
+            See: [bucket path syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#buckets-path-syntax)
     gap_policy:
         type: str
         default: skip
         doc: |
             The policy to apply when gaps are found in the data.
 
-            https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#gap-policy
+            See: [gap policy](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#gap-policy)
     format:
         type: str
         doc: |

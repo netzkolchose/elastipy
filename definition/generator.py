@@ -1,6 +1,3 @@
-import os
-import datetime
-
 from .data import QUERY_DEFINITION, AGGREGATION_DEFINITION
 from .renderer import render_function, render_class, change_text_indent
 
@@ -18,7 +15,7 @@ def doc_with_url(definition):
     if definition.get("url"):
         if not doc:
             doc = ""
-        doc += f"\n{definition['url']}"
+        doc += f"\n[elasticsearch documentation]({definition['url']})"
 
     return doc
 
@@ -206,3 +203,31 @@ def render_aggregation_class():
         ) + "\n"
 
     return code.rstrip() + "\n"
+
+
+def render_rst_agg_index():
+    code = ""
+
+    groups = sorted(set(d["group"] for d in AGGREGATION_DEFINITION.values()))
+    for group in groups:
+        code += f"- {group}\n\n"
+        for agg_name in sorted(filter(lambda key: AGGREGATION_DEFINITION[key]["group"] == group, AGGREGATION_DEFINITION)):
+            definition = AGGREGATION_DEFINITION[agg_name]
+            code += f"  - `{agg_name} <#elastipy.aggregation.Aggregation.agg_{agg_name}>`__\n"
+        code += "\n"
+
+    return code
+
+
+def render_rst_query_index():
+    code = ""
+
+    groups = sorted(set(d["group"] for d in QUERY_DEFINITION.values()))
+    for group in groups:
+        code += f"- {group}\n\n"
+        for query_name in sorted(filter(lambda key: QUERY_DEFINITION[key]["group"] == group, QUERY_DEFINITION)):
+            definition = QUERY_DEFINITION[query_name]
+            code += f"  - `{query_name} <#elastipy.Search.{query_name}>`__\n"
+        code += "\n"
+
+    return code
