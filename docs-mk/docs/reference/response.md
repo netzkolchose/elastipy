@@ -1,3 +1,0 @@
-# class Response
-
-::: elastipy.Response
