@@ -44,7 +44,8 @@ def type_to_str(param):
 
 def render_function(
         function_name, parameters, doc, body,
-        return_type=None, return_doc=None, annotate_return_type=True, indent=""
+        return_type=None, return_doc=None, annotate_return_type=True, indent="",
+        with_doc_types: bool = False,
 ):
     # -- definition --
 
@@ -73,7 +74,11 @@ def render_function(
 
     for param_name, param in parameters.items():
         if param_name != "self":
-            code += f"\n{INDENT}:param {param_name.lstrip('*')}: {type_to_str(param)}\n"
+            code += f"\n{INDENT}:param {param_name.lstrip('*')}:"
+            if with_doc_types:
+                code += f" {type_to_str(param)}\n"
+            else:
+                code += "\n"
             param_doc = get_param_doc(param)
             if param_doc:
                 code += change_text_indent(doc_to_rst(param_doc), INDENT*2, max_length=80) + "\n"

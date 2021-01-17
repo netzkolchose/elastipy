@@ -28,12 +28,12 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-adjacency-matrix-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param filters: Mapping[str, Union[Mapping, 'QueryInterface']]
+        :param filters:
 
-        :param separator: Optional[str]
+        :param separator:
             An alternative separator parameter can be passed in the request if
             clients wish to use a separator string other than the default of the
             ampersand.
@@ -74,17 +74,17 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-autodatehistogram-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: Optional[str]
+        :param field:
             If no field is specified it will default to the 'timestamp_field' of the
             Search class.
 
-        :param buckets: int
+        :param buckets:
             The number of buckets that are to be returned.
 
-        :param minimum_interval: Optional[str]
+        :param minimum_interval:
             The minimum_interval allows the caller to specify the minimum rounding
             interval that should be used. This can make the collection process more
             efficient, as the aggregation will not attempt to round at any interval
@@ -93,7 +93,7 @@ class AggregationInterface(AggregationInterfaceBase):
             The accepted units for minimum_interval are:
                 year, month, day, hour, minute, second
 
-        :param time_zone: Optional[str]
+        :param time_zone:
             Elasticsearch stores date-times in Coordinated Universal Time (UTC). By
             default, all bucketing and rounding is also done in UTC. Use the
             time_zone parameter to indicate that bucketing should use a different
@@ -112,21 +112,21 @@ class AggregationInterface(AggregationInterfaceBase):
             You can specify time zones as an ISO 8601 UTC offset (e.g. +01:00 or
             -08:00) or as an IANA time zone ID, such as America/Los_Angeles.
 
-        :param format: Optional[str]
+        :param format:
             Specifies the format of the 'key_as_string' response.
             See: `mapping date format
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html>`__
 
-        :param keyed: bool
+        :param keyed:
             Setting the keyed flag to true associates a unique string key with each
             bucket and returns the ranges as a hash rather than an array.
 
-        :param missing: Optional[Any]
+        :param missing:
             The missing parameter defines how documents that are missing a value
             should be treated. By default they will be ignored but it is also
             possible to treat them as if they had a value.
 
-        :param script: Optional[dict]
+        :param script:
             Generating the terms using a script
 
         :returns: 'AggregationInterface'
@@ -162,16 +162,16 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-avg-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
 
-        :param missing: Optional[Any]
+        :param missing:
 
-        :param script: Optional[dict]
+        :param script:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -204,25 +204,25 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-avg-bucket-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param buckets_path: str
+        :param buckets_path:
             The path to the buckets we wish to find the average for.
 
             See: `bucket path syntax
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#buckets-path-syntax>`__
 
-        :param gap_policy: str
+        :param gap_policy:
             The policy to apply when gaps are found in the data.
 
             See: `gap policy
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#gap-policy>`__
 
-        :param format: Optional[str]
+        :param format:
             Format to apply to the output value of this aggregation
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created pipeline, otherwise the parent is
             returned.
 
@@ -251,16 +251,16 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-boxplot-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
 
-        :param compression: int
+        :param compression:
 
-        :param missing: Optional[Any]
+        :param missing:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -295,31 +295,31 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-bucket-script-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param script: str
+        :param script:
             The script to run for this aggregation. The script can be inline, file
             or indexed. (see `Scripting
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting.html>`__
             for more details)
 
-        :param buckets_path: Mapping[str, str]
+        :param buckets_path:
             A map of script variables and their associated path to the buckets we
             wish to use for the variable (see `buckets_path Syntax
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#buckets-path-syntax>`__
             for more details)
 
-        :param gap_policy: str
+        :param gap_policy:
             The policy to apply when gaps are found in the data (see `Dealing with
             gaps
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#gap-policy>`__
             in the data for more details)
 
-        :param format: Optional[str]
+        :param format:
             Format to apply to the output value of this aggregation
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created pipeline, otherwise the parent is
             returned.
 
@@ -350,18 +350,18 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-cardinality-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
 
-        :param precision_threshold: int
+        :param precision_threshold:
 
-        :param missing: Optional[Any]
+        :param missing:
 
-        :param script: Optional[dict]
+        :param script:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -392,10 +392,10 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-children-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param type: str
+        :param type:
             The child type that should be selected.
 
         :returns: 'AggregationInterface'
@@ -450,10 +450,10 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-composite-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param sources: Sequence[Mapping]
+        :param sources:
             The sources parameter defines the source fields to use when building
             composite buckets. The order that the sources are defined controls the
             order that the keys are returned.
@@ -466,7 +466,7 @@ class AggregationInterface(AggregationInterfaceBase):
 
             Note: You must use a unique name when defining sources.
 
-        :param size: int
+        :param size:
             The size parameter can be set to define how many composite buckets
             should be returned. Each composite bucket is considered as a single
             bucket, so setting a size of 10 will return the first 10 composite
@@ -483,7 +483,7 @@ class AggregationInterface(AggregationInterfaceBase):
             retrieved it is preferable to use a small size (100 or 1000 for
             instance) and then use the after parameter to retrieve the next results.
 
-        :param after: Optional[Union[str, int, float, datetime]]
+        :param after:
             To get the next set of buckets, resend the same aggregation with the
             after parameter set to the after_key value returned in the response.
 
@@ -533,20 +533,20 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-datehistogram-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: Optional[str]
+        :param field:
             If no field is specified it will default to the 'timestamp_field' of the
             Search class.
 
-        :param calendar_interval: Optional[str]
+        :param calendar_interval:
             Calendar-aware intervals are configured with the calendar_interval
             parameter. You can specify calendar intervals using the unit name, such
             as month, or as a single unit quantity, such as 1M. For example, day and
             1d are equivalent. Multiple quantities, such as 2d, are not supported.
 
-        :param fixed_interval: Optional[str]
+        :param fixed_interval:
             In contrast to calendar-aware intervals, fixed intervals are a fixed
             number of SI units and never deviate, regardless of where they fall on
             the calendar. One second is always composed of 1000ms. This allows fixed
@@ -557,11 +557,11 @@ class AggregationInterface(AggregationInterfaceBase):
             Attempting to specify a calendar interval like month or quarter will
             throw an exception.
 
-        :param min_doc_count: int
+        :param min_doc_count:
             Minimum documents to required for a bucket. Set to 0 to allow creating
             empty buckets.
 
-        :param offset: Optional[str]
+        :param offset:
             Use the offset parameter to change the start value of each bucket by the
             specified positive (+) or negative offset (-) duration, such as 1h for
             an hour, or 1d for a day. See Time units for more possible time duration
@@ -571,7 +571,7 @@ class AggregationInterface(AggregationInterfaceBase):
             midnight to midnight. Setting the offset parameter to +6h changes each
             bucket to run from 6am to 6am
 
-        :param time_zone: Optional[str]
+        :param time_zone:
             Elasticsearch stores date-times in Coordinated Universal Time (UTC). By
             default, all bucketing and rounding is also done in UTC. Use the
             time_zone parameter to indicate that bucketing should use a different
@@ -590,21 +590,21 @@ class AggregationInterface(AggregationInterfaceBase):
             You can specify time zones as an ISO 8601 UTC offset (e.g. +01:00 or
             -08:00) or as an IANA time zone ID, such as America/Los_Angeles.
 
-        :param format: Optional[str]
+        :param format:
             Specifies the format of the 'key_as_string' response.
             See: `mapping date format
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html>`__
 
-        :param keyed: bool
+        :param keyed:
             Setting the keyed flag to true associates a unique string key with each
             bucket and returns the ranges as a hash rather than an array.
 
-        :param missing: Optional[Any]
+        :param missing:
             The missing parameter defines how documents that are missing a value
             should be treated. By default they will be ignored but it is also
             possible to treat them as if they had a value.
 
-        :param script: Optional[dict]
+        :param script:
             Generating the terms using a script
 
         :returns: 'AggregationInterface'
@@ -649,10 +649,10 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param ranges: Sequence[Union[Mapping[str, str], str]]
+        :param ranges:
             List of ranges to define the buckets
 
             Example:
@@ -673,18 +673,18 @@ class AggregationInterface(AggregationInterfaceBase):
             Note: This aggregation includes the from value and excludes the to value
             for each range.
 
-        :param field: Optional[str]
+        :param field:
             The date field
 
             If no field is specified it will default to the 'timestamp_field' of the
             Search class.
 
-        :param format: Optional[str]
+        :param format:
             The format of the response bucket keys as available for the
             `DateTimeFormatter
             <https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html>`__
 
-        :param time_zone: Optional[str]
+        :param time_zone:
             Dates can be converted from another time zone to UTC by specifying the
             time_zone parameter.
 
@@ -694,16 +694,16 @@ class AggregationInterface(AggregationInterfaceBase):
             The time_zone parameter is also applied to rounding in date math
             expressions.
 
-        :param keyed: bool
+        :param keyed:
             Setting the keyed flag to true associates a unique string key with each
             bucket and returns the ranges as a hash rather than an array.
 
-        :param missing: Optional[Any]
+        :param missing:
             The missing parameter defines how documents that are missing a value
             should be treated. By default they will be ignored but it is also
             possible to treat them as if they had a value.
 
-        :param script: Optional[dict]
+        :param script:
             Generating the terms using a script
 
         :returns: 'AggregationInterface'
@@ -739,31 +739,31 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-derivative-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param buckets_path: str
+        :param buckets_path:
             The path to the buckets we wish to find the average for.
 
             See: `bucket path syntax
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#buckets-path-syntax>`__
 
-        :param gap_policy: str
+        :param gap_policy:
             The policy to apply when gaps are found in the data.
 
             See: `gap policy
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#gap-policy>`__
 
-        :param format: Optional[str]
+        :param format:
             Format to apply to the output value of this aggregation
 
-        :param units: Optional[str]
+        :param units:
             The derivative aggregation allows the units of the derivative values to
             be specified. This returns an extra field in the response
             normalized_value which reports the derivative value in the desired
             x-axis units.
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created pipeline, otherwise the parent is
             returned.
 
@@ -844,22 +844,22 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-diversified-sampler-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: Optional[str]
+        :param field:
             The field to search on. Can alternatively be a script
 
-        :param script: Optional[Mapping]
+        :param script:
             The script that specifies the aggregation. Can alternatively be a
             'field'
 
-        :param shard_size: int
+        :param shard_size:
             The shard_size parameter limits how many top-scoring documents are
             collected in the sample processed on each shard. The default value is
             100.
 
-        :param max_docs_per_value: int
+        :param max_docs_per_value:
             The max_docs_per_value is an optional parameter and limits how many
             documents are permitted per choice of de-duplicating value. The default
             setting is 1.
@@ -889,18 +889,18 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-extendedstats-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
 
-        :param sigma: float
+        :param sigma:
 
-        :param missing: Optional[Any]
+        :param missing:
 
-        :param script: Optional[dict]
+        :param script:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -931,10 +931,10 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filter-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param filter: Union[Mapping, 'QueryInterface']
+        :param filter:
 
         :returns: 'AggregationInterface'
             A new instance is created and returned
@@ -958,10 +958,10 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filters-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param filters: Mapping[str, Union[Mapping, 'QueryInterface']]
+        :param filters:
 
         :returns: 'AggregationInterface'
             A new instance is created and returned
@@ -998,18 +998,18 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-geobounds-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
             The field defining the geo_point or geo_shape
 
-        :param wrap_longitude: bool
+        :param wrap_longitude:
             An optional parameter which specifies whether the bounding box should be
             allowed to overlap the international date line. The default value is
             true.
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -1059,13 +1059,13 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-geocentroid-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
             The field defining the geo_point or geo_shape
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -1103,15 +1103,15 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-geodistance-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
             The specified field must be of type geo_point (which can only be set
             explicitly in the mappings). And it can also hold an array of geo_point
             fields, in which case all will be taken into account during aggregation.
 
-        :param ranges: Sequence[Union[Mapping[str, float], float]]
+        :param ranges:
             A list of ranges that define the separate buckets, e.g:
                 [
                     { "to": 100000 },
@@ -1123,7 +1123,7 @@ class AggregationInterface(AggregationInterfaceBase):
             can be rewritten as:
                 [100000, 300000]
 
-        :param origin: Union[str, Mapping[str, float], Sequence[float]]
+        :param origin:
             The origin point can accept all formats supported by the `geo_point type
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-point.html>`__:
                 - Object format: { "lat" : 52.3760, "lon" : 4.894 } - this is the
@@ -1134,12 +1134,12 @@ class AggregationInterface(AggregationInterfaceBase):
                 standard and where the first number is the lon and the second one is
                 the lat
 
-        :param unit: str
+        :param unit:
             By default, the distance unit is m (meters) but it can also accept: mi
             (miles), in (inches), yd (yards), km (kilometers), cm (centimeters), mm
             (millimeters).
 
-        :param distance_type: str
+        :param distance_type:
             There are two distance calculation modes: arc (the default), and plane.
             The arc calculation is the most accurate. The plane is the fastest but
             least accurate. Consider using plane when your search context is
@@ -1147,7 +1147,7 @@ class AggregationInterface(AggregationInterfaceBase):
             higher error margins for searches across very large areas (e.g. cross
             continent search)
 
-        :param keyed: bool
+        :param keyed:
             Setting the keyed flag to true will associate a unique string key with
             each bucket and return the ranges as a hash rather than an array.
 
@@ -1195,10 +1195,10 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-geohashgrid-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
             The specified field must be of type geo_point or geo_shape (which can
             only be set explicitly in the mappings). And it can also hold an array
             of geo_point fields, in which case all will be taken into account during
@@ -1209,7 +1209,7 @@ class AggregationInterface(AggregationInterfaceBase):
             contribute to the count of matching values if any part of its shape
             intersects with that tile.
 
-        :param precision: Union[int, str]
+        :param precision:
             The required precision of the grid in the range [1, 12]. Higher means
             more precise.
 
@@ -1225,7 +1225,7 @@ class AggregationInterface(AggregationInterfaceBase):
             should be applied to narrow the subject area otherwise potentially
             millions of buckets will be created and returned.
 
-        :param bounds: Optional[Mapping]
+        :param bounds:
             The geohash_grid aggregation supports an optional bounds parameter that
             restricts the points considered to those that fall within the bounds
             provided. The bounds parameter accepts the bounding box in all the same
@@ -1238,12 +1238,12 @@ class AggregationInterface(AggregationInterfaceBase):
             additional geo_bounding_box queries defined in the context of the
             aggregation.
 
-        :param size: int
+        :param size:
             The maximum number of geohash buckets to return (defaults to 10,000).
             When results are trimmed, buckets are prioritised based on the volumes
             of documents they contain.
 
-        :param shard_size: Optional[int]
+        :param shard_size:
             To allow for more accurate counting of the top cells returned in the
             final result the aggregation defaults to returning max(10,(size x
             number-of-shards)) buckets from each shard. If this heuristic is
@@ -1294,15 +1294,15 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-geotilegrid-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
             The specified field must be of type geo_point (which can only be set
             explicitly in the mappings). And it can also hold an array of geo_point
             fields, in which case all will be taken into account during aggregation.
 
-        :param precision: Union[int, str]
+        :param precision:
             The required precision of the grid in the range [1, 29]. Higher means
             more precise.
 
@@ -1312,7 +1312,7 @@ class AggregationInterface(AggregationInterfaceBase):
             should be applied to narrow the subject area otherwise potentially
             millions of buckets will be created and returned.
 
-        :param bounds: Optional[Mapping]
+        :param bounds:
             The geotile_grid aggregation supports an optional bounds parameter that
             restricts the points considered to those that fall within the bounds
             provided. The bounds parameter accepts the bounding box in all the same
@@ -1325,12 +1325,12 @@ class AggregationInterface(AggregationInterfaceBase):
             additional geo_bounding_box queries defined in the context of the
             aggregation.
 
-        :param size: int
+        :param size:
             The maximum number of geohash buckets to return (defaults to 10,000).
             When results are trimmed, buckets are prioritised based on the volumes
             of documents they contain.
 
-        :param shard_size: Optional[int]
+        :param shard_size:
             To allow for more accurate counting of the top cells returned in the
             final result the aggregation defaults to returning max(10,(size x
             number-of-shards)) buckets from each shard. If this heuristic is
@@ -1366,7 +1366,7 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-global-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
         :returns: 'AggregationInterface'
@@ -1423,16 +1423,16 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-histogram-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
             A numeric field to be indexed by the histogram.
 
-        :param interval: int
+        :param interval:
             A positive decimal defining the interval between buckets.
 
-        :param min_doc_count: int
+        :param min_doc_count:
             By default the response will fill gaps in the histogram with empty
             buckets. It is possible change that and request buckets with a higher
             minimum count thanks to the min_doc_count setting
@@ -1455,7 +1455,7 @@ class AggregationInterface(AggregationInterfaceBase):
                 its key. This is confusing, as many times, you’d also like to get
                 those buckets between 0 - 100.
 
-        :param offset: Optional[int]
+        :param offset:
             By default the bucket keys start with 0 and then continue in even spaced
             steps of interval, e.g. if the interval is 10, the first three buckets
             (assuming there is data inside them) will be [0, 10), [10, 20), [20,
@@ -1466,7 +1466,7 @@ class AggregationInterface(AggregationInterfaceBase):
             buckets with 5 documents each. If an additional offset 5 is used, there
             will be only one single bucket [5, 15) containing all the 10 documents.
 
-        :param extended_bounds: Optional[Mapping[str, int]]
+        :param extended_bounds:
             With extended_bounds setting, you now can "force" the histogram
             aggregation to start building buckets on a specific min value and also
             keep on building buckets up to a max value (even if there are no
@@ -1492,29 +1492,29 @@ class AggregationInterface(AggregationInterfaceBase):
             those documents without regard to how they were selected. See note on
             bucketing range fields for more information and an example.
 
-        :param hard_bounds: Optional[Mapping[str, int]]
+        :param hard_bounds:
             The hard_bounds is a counterpart of extended_bounds and can limit the
             range of buckets in the histogram. It is particularly useful in the case
             of open `data ranges
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/range.html>`__
             that can result in a very large number of buckets.
 
-        :param format: Optional[str]
+        :param format:
             Specifies the format of the 'key_as_string' response.
             See: `mapping date format
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html>`__
 
-        :param order: Optional[Union[Mapping, str]]
+        :param order:
             By default the returned buckets are sorted by their key ascending,
             though the order behaviour can be controlled using the order setting.
             Supports the same order functionality as the `Terms Aggregation
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-order>`__.
 
-        :param keyed: bool
+        :param keyed:
             Setting the keyed flag to true associates a unique string key with each
             bucket and returns the ranges as a hash rather than an array.
 
-        :param missing: Optional[Any]
+        :param missing:
             The missing parameter defines how documents that are missing a value
             should be treated. By default they will be ignored but it is also
             possible to treat them as if they had a value.
@@ -1553,13 +1553,13 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-iprange-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
             The IPv4 field
 
-        :param ranges: Sequence[Union[Mapping[str, str], str]]
+        :param ranges:
             List of ranges to define the buckets, either as straight IPv4 or as CIDR
             masks.
 
@@ -1574,7 +1574,7 @@ class AggregationInterface(AggregationInterfaceBase):
             can be rewritten as:
                 ["10.0.0.5", "10.0.0.127"]
 
-        :param keyed: bool
+        :param keyed:
             Setting the keyed flag to true associates a unique string key with each
             bucket and returns the ranges as a hash rather than an array.
 
@@ -1601,16 +1601,16 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-matrix-stats-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param fields: list
+        :param fields:
 
-        :param mode: str
+        :param mode:
 
-        :param missing: Optional[Any]
+        :param missing:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -1639,16 +1639,16 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-max-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
 
-        :param missing: Optional[Any]
+        :param missing:
 
-        :param script: Optional[dict]
+        :param script:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -1678,18 +1678,18 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-median-absolute-deviation-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
 
-        :param compression: int
+        :param compression:
 
-        :param missing: Optional[Any]
+        :param missing:
 
-        :param script: Optional[dict]
+        :param script:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -1719,16 +1719,16 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-min-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
 
-        :param missing: Optional[Any]
+        :param missing:
 
-        :param script: Optional[dict]
+        :param script:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -1762,10 +1762,10 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-missing-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
             The field we wish to investigate for missing values
 
         :returns: 'AggregationInterface'
@@ -1792,22 +1792,22 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-rank-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
 
-        :param values: list
+        :param values:
 
-        :param keyed: bool
+        :param keyed:
 
-        :param hdr__number_of_significant_value_digits: Optional[int]
+        :param hdr__number_of_significant_value_digits:
 
-        :param missing: Optional[Any]
+        :param missing:
 
-        :param script: Optional[dict]
+        :param script:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -1843,24 +1843,24 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
 
-        :param percents: list
+        :param percents:
 
-        :param keyed: bool
+        :param keyed:
 
-        :param tdigest__compression: int
+        :param tdigest__compression:
 
-        :param hdr__number_of_significant_value_digits: Optional[int]
+        :param hdr__number_of_significant_value_digits:
 
-        :param missing: Optional[Any]
+        :param missing:
 
-        :param script: Optional[dict]
+        :param script:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -1900,10 +1900,10 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param ranges: Sequence[Union[Mapping[str, Any], Any]]
+        :param ranges:
             List of ranges to define the buckets
 
             Example:
@@ -1920,14 +1920,14 @@ class AggregationInterface(AggregationInterfaceBase):
             Note: This aggregation includes the from value and excludes the to value
             for each range.
 
-        :param field: Optional[str]
+        :param field:
             The field to index by the aggregation
 
-        :param keyed: bool
+        :param keyed:
             Setting the keyed flag to true associates a unique string key with each
             bucket and returns the ranges as a hash rather than an array.
 
-        :param script: Optional[dict]
+        :param script:
             Generating the terms using a script
 
         :returns: 'AggregationInterface'
@@ -1963,13 +1963,13 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-rare-terms-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
             The field we wish to find rare terms in
 
-        :param max_doc_count: int
+        :param max_doc_count:
             The maximum number of documents a term should appear in.
 
             The max_doc_count parameter is used to control the upper bound of
@@ -1983,7 +1983,7 @@ class AggregationInterface(AggregationInterfaceBase):
             if chosen incorrectly. To limit the danger of this setting, the maximum
             max_doc_count is 100.
 
-        :param include: Optional[Union[str, Sequence[str], Mapping[str, int]]]
+        :param include:
             A `regexp
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html>`__
             pattern that filters the documents which will be aggregated.
@@ -1994,14 +1994,14 @@ class AggregationInterface(AggregationInterfaceBase):
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#_filtering_values_with_partitions>`__
             are also possible.
 
-        :param exclude: Optional[Union[str, Sequence[str]]]
+        :param exclude:
             A `regexp
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html>`__
             pattern that filters the documents which will be aggregated.
 
             Alternatively can be a list of strings.
 
-        :param missing: Optional[Any]
+        :param missing:
             The missing parameter defines how documents that are missing a value
             should be treated. By default they will be ignored but it is also
             possible to treat them as if they had a value.
@@ -2031,16 +2031,16 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-rate-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param unit: str
+        :param unit:
 
-        :param field: Optional[str]
+        :param field:
 
-        :param script: Optional[dict]
+        :param script:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -2075,10 +2075,10 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-sampler-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param shard_size: int
+        :param shard_size:
             The shard_size parameter limits how many top-scoring documents are
             collected in the sample processed on each shard. The default value is
             100.
@@ -2106,20 +2106,20 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-scripted-metric-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param map_script: str
+        :param map_script:
 
-        :param combine_script: str
+        :param combine_script:
 
-        :param reduce_script: str
+        :param reduce_script:
 
-        :param init_script: Optional[str]
+        :param init_script:
 
-        :param params: Optional[dict]
+        :param params:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -2149,14 +2149,14 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-stats-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
 
-        :param missing: Optional[Any]
+        :param missing:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -2184,16 +2184,16 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-string-stats-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
 
-        :param show_distribution: bool
+        :param show_distribution:
 
-        :param missing: Optional[Any]
+        :param missing:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -2222,16 +2222,16 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-sum-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
 
-        :param missing: Optional[Any]
+        :param missing:
 
-        :param script: Optional[dict]
+        :param script:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -2263,22 +2263,22 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-ttest-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param a__field: str
+        :param a__field:
 
-        :param b__field: str
+        :param b__field:
 
-        :param type: str
+        :param type:
 
-        :param a__filter: Optional[dict]
+        :param a__filter:
 
-        :param b__filter: Optional[dict]
+        :param b__filter:
 
-        :param script: Optional[dict]
+        :param script:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -2320,12 +2320,12 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: str
+        :param field:
 
-        :param size: int
+        :param size:
             The size parameter can be set to define how many term buckets should be
             returned out of the overall terms list. By default, the node
             coordinating the search process will request each shard to provide its
@@ -2336,7 +2336,7 @@ class AggregationInterface(AggregationInterfaceBase):
             term counts are slightly off and it could even be that a term that
             should have been in the top size buckets was not returned).
 
-        :param shard_size: Optional[int]
+        :param shard_size:
             The higher the requested size is, the more accurate the results will be,
             but also, the more expensive it will be to compute the final results
             (both due to bigger priority queues that are managed on a shard level
@@ -2350,7 +2350,7 @@ class AggregationInterface(AggregationInterfaceBase):
             can increase the accuracy of the returned terms and avoid the overhead
             of streaming a big list of buckets back to the client.
 
-        :param show_term_doc_count_error: Optional[bool]
+        :param show_term_doc_count_error:
             This shows an error value for each term returned by the aggregation
             which represents the worst case error in the document count and can be
             useful when deciding on a value for the shard_size parameter. This is
@@ -2367,7 +2367,7 @@ class AggregationInterface(AggregationInterfaceBase):
             in the document counts cannot be determined and is given a value of -1
             to indicate this.
 
-        :param order: Optional[Union[Mapping, str]]
+        :param order:
             The order of the buckets can be customized by setting the order
             parameter. By default, the buckets are ordered by their doc_count
             descending.
@@ -2381,7 +2381,7 @@ class AggregationInterface(AggregationInterfaceBase):
             useful is sorting by min or max aggregation: counts will not be accurate
             but at least the top buckets will be correctly picked.
 
-        :param min_doc_count: int
+        :param min_doc_count:
             It is possible to only return terms that match more than a configured
             number of hits using the min_doc_count option. Default value is 1.
 
@@ -2400,7 +2400,7 @@ class AggregationInterface(AggregationInterfaceBase):
             the shards. However, this increases memory consumption and network
             traffic.
 
-        :param shard_min_doc_count: Optional[int]
+        :param shard_min_doc_count:
             The parameter shard_min_doc_count regulates the certainty a shard has if
             the term should actually be added to the candidate list or not with
             respect to the min_doc_count. Terms will only be considered if their
@@ -2426,7 +2426,7 @@ class AggregationInterface(AggregationInterfaceBase):
             high will cause terms to be filtered out on a shard level. This value
             should be set much lower than min_doc_count/#shards.
 
-        :param include: Optional[Union[str, Sequence[str], Mapping[str, int]]]
+        :param include:
             A `regexp
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html>`__
             pattern that filters the documents which will be aggregated.
@@ -2437,19 +2437,19 @@ class AggregationInterface(AggregationInterfaceBase):
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#_filtering_values_with_partitions>`__
             are also possible.
 
-        :param exclude: Optional[Union[str, Sequence[str]]]
+        :param exclude:
             A `regexp
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html>`__
             pattern that filters the documents which will be aggregated.
 
             Alternatively can be a list of strings.
 
-        :param missing: Optional[Any]
+        :param missing:
             The missing parameter defines how documents that are missing a value
             should be treated. By default they will be ignored but it is also
             possible to treat them as if they had a value.
 
-        :param script: Optional[dict]
+        :param script:
             Generating the terms using a script
 
         :returns: 'AggregationInterface'
@@ -2483,16 +2483,16 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-top-hits-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param size: int
+        :param size:
 
-        :param sort: Optional[dict]
+        :param sort:
 
-        :param _source: Optional[dict]
+        :param _source:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -2520,14 +2520,14 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-top-metrics.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param metrics: dict
+        :param metrics:
 
-        :param sort: Optional[dict]
+        :param sort:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -2571,16 +2571,16 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-valuecount-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param field: Optional[str]
+        :param field:
             The field who's values should be counted
 
-        :param script: Optional[dict]
+        :param script:
             Alternatively counting the values generated by a script
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
@@ -2628,28 +2628,28 @@ class AggregationInterface(AggregationInterfaceBase):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-weight-avg-aggregation.html>`__
 
-        :param aggregation_name: Optional[str]
+        :param aggregation_name:
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
-        :param value__field: str
+        :param value__field:
             The field that values should be extracted from
 
-        :param weight__field: str
+        :param weight__field:
             The field that weights should be extracted from
 
-        :param value__missing: Optional[Any]
+        :param value__missing:
             A value to use if the field is missing entirely
 
-        :param weight__missing: Optional[Any]
+        :param weight__missing:
             A weight to use if the field is missing entirely
 
-        :param format: Optional[str]
+        :param format:
 
-        :param value_type: Optional[str]
+        :param value_type:
 
-        :param script: Optional[dict]
+        :param script:
 
-        :param return_self: bool
+        :param return_self:
             If True, this call returns the created metric, otherwise the parent is
             returned.
 
