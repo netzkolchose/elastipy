@@ -1,6 +1,9 @@
 #!env/bin/python
 import subprocess
 import time
+import glob
+import pathlib
+import shutil
 
 from elasticsearch import NotFoundError
 from elastipy import connections
@@ -29,6 +32,12 @@ def update_tutorial():
         # the notebook does not have any results
         time.sleep(1)
     except NotFoundError:
+        pass
+
+    # remove the previous files
+    try:
+        shutil.rmtree(f"{DOCS_DIR}/tutorial_files")
+    except FileNotFoundError:
         pass
 
     export_notebook("examples/tutorial.ipynb")
