@@ -197,13 +197,18 @@ class Exporter:
 
                     yield action
 
-        return bulk(
+        response = bulk(
             client=self.client,
             actions=bulk_actions(),
             chunk_size=chunk_size,
             refresh=refresh,
             **kwargs,
         )
+        if verbose:
+            # TODO: print error status
+            print(f"{self.__class__.__name__}: exported {response[0]} objects", file=file)
+
+        return response
 
     def get_index_params(self) -> dict:
         """

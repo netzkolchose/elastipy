@@ -5,9 +5,10 @@ from warnings import warn
 
 from .. import make_json_compatible
 from .generated_interface import AggregationInterface
+from .converter import ConverterMixin
 
 
-class Aggregation(AggregationInterface):
+class Aggregation(ConverterMixin, AggregationInterface):
     """
     Aggregation definition and response parser.
 
@@ -175,148 +176,6 @@ class Aggregation(AggregationInterface):
             raise ValueError(f"Can not get buckets of sub-aggregation '{self.name}' (type {self.type}) "
                              f"directly, use keys() and values()")
         return self.response["buckets"]
-
-    def keys(self, key_separator=None):
-        """
-        Iterates through all keys of this aggregation.
-
-        For example, a top-level date_histogram would return all timestamps.
-
-        For a nested bucket aggregation each key is a tuple of all parent keys as well.
-
-        :param key_separator: str, optional separator to concat multiple keys into one string
-        :return: generator
-        """
-        from .visitor import Visitor
-        return Visitor(self).keys(key_separator=key_separator)
-
-    def values(self, default=None):
-        """
-        Iterates through all values of this aggregation.
-        :param default: if not None any None-value will be replaced by this
-        :return: generator
-        """
-        from .visitor import Visitor
-        return Visitor(self).values(default=default)
-
-    def items(self, key_separator=None, default=None) -> Iterable[Tuple]:
-        """
-        Iterates through all key, value tuples.
-        :param key_separator: str, optional separator to concat multiple keys into one string
-        :param default: if not None any None-value will be replaced by this
-        :return: generator
-        """
-        yield from zip(self.keys(key_separator=key_separator), self.values(default=default))
-
-    def dict_rows(
-            self,
-            include: Union[str, Sequence[str]] = None,
-            exclude: Union[str, Sequence[str]] = None,
-    ) -> Iterable[dict]:
-        """
-        Iterates through all result values from this aggregation branch.
-
-        This will include all parent aggregations (up to the root) and all children
-        aggregations (including metrics).
-
-        :param include: str or list of str
-            Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that does not fit a pattern is removed
-        :param exclude: str or list of str
-            Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that fits a pattern is removed
-
-        :return: generator of dict
-        """
-        from .visitor import Visitor
-        return Visitor(self).dict_rows(include=include, exclude=exclude)
-
-    def rows(
-            self,
-            header=True,
-            include: Union[str, Sequence[str]] = None,
-            exclude: Union[str, Sequence[str]] = None,
-    ) -> Iterable[list]:
-        """
-        Iterates through all result values from this aggregation branch.
-
-        Each row is a list. The first row contains the names if 'header' == True.
-
-        This will include all parent aggregations (up to the root) and all children
-        aggregations (including metrics).
-
-        :param header: bool
-            If True, the first row contains the names of the columns
-        :param include: str or list of str
-            Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that does not fit a pattern is removed
-        :param exclude: str or list of str
-            Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that fits a pattern is removed
-
-        :return: generator of list
-        """
-        from .visitor import Visitor
-        return Visitor(self).rows(header=header, include=include, exclude=exclude)
-
-    def to_dict(self, key_separator=None, default=None) -> dict:
-        """
-        Create a dictionary from all key/value pairs.
-        :param key_separator: str, optional separator to concat multiple keys into one string
-        :param default: if not None any None-value will be replaced by this
-        :return: dict
-        """
-        return {
-            key: value
-            for key, value in self.items(key_separator=key_separator, default=default)
-        }
-
-    def to_pandas(
-            self,
-            index: str = None,
-            include: Union[str, Sequence[str]] = None,
-            exclude: Union[str, Sequence[str]] = None,
-    ):
-        """
-        Converts the results of 'dict_rows()' to a pandas DataFrame.
-
-        This will include all parent aggregations (up to the root) and all children
-        aggregations (including metrics).
-
-        Any columns containing dates will be automatically converted to pandas.Timestamp.
-
-        This method has a synonym: 'df'
-
-        :param index: str
-            Can explicitly set a certain column as the DataFrame index.
-            If omitted, the root aggregation's keys will be set to the index.
-        :param include: str or list of str
-            Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that does not fit a pattern is removed
-        :param exclude: str or list of str
-            Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that fits a pattern is removed
-
-        :return: DataFrame instance
-        """
-        import pandas as pd
-        import numpy as np
-        from dateutil.parser import ParserError
-
-        df = pd.DataFrame(self.dict_rows(include=include, exclude=exclude))
-        for key in df:
-            if df[key].dtype == np.dtype("O"):
-                try:
-                    df[key] = pd.to_datetime(df[key])
-                except (TypeError, ParserError):
-                    pass
-        if index is None:
-            index = self.root.name
-        df.index = df.pop(index)
-        return df
-
-    # synonym
-    df = to_pandas
 
     def key_name(self) -> str:
         """

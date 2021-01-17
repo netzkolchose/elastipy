@@ -232,6 +232,15 @@ class TestOrdersAggregations(TestCase):
                 },
                 agg.to_dict()
             )
+            self.assertEqual(
+                {
+                    "DE|group1": 4,
+                    "DE|group2": 3,
+                    "GB|group1": 3,
+                    "GB|group2": 0,
+                },
+                agg.to_dict(key_separator="|")
+            )
 
     def test_orders_date_histogram(self):
         q = self.search()
