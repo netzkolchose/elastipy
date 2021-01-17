@@ -1,23 +1,30 @@
 #!env/bin/python
 import subprocess
 import time
-import glob
-import pathlib
+import os
 import shutil
 
 from elasticsearch import NotFoundError
 from elastipy import connections
 
 DOCS_DIR = "docs-sphinx"
-HIDDEN_RE = "^# hidden.*"
+HIDDEN_CELLS = [
+    r"^# hidden.*",
+]
 
 
 def export_notebook(filename):
-    result = subprocess.call([
-        "jupyter", "nbconvert", "--to=rst", f"--output-dir={DOCS_DIR}",
-        f"--RegexRemovePreprocessor.patterns=['{HIDDEN_RE}']",
-        filename,
-    ])
+    env = os.environ.copy()
+    env["PYTHONPATH"] = ".."
+    result = subprocess.call(
+        [
+            "jupyter", "nbconvert",
+            "--execute", "--to=rst", f"--output-dir={DOCS_DIR}",
+            f"--RegexRemovePreprocessor.patterns={repr(HIDDEN_CELLS)}",
+            filename,
+        ],
+        env=env,
+    )
     if result:
         raise AssertionError(
             f"Exporting notebook {filename} failed with exit-code {result}"
@@ -30,7 +37,7 @@ def update_tutorial():
         connections.get().indices.delete("elastipy-example-shapes")
         # we need to wait a while it seems, otherwise
         # the notebook does not have any results
-        time.sleep(1)
+        #time.sleep(1)
     except NotFoundError:
         pass
 

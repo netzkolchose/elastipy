@@ -233,7 +233,7 @@ Better execute the search now before the body get's too complicated:
 .. parsed-literal::
 
     {
-      "took": 2,
+      "took": 0,
       "timed_out": false,
       "_shards": {
         "total": 1,
@@ -242,40 +242,40 @@ Better execute the search now before the body get's too complicated:
         "failed": 0
       },
       "hits": {
-        "total": 169,
-        "max_score": 2.1326516,
+        "total": 177,
+        "max_score": 2.1233923,
         "hits": [
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "bn6sEHcBeebHNMb6Xmm8",
-            "_score": 2.1326516,
+            "_id": "d37_EHcBeebHNMb6j4ln",
+            "_score": 2.1233923,
             "_source": {
               "shape": "triangle",
-              "color": "green",
-              "area": 5.180598032177817
+              "color": "red",
+              "area": 8.161720398415362
             }
           },
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "dX6sEHcBeebHNMb6Xmm8",
-            "_score": 2.1326516,
+            "_id": "H37_EHcBeebHNMb6j4yL",
+            "_score": 2.1233923,
             "_source": {
               "shape": "square",
-              "color": "green",
-              "area": 6.576369444794877
+              "color": "red",
+              "area": 8.751862677144198
             }
           },
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "eX6sEHcBeebHNMb6Xmm8",
-            "_score": 2.1326516,
+            "_id": "PH7_EHcBeebHNMb6j4yL",
+            "_score": 2.1233923,
             "_source": {
-              "shape": "square",
-              "color": "green",
-              "area": 5.847317033356114
+              "shape": "triangle",
+              "color": "red",
+              "area": 8.263903219083177
             }
           }
         ]
@@ -295,9 +295,9 @@ convenience properties.
 
 .. parsed-literal::
 
-    [{'shape': 'triangle', 'color': 'green', 'area': 5.180598032177817},
-     {'shape': 'square', 'color': 'green', 'area': 6.576369444794877},
-     {'shape': 'square', 'color': 'green', 'area': 5.847317033356114}]
+    [{'shape': 'triangle', 'color': 'red', 'area': 8.161720398415362},
+     {'shape': 'square', 'color': 'red', 'area': 8.751862677144198},
+     {'shape': 'triangle', 'color': 'red', 'area': 8.263903219083177}]
 
 
 
@@ -331,26 +331,26 @@ allows for short and powerful oneliners:
 
 .. parsed-literal::
 
-    [{'shape': 'square', 'color': 'green', 'area': 8.79258550844049},
-     {'shape': 'triangle', 'color': 'red', 'area': 8.661123759002336},
-     {'shape': 'triangle', 'color': 'red', 'area': 8.565988754996523},
-     {'shape': 'triangle', 'color': 'green', 'area': 8.563406508267303},
-     {'shape': 'square', 'color': 'green', 'area': 8.490012394710579},
-     {'shape': 'triangle', 'color': 'green', 'area': 8.291300656432396},
-     {'shape': 'square', 'color': 'blue', 'area': 8.161546976474865},
-     {'shape': 'square', 'color': 'blue', 'area': 8.05068744399311},
-     {'shape': 'square', 'color': 'red', 'area': 7.938184774736011},
-     {'shape': 'triangle', 'color': 'blue', 'area': 7.904676048185968},
-     {'shape': 'square', 'color': 'blue', 'area': 7.885336389376041},
-     {'shape': 'triangle', 'color': 'green', 'area': 7.875354412237241},
-     {'shape': 'triangle', 'color': 'red', 'area': 7.807859334703004},
-     {'shape': 'square', 'color': 'blue', 'area': 7.714386155264371},
-     {'shape': 'triangle', 'color': 'red', 'area': 7.678549348901566},
-     {'shape': 'triangle', 'color': 'red', 'area': 7.66467000510316},
-     {'shape': 'square', 'color': 'red', 'area': 7.599298161531182},
-     {'shape': 'square', 'color': 'green', 'area': 7.593707210512935},
-     {'shape': 'triangle', 'color': 'blue', 'area': 7.581204457454557},
-     {'shape': 'triangle', 'color': 'red', 'area': 7.544684677002033}]
+    [{'shape': 'square', 'color': 'green', 'area': 10.757878730657522},
+     {'shape': 'square', 'color': 'red', 'area': 8.751862677144198},
+     {'shape': 'triangle', 'color': 'blue', 'area': 8.541624200945225},
+     {'shape': 'square', 'color': 'green', 'area': 8.26443611605174},
+     {'shape': 'triangle', 'color': 'red', 'area': 8.263903219083177},
+     {'shape': 'square', 'color': 'green', 'area': 8.20544696686534},
+     {'shape': 'square', 'color': 'blue', 'area': 8.173174690689201},
+     {'shape': 'triangle', 'color': 'red', 'area': 8.161720398415362},
+     {'shape': 'square', 'color': 'blue', 'area': 8.129373665518143},
+     {'shape': 'triangle', 'color': 'blue', 'area': 8.054759575559462},
+     {'shape': 'square', 'color': 'green', 'area': 8.0165474606851},
+     {'shape': 'triangle', 'color': 'green', 'area': 8.004952048190786},
+     {'shape': 'square', 'color': 'red', 'area': 7.992181662989541},
+     {'shape': 'triangle', 'color': 'blue', 'area': 7.931510848279542},
+     {'shape': 'triangle', 'color': 'blue', 'area': 7.9261724535798805},
+     {'shape': 'triangle', 'color': 'red', 'area': 7.916567681480393},
+     {'shape': 'square', 'color': 'green', 'area': 7.888963108234958},
+     {'shape': 'square', 'color': 'green', 'area': 7.813700513935615},
+     {'shape': 'triangle', 'color': 'blue', 'area': 7.797382164673575},
+     {'shape': 'square', 'color': 'green', 'area': 7.74108943694938}]
 
 
 
@@ -432,7 +432,7 @@ Let's look at the result from elasticsearch:
 .. parsed-literal::
 
     {
-      "took": 1,
+      "took": 0,
       "timed_out": false,
       "_shards": {
         "total": 1,
@@ -451,12 +451,12 @@ Let's look at the result from elasticsearch:
           "sum_other_doc_count": 0,
           "buckets": [
             {
-              "key": "square",
-              "doc_count": 517
+              "key": "triangle",
+              "doc_count": 509
             },
             {
-              "key": "triangle",
-              "doc_count": 483
+              "key": "square",
+              "doc_count": 491
             }
           ]
         }
@@ -479,7 +479,7 @@ access the values more conveniently:
 
 .. parsed-literal::
 
-    {'square': 517, 'triangle': 483}
+    {'triangle': 509, 'square': 491}
 
 
 
@@ -494,8 +494,8 @@ known from the ``dict`` type:
 
 .. parsed-literal::
 
-    square       517
-    triangle     483
+    triangle     509
+    square       491
 
 
 It also has a ``dict_rows()`` generator which preseves the **names** and
@@ -509,8 +509,8 @@ It also has a ``dict_rows()`` generator which preseves the **names** and
 
 .. parsed-literal::
 
-    {'shapes': 'square', 'shapes.doc_count': 517}
-    {'shapes': 'triangle', 'shapes.doc_count': 483}
+    {'shapes': 'triangle', 'shapes.doc_count': 509}
+    {'shapes': 'square', 'shapes.doc_count': 491}
 
 
 The ``rows()`` generator flattens the ``dict_rows()`` into a CSV-style
@@ -525,24 +525,29 @@ list:
 .. parsed-literal::
 
     ['shapes', 'shapes.doc_count']
-    ['square', 517]
-    ['triangle', 483]
+    ['triangle', 509]
+    ['square', 491]
 
 
 And we can print a nice table to the command-line:
 
 .. code:: ipython3
 
-    agg.print.table()
+    agg.print.table(colors=False)
 
 
 .. parsed-literal::
 
     shapes   │ shapes.doc_count                           
     ─────────┼────────────────────────────────────────────
-    square   │ 517 [1;34m███████████████████████████████████████[0m
-    triangle │ 483 [1;34m████████████████████████████████████▌  [0m
+    triangle │ 509 ███████████████████████████████████████
+    square   │ 491 █████████████████████████████████████▋ 
 
+
+(The ``colors=False`` parameter disables console colors because they do
+not work in this documentation)
+
+--------------
 
 Obviously, at this point a couple of users would not understand why
 there is no conversion to a `pandas
@@ -585,12 +590,12 @@ built in:
       </thead>
       <tbody>
         <tr>
-          <th>square</th>
-          <td>517</td>
+          <th>triangle</th>
+          <td>509</td>
         </tr>
         <tr>
-          <th>triangle</th>
-          <td>483</td>
+          <th>square</th>
+          <td>491</td>
         </tr>
       </tbody>
     </table>
@@ -619,7 +624,7 @@ interface <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Dat
 
 
 
-.. image:: tutorial_files/tutorial_56_1.png
+.. image:: tutorial_files/tutorial_57_1.png
 
 
 Now let's look into the details when **metrics** or nested **bucket**
@@ -658,12 +663,12 @@ Now, what does the ``to_dict`` output look like?
 
 .. parsed-literal::
 
-    {('square', 'red'): 192,
-     ('square', 'blue'): 169,
-     ('square', 'green'): 156,
-     ('triangle', 'green'): 166,
-     ('triangle', 'blue'): 159,
-     ('triangle', 'red'): 158}
+    {('triangle', 'green'): 172,
+     ('triangle', 'red'): 169,
+     ('triangle', 'blue'): 168,
+     ('square', 'green'): 170,
+     ('square', 'blue'): 165,
+     ('square', 'red'): 156}
 
 
 
@@ -678,7 +683,7 @@ lot of thinking we can say:
 
 .. parsed-literal::
 
-    There are 158 red triangles in the database!
+    There are 169 red triangles in the database!
 
 
 But where are the metrics gone?
@@ -700,19 +705,19 @@ branch. In this example the branch looks like this:
 
 .. code:: ipython3
 
-    agg.print.table(digits=3)
+    agg.print.table(digits=3, colors=False)
 
 
 .. parsed-literal::
 
     shapes   │ shapes.doc_count    │ colors │ colors.doc_count    │ area                    │ avg-area            
     ─────────┼─────────────────────┼────────┼─────────────────────┼─────────────────────────┼─────────────────────
-    square   │ 517 [1;34m███████████████[0m │ red    │ 192 [1;34m███████████████[0m │ 963.596 [1;34m███████████████[0m │ 5.019 [1;34m█████████████▊[0m
-    square   │ 517 [1;34m███████████████[0m │ blue   │ 169 [1;34m█████████████▍ [0m │ 844.461 [1;34m█████████████▎ [0m │ 4.997 [1;34m█████████████▊[0m
-    square   │ 517 [1;34m███████████████[0m │ green  │ 156 [1;34m████████████▍  [0m │ 782.863 [1;34m████████████▍  [0m │ 5.018 [1;34m█████████████▊[0m
-    triangle │ 483 [1;34m██████████████ [0m │ green  │ 166 [1;34m█████████████  [0m │ 825.114 [1;34m████████████▉  [0m │ 4.971 [1;34m█████████████▋[0m
-    triangle │ 483 [1;34m██████████████ [0m │ blue   │ 159 [1;34m████████████▋  [0m │ 777.241 [1;34m████████████▎  [0m │ 4.888 [1;34m█████████████▌[0m
-    triangle │ 483 [1;34m██████████████ [0m │ red    │ 158 [1;34m████████████▌  [0m │  805.36 [1;34m████████████▋  [0m │ 5.097 [1;34m██████████████[0m
+    triangle │ 509 ███████████████ │ green  │ 172 ███████████████ │ 867.763 ███████████████ │ 5.045 █████████████▉
+    triangle │ 509 ███████████████ │ red    │ 169 ██████████████▊ │ 819.149 ██████████████▎ │ 4.847 █████████████▍
+    triangle │ 509 ███████████████ │ blue   │ 168 ██████████████▋ │ 841.755 ██████████████▋ │  5.01 █████████████▊
+    square   │ 491 ██████████████▌ │ green  │ 170 ██████████████▊ │ 865.368 ██████████████▉ │  5.09 ██████████████
+    square   │ 491 ██████████████▌ │ blue   │ 165 ██████████████▍ │ 831.532 ██████████████▍ │  5.04 █████████████▉
+    square   │ 491 ██████████████▌ │ red    │ 156 █████████████▋  │ 780.264 █████████████▋  │ 5.002 █████████████▊
 
 
 Now all information is in the table. Note that the ``shapes.doc_count``
@@ -733,8 +738,8 @@ Now what is this method with the awesome name ``to_matrix``?
 .. parsed-literal::
 
     names  ['shapes', 'colors']
-    keys   [['square', 'triangle'], ['red', 'blue', 'green']]
-    matrix [[192, 169, 156], [158, 159, 166]]
+    keys   [['triangle', 'square'], ['green', 'red', 'blue']]
+    matrix [[172, 169, 168], [170, 156, 165]]
 
 
 It produces a heatmap! At least in two dimensions. In this example we
@@ -770,23 +775,23 @@ dimensions, but if it's one or two, we can also convert it to a
       <thead>
         <tr style="text-align: right;">
           <th></th>
+          <th>green</th>
           <th>red</th>
           <th>blue</th>
-          <th>green</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <th>square</th>
-          <td>192</td>
+          <th>triangle</th>
+          <td>172</td>
           <td>169</td>
-          <td>156</td>
+          <td>168</td>
         </tr>
         <tr>
-          <th>triangle</th>
-          <td>158</td>
-          <td>159</td>
-          <td>166</td>
+          <th>square</th>
+          <td>170</td>
+          <td>156</td>
+          <td>165</td>
         </tr>
       </tbody>
     </table>
@@ -813,6 +818,6 @@ installed we can easily plot it:
 
 
 
-.. image:: tutorial_files/tutorial_72_1.png
+.. image:: tutorial_files/tutorial_73_1.png
 
 
