@@ -3,11 +3,6 @@ don't be plastic, elastipy!
 
 
 
-.. code:: ipython3
-
-    import sys
-    sys.path.insert(0, "..")
-
 exporting some objects
 ----------------------
 
