@@ -114,8 +114,8 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param format: Optional[str]
             Specifies the format of the 'key_as_string' response.
-            See:
-            https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html
+            See: `mapping date format
+            <https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html>`__
 
         :param keyed: bool
             Setting the keyed flag to true associates a unique string key with each
@@ -210,12 +210,14 @@ class AggregationInterface(AggregationInterfaceBase):
         :param buckets_path: str
             The path to the buckets we wish to find the average for.
 
-            https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#buckets-path-syntax
+            See: `bucket path syntax
+            <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#buckets-path-syntax>`__
 
         :param gap_policy: str
             The policy to apply when gaps are found in the data.
 
-            https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#gap-policy
+            See: `gap policy
+            <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#gap-policy>`__
 
         :param format: Optional[str]
             Format to apply to the output value of this aggregation
@@ -590,8 +592,8 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param format: Optional[str]
             Specifies the format of the 'key_as_string' response.
-            See:
-            https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html
+            See: `mapping date format
+            <https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html>`__
 
         :param keyed: bool
             Setting the keyed flag to true associates a unique string key with each
@@ -743,12 +745,14 @@ class AggregationInterface(AggregationInterfaceBase):
         :param buckets_path: str
             The path to the buckets we wish to find the average for.
 
-            https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#buckets-path-syntax
+            See: `bucket path syntax
+            <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#buckets-path-syntax>`__
 
         :param gap_policy: str
             The policy to apply when gaps are found in the data.
 
-            https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#gap-policy
+            See: `gap policy
+            <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html#gap-policy>`__
 
         :param format: Optional[str]
             Format to apply to the output value of this aggregation
@@ -1497,8 +1501,8 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param format: Optional[str]
             Specifies the format of the 'key_as_string' response.
-            See:
-            https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html
+            See: `mapping date format
+            <https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html>`__
 
         :param order: Optional[Union[Mapping, str]]
             By default the returned buckets are sorted by their key ascending,

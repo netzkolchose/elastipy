@@ -550,7 +550,8 @@ class Range(Query):
 
     When the <field> parameter is a date field data type, you can use date math
     with the 'gt', 'gte', 'lt' and 'lte' parameters.
-    https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math
+    See `date math
+    <https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math>`__
 
     `elasticsearch documentation
     <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html>`__
@@ -578,7 +579,8 @@ class Range(Query):
 
         When the <field> parameter is a date field data type, you can use date math
         with the 'gt', 'gte', 'lt' and 'lte' parameters.
-        https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math
+        See `date math
+        <https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math>`__
 
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html>`__
@@ -604,8 +606,8 @@ class Range(Query):
             By default, Elasticsearch uses the date format provided in the <field>'s
             mapping. This value overrides that mapping format.
 
-            For valid syntax see
-            https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html
+            For valid syntax see `mapping data format
+            <https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html>`__
 
         :param relation: str
             Indicates how the range query matches values for range fields. Valid
