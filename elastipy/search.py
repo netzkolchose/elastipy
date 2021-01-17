@@ -150,6 +150,9 @@ class Search(QueryInterface, AggregationInterface):
     def sort(self, *sort):
         """
         Replace the sorting
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/sort-search-results.html
+
         :param sort: can be str, dict or list
         :return: new Search instance
         """
@@ -159,6 +162,11 @@ class Search(QueryInterface, AggregationInterface):
                 args += list(s)
             else:
                 args.append(s)
+
+        for i, arg in enumerate(args):
+            if isinstance(arg, str):
+                if arg.startswith("-"):
+                    args[i] = {arg.lstrip("-"): "desc"}
 
         es = self.copy()
         es._sort = args or None

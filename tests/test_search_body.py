@@ -37,9 +37,11 @@ class TestSearchBody(unittest.TestCase):
         })
 
     def test_sort(self):
-        s = Search().sort("_id")
+        s = Search().sort("-field")
         self.assertBody(s, {
-            "sort": ["_id"],
+            "sort": [
+                {"field": "desc"},
+            ],
         })
 
 
