@@ -1,11 +1,11 @@
 import os
 from itertools import chain
-from typing import Mapping, Sequence
+from typing import Mapping, Sequence, Union
 from io import StringIO
 from collections import deque
 from decimal import Decimal, InvalidOperation
 
-from .console import Characters, Colors, ColorCodes
+from .console import Characters, Colors, ColorCodes, get_terminal_size
 
 
 class Table:
@@ -22,7 +22,7 @@ class Table:
             digits: int = None,
             header: bool = True,
             bars: bool = True,
-            zero_based: bool = True,
+            zero: Union[bool, float] = True,
             colors: bool = True,
             ascii: bool = False,
             max_width: int = None,
@@ -31,23 +31,24 @@ class Table:
         file = StringIO()
         self.print(
             sort=sort, digits=digits, header=header, bars=bars, colors=colors, ascii=ascii, max_width=max_width,
-            zero_based=zero_based, max_bar_width=max_bar_width,
+            zero=zero, max_bar_width=max_bar_width,
             file=file,
         )
         file.seek(0)
         return file.read()
 
-    def print(self,
-              sort: str = None,
-              digits: int = None,
-              header: bool = True,
-              bars: bool = True,
-              zero_based: bool = True,
-              colors: bool = True,
-              ascii: bool = False,
-              max_width: int = None,
-              max_bar_width: int = 40,
-              file=None
+    def print(
+            self,
+            sort: str = None,
+            digits: int = None,
+            header: bool = True,
+            bars: bool = True,
+            zero: Union[bool, float] = True,
+            colors: bool = True,
+            ascii: bool = False,
+            max_width: int = None,
+            max_bar_width: int = 40,
+            file=None
     ):
         """
         :param sort: str
@@ -59,9 +60,10 @@ class Table:
             Enable display of horizontal bars in each number column.
             The table width will stretch out in size while limited
             to 'max_width' and 'max_bar_width'
-        :param zero_based: bool
-            if True, the bar axis starts at zero,
-            otherwise it starts at each columns minimum value
+        :param zero:
+            If True: the bar axis starts at zero (or at a negative value if appropriate)
+            If False: the bar starts at the minimum of all values in the column
+            If a number is provides, the bar starts there, regardless of the minimum of all values
         :param colors: bool, enable console colors
         :param ascii: bool, if True fall back to ascii characters
         :param max_width: int
@@ -107,7 +109,7 @@ class Table:
                 value_width[key] = max(value_width.get(key, 0), len(value_str))
 
                 number = get_number(value)
-                if number:
+                if number is not None:
                     table_row[key]["value"] = number
                     if key not in value_bounds:
                         value_bounds[key] = {"min": number, "max": number}
@@ -118,8 +120,7 @@ class Table:
             table_rows.append(table_row)
 
         if sort:
-            sort_key, reverse = sort.lstrip("-"), sort.startswith("-")
-            table_rows.sort(key=lambda row: row[sort_key]["value"], reverse=reverse)
+            table_rows = sorted_rows(table_rows, key=sort.lstrip("-"), reverse=sort.startswith("-"))
 
         for key, bound in list(value_bounds.items()):
             if bound["min"] != bound["max"]:
@@ -127,13 +128,18 @@ class Table:
             else:
                 value_bounds.pop(key)
 
-        if zero_based:
+        if zero is True:
             for bound in value_bounds.values():
                 bound["min"] = min(0, bound["min"])
+        elif zero is False:
+            pass  # keep the calculated lower bound
+        else:
+            for bound in value_bounds.values():
+                bound["min"] = zero
 
         # width of whole column
         column_width = {
-            key: max(header_width[key], value_width[key])
+            key: max(header_width[key], value_width.get(key, 0))
             for key in self.headers
         }
 
@@ -142,7 +148,7 @@ class Table:
         bar_offset = 0.
         if bars and value_bounds:
             if max_width is None:
-                max_width, _ = os.get_terminal_size()
+                max_width, _ = get_terminal_size()
 
             needed_width = sum(column_width.values()) + (len(column_width) - 1) * 3
             free_width = max_width - needed_width
@@ -180,7 +186,7 @@ class Table:
                 if y != 0 and key in value_bounds:
                     cell = " " * (value_width[key] - len(value)) + value
                 else:
-                    cell = f"{value:{value_width[key]}}"
+                    cell = f"{value:{value_width.get(key, 1)}}"
 
                 if y != 0 and bar_width.get(key, 0) > 1:
                     try:
@@ -236,6 +242,8 @@ class Table:
         raise TypeError(f"Invalid source {type(self.source).__name__}")
 
     def _spend_extra_width(self, width: dict, extra_width: int, max_width: int = None, recursive=True):
+        if not width:
+            return
         cur_max_width = max(width.values())
         keys = deque(width.keys())
         count = extra_width
@@ -311,3 +319,28 @@ def clip_line(line, max_width=None):
         line += ".."
 
     return line
+
+
+def sorted_rows(rows, key: str, reverse: bool):
+    try:
+        return sorted(rows, key=lambda row: row[key]["value"], reverse=reverse)
+    except TypeError:
+        rows = [RowCompare(row, key) for row in rows]
+        rows.sort(reverse=reverse)
+        return [row.row for row in rows]
+
+
+class RowCompare:
+
+    def __init__(self, row, key):
+        self.row = row
+        self.key = key
+
+    def __lt__(self, other):
+        v1 = self.row[self.key]["value"]
+        v2 = other.row[self.key]["value"]
+        if v1 is None:
+            return True
+        if v2 is None:
+            return False
+        return v1 < v2

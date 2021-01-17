@@ -83,7 +83,7 @@ def accidents_by_city():
     s.execute()
 
     print("\n### Accidents by city\n")
-    agg.print.table(digits=2, sort="-accidents_per_population_percent", zero_based=True)
+    agg.print.table(digits=2, sort="-accidents_per_population_percent", zero=True)
 
 
 def accidents_by_weekday():
@@ -149,7 +149,7 @@ def accidents_by_vehicle_combination():
     s.execute()
 
     print("\n### Accidents by vehicle combination\n")
-    agg.print.table(sort="-combi.doc_count", digits=2, zero_based=True)
+    agg.print.table(sort="-combi.doc_count", digits=2, zero=True)
 
 
 def accidents_geo_centroid_per_state():

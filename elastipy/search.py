@@ -34,6 +34,7 @@ class Search(QueryInterface, AggregationInterface):
         self._index = index
         self._client = client
         self._sort = None
+        self._size = None
         self._query = EmptyQuery()
         self._aggregations = []
         self._body = dict()
@@ -60,15 +61,17 @@ class Search(QueryInterface, AggregationInterface):
 
         :return: a new Search instance
         """
-        es = self.__class__(index=self._index, client=self._client, timestamp_field=self.timestamp_field)
-        es._body = deepcopy(self._body)
-        es._query = self._query.copy()
         if self._aggregations:
             raise NotImplementedError(
                 "Sorry, but copying of aggregations is currently not supported. "
                 "Please make all the queries before adding aggregations"
             )
-        es._aggregations = copy(self._aggregations)
+
+        es = self.__class__(index=self._index, client=self._client, timestamp_field=self.timestamp_field)
+        es._body = deepcopy(self._body)
+        es._query = self._query.copy()
+        es._sort = self._sort
+        es._size = self._size
         return es
 
     def to_body(self) -> dict:
@@ -83,8 +86,10 @@ class Search(QueryInterface, AggregationInterface):
             query_dict = {"query": query_dict}
         body.update(query_dict)
 
-        if self._sort:
+        if self._sort is not None:
             body["sort"] = self._sort
+        if self._size is not None:
+            body["size"] = self._size
 
         return make_json_compatible(body)
 
@@ -145,6 +150,9 @@ class Search(QueryInterface, AggregationInterface):
     def sort(self, *sort):
         """
         Replace the sorting
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/sort-search-results.html
+
         :param sort: can be str, dict or list
         :return: new Search instance
         """
@@ -155,8 +163,23 @@ class Search(QueryInterface, AggregationInterface):
             else:
                 args.append(s)
 
+        for i, arg in enumerate(args):
+            if isinstance(arg, str):
+                if arg.startswith("-"):
+                    args[i] = {arg.lstrip("-"): "desc"}
+
         es = self.copy()
         es._sort = args or None
+        return es
+
+    def size(self, size):
+        """
+        Replace the maximum document count
+        :param size: int. number of document hits to return
+        :return: new Search instance
+        """
+        es = self.copy()
+        es._size = size
         return es
 
     def query(self, query: QueryInterface):

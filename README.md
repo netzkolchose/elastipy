@@ -12,7 +12,7 @@ Actually i'm just learning this stuff and have the following requests:
 
 #### configuration
 
-By default all request go against **localhost:9200**. There are currently two ways 
+By default all requests go against **localhost:9200**. There are currently two ways 
 to specify a different connection.
 
 ```python
