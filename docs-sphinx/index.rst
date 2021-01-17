@@ -10,6 +10,7 @@ Welcome to elastipy's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   tutorial
    reference
 
 
