@@ -1,4 +1,19 @@
+import re
+
 INDENT = "    "
+
+
+MARKDOWN_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+
+
+def doc_to_rst(text):
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        lines[i] = MARKDOWN_LINK_RE.sub(
+            r"`\1 <\2>`__",
+            line
+        )
+    return "\n".join(lines)
 
 
 def type_to_str(param):
@@ -54,19 +69,19 @@ def render_function(
 
     code += f'{INDENT}"""\n'
     if doc:
-        code += change_text_indent(doc, INDENT, max_length=80) + "\n"
+        code += change_text_indent(doc_to_rst(doc), INDENT, max_length=80) + "\n"
 
     for param_name, param in parameters.items():
         if param_name != "self":
             code += f"\n{INDENT}:param {param_name.lstrip('*')}: {type_to_str(param)}\n"
             param_doc = get_param_doc(param)
             if param_doc:
-                code += change_text_indent(param_doc, INDENT*2, max_length=80) + "\n"
+                code += change_text_indent(doc_to_rst(param_doc), INDENT*2, max_length=80) + "\n"
 
     if return_type:
         code += f"\n{INDENT}:returns: {type_to_str(return_type)}\n"
         if return_doc:
-            code += change_text_indent(return_doc, INDENT*2, max_length=80) + "\n"
+            code += change_text_indent(doc_to_rst(return_doc), INDENT*2, max_length=80) + "\n"
 
     code += f'{INDENT}"""\n'
 
@@ -84,7 +99,7 @@ def render_class(class_name, super_class_name, class_parameters, doc=None, funct
     code = f"class {class_name}({super_class_name}):\n\n"
 
     if doc:
-        code += change_text_indent(f'"""\n{doc.rstrip()}\n"""', INDENT, max_length=80) + "\n"
+        code += change_text_indent(f'"""\n{doc_to_rst(doc.rstrip())}\n"""', INDENT, max_length=80) + "\n"
 
     if class_parameters:
         code += "\n"

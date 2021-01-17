@@ -1,6 +1,3 @@
-import os
-import datetime
-
 from .data import QUERY_DEFINITION, AGGREGATION_DEFINITION
 from .renderer import render_function, render_class, change_text_indent
 
@@ -18,7 +15,7 @@ def doc_with_url(definition):
     if definition.get("url"):
         if not doc:
             doc = ""
-        doc += f"\n{definition['url']}"
+        doc += f"\n[elasticsearch documentation]({definition['url']})"
 
     return doc
 
