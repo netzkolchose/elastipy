@@ -1,12 +1,17 @@
 Aggregation
-=====
+===========
 
 Aggregations can be created on the `Search` object or inside an existing `Aggregation`.
 
-Here is a list of all elasticsearch aggregations that elastipy currently supports:
+
+supported aggregations
+----------------------
 
 .. include:: ./agg_index.rst
 
+
+reference
+---------
 
 .. autoclass:: elastipy.aggregation.Aggregation
    :members:

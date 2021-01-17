@@ -11,7 +11,7 @@ exporting some objects
 Without too much thinking we can just use the built-in export helper and
 generate some data.
 
-.. code:: ipython3
+.. code:: python3
 
     from elastipy import Exporter
     
@@ -35,7 +35,7 @@ indexed and aggregatable.
 
 The data we create out of thin air..
 
-.. code:: ipython3
+.. code:: python3
 
     import random
     
@@ -52,7 +52,7 @@ Now create our exporter and export a couple of documents. It uses the
 tools <https://elasticsearch-py.readthedocs.io/en/7.10.0/helpers.html#bulk-helpers>`__
 internally.
 
-.. code:: ipython3
+.. code:: python3
 
     exporter = ShapeExporter()
     
@@ -75,13 +75,13 @@ query oh elastipyia
 
 In most cases this import is enough to access all the good stuff:
 
-.. code:: ipython3
+.. code:: python3
 
     from elastipy import Search, query
 
 Now get some documents:
 
-.. code:: ipython3
+.. code:: python3
 
     s = Search(index="elastipy-example-shapes")
 
@@ -89,7 +89,7 @@ Now get some documents:
 related options will always return a new instance. Here we set the
 maximum number of documents to respond:
 
-.. code:: ipython3
+.. code:: python3
 
     s = s.size(3)
 
@@ -98,13 +98,13 @@ Next we add a
 more specifically a `term
 query <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-term-query.html>`__.
 
-.. code:: ipython3
+.. code:: python3
 
     s = s.term(field="color", value="green")
 
 Our request to elasticsearch would look like this right now:
 
-.. code:: ipython3
+.. code:: python3
 
     s.dump_body()
 
@@ -125,7 +125,7 @@ Our request to elasticsearch would look like this right now:
 
 More queries can be added, which defaults to an **AND** combination:
 
-.. code:: ipython3
+.. code:: python3
 
     s = s.range(field="area", gt=5.)
     s.dump_body()
@@ -163,7 +163,7 @@ More queries can be added, which defaults to an **AND** combination:
 query itself or by applying the ``|`` operator to the query classes in
 ``elastipy.query``:
 
-.. code:: ipython3
+.. code:: python3
 
     s = s | (query.Term(field="color", value="red") & query.Range(field="area", gt=8.))
     s.dump_body()
@@ -224,7 +224,7 @@ query itself or by applying the ``|`` operator to the query classes in
 
 Better execute the search now before the body get's too complicated:
 
-.. code:: ipython3
+.. code:: python3
 
     response = s.execute()
     response.dump()
@@ -242,40 +242,40 @@ Better execute the search now before the body get's too complicated:
         "failed": 0
       },
       "hits": {
-        "total": 165,
-        "max_score": 2.1419973,
+        "total": 160,
+        "max_score": 2.1111784,
         "hits": [
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "UH6mEXcBeebHNMb67o2o",
-            "_score": 2.1419973,
-            "_source": {
-              "shape": "square",
-              "color": "red",
-              "area": 8.337096402175355
-            }
-          },
-          {
-            "_index": "elastipy-example-shapes",
-            "_type": "_doc",
-            "_id": "nn6mEXcBeebHNMb67o_K",
-            "_score": 2.1419973,
-            "_source": {
-              "shape": "square",
-              "color": "red",
-              "area": 8.083231967998746
-            }
-          },
-          {
-            "_index": "elastipy-example-shapes",
-            "_type": "_doc",
-            "_id": "jH6mEXcBeebHNMb67oyo",
-            "_score": 2.099112,
+            "_id": "m36dEncBeebHNMb6ZqLo",
+            "_score": 2.1111784,
             "_source": {
               "shape": "triangle",
-              "color": "green",
-              "area": 5.656104294131029
+              "color": "red",
+              "area": 8.17915722687888
+            }
+          },
+          {
+            "_index": "elastipy-example-shapes",
+            "_type": "_doc",
+            "_id": "qn6dEncBeebHNMb6ZqPo",
+            "_score": 2.1111784,
+            "_source": {
+              "shape": "square",
+              "color": "red",
+              "area": 9.41696689525332
+            }
+          },
+          {
+            "_index": "elastipy-example-shapes",
+            "_type": "_doc",
+            "_id": "bn6dEncBeebHNMb6Z6Qi",
+            "_score": 2.1111784,
+            "_source": {
+              "shape": "triangle",
+              "color": "red",
+              "area": 8.324826950777933
             }
           }
         ]
@@ -286,7 +286,7 @@ Better execute the search now before the body get's too complicated:
 The response object is a small wrapper around ``dict`` that has some
 convenience properties.
 
-.. code:: ipython3
+.. code:: python3
 
     response.documents
 
@@ -295,15 +295,15 @@ convenience properties.
 
 .. parsed-literal::
 
-    [{'shape': 'square', 'color': 'red', 'area': 8.337096402175355},
-     {'shape': 'square', 'color': 'red', 'area': 8.083231967998746},
-     {'shape': 'triangle', 'color': 'green', 'area': 5.656104294131029}]
+    [{'shape': 'triangle', 'color': 'red', 'area': 8.17915722687888},
+     {'shape': 'square', 'color': 'red', 'area': 9.41696689525332},
+     {'shape': 'triangle', 'color': 'red', 'area': 8.324826950777933}]
 
 
 
 How many documents are there at all?
 
-.. code:: ipython3
+.. code:: python3
 
     Search(index="elastipy-example-shapes").execute().total_hits
 
@@ -321,7 +321,7 @@ How many documents are there at all?
 The functions and properties are tried to make chainable in a way that
 allows for short and powerful oneliners:
 
-.. code:: ipython3
+.. code:: python3
 
     Search(index="elastipy-example-shapes") \
         .size(20).sort("-area").execute().documents
@@ -331,26 +331,26 @@ allows for short and powerful oneliners:
 
 .. parsed-literal::
 
-    [{'shape': 'triangle', 'color': 'blue', 'area': 9.473780667740126},
-     {'shape': 'square', 'color': 'blue', 'area': 9.315466094321529},
-     {'shape': 'square', 'color': 'blue', 'area': 9.156358598775604},
-     {'shape': 'triangle', 'color': 'blue', 'area': 8.892765400165604},
-     {'shape': 'triangle', 'color': 'green', 'area': 8.622293181419373},
-     {'shape': 'square', 'color': 'red', 'area': 8.337096402175355},
-     {'shape': 'square', 'color': 'green', 'area': 8.153559313812266},
-     {'shape': 'square', 'color': 'green', 'area': 8.09478322592646},
-     {'shape': 'square', 'color': 'red', 'area': 8.083231967998746},
-     {'shape': 'square', 'color': 'blue', 'area': 7.98183673610156},
-     {'shape': 'square', 'color': 'red', 'area': 7.980472979535936},
-     {'shape': 'triangle', 'color': 'red', 'area': 7.967899734786011},
-     {'shape': 'square', 'color': 'red', 'area': 7.914089599663935},
-     {'shape': 'square', 'color': 'red', 'area': 7.899305371464939},
-     {'shape': 'triangle', 'color': 'blue', 'area': 7.875982857066564},
-     {'shape': 'square', 'color': 'red', 'area': 7.826749009644405},
-     {'shape': 'triangle', 'color': 'blue', 'area': 7.812448471169546},
-     {'shape': 'triangle', 'color': 'blue', 'area': 7.798169961170446},
-     {'shape': 'square', 'color': 'blue', 'area': 7.770762376445688},
-     {'shape': 'triangle', 'color': 'blue', 'area': 7.741723245895466}]
+    [{'shape': 'square', 'color': 'red', 'area': 9.41696689525332},
+     {'shape': 'square', 'color': 'green', 'area': 9.02472981039032},
+     {'shape': 'triangle', 'color': 'blue', 'area': 9.02265697599545},
+     {'shape': 'triangle', 'color': 'green', 'area': 8.617033205021066},
+     {'shape': 'triangle', 'color': 'red', 'area': 8.582965113185116},
+     {'shape': 'triangle', 'color': 'blue', 'area': 8.363185730018822},
+     {'shape': 'square', 'color': 'green', 'area': 8.328266337758555},
+     {'shape': 'triangle', 'color': 'red', 'area': 8.324826950777933},
+     {'shape': 'triangle', 'color': 'red', 'area': 8.17915722687888},
+     {'shape': 'triangle', 'color': 'blue', 'area': 8.145256959263298},
+     {'shape': 'square', 'color': 'blue', 'area': 8.000280299211164},
+     {'shape': 'triangle', 'color': 'blue', 'area': 7.989303448648723},
+     {'shape': 'square', 'color': 'blue', 'area': 7.974097947091801},
+     {'shape': 'square', 'color': 'green', 'area': 7.936424959566199},
+     {'shape': 'triangle', 'color': 'blue', 'area': 7.914946696722728},
+     {'shape': 'square', 'color': 'green', 'area': 7.892872609734206},
+     {'shape': 'triangle', 'color': 'red', 'area': 7.8552543419864485},
+     {'shape': 'square', 'color': 'blue', 'area': 7.849391463022361},
+     {'shape': 'triangle', 'color': 'red', 'area': 7.766401073233563},
+     {'shape': 'triangle', 'color': 'blue', 'area': 7.7514482605013715}]
 
 
 
@@ -364,7 +364,7 @@ Aggregations can be created using the ``agg_``, ``metric_`` and
 ``pipeline_`` prefixes. An aggregation is **attached** to the ``Search``
 instance, so there is no copying like with the queries above.
 
-.. code:: ipython3
+.. code:: python3
 
     s = Search(index="elastipy-example-shapes").size(0)
     
@@ -395,7 +395,7 @@ aggregation <https://www.elastic.co/guide/en/elasticsearch/reference/current/sea
 has been added to the search body. The names of aggregations are
 auto-generated, but can be explicitly stated:
 
-.. code:: ipython3
+.. code:: python3
 
     s = Search(index="elastipy-example-shapes").size(0)
     
@@ -423,7 +423,7 @@ auto-generated, but can be explicitly stated:
 
 Let's look at the result from elasticsearch:
 
-.. code:: ipython3
+.. code:: python3
 
     s.execute()
     s.dump_response()
@@ -451,12 +451,12 @@ Let's look at the result from elasticsearch:
           "sum_other_doc_count": 0,
           "buckets": [
             {
-              "key": "triangle",
-              "doc_count": 515
+              "key": "square",
+              "doc_count": 525
             },
             {
-              "key": "square",
-              "doc_count": 485
+              "key": "triangle",
+              "doc_count": 475
             }
           ]
         }
@@ -470,7 +470,7 @@ valuable access
 Because we kept the ``agg`` variable, we can use it's interface to
 access the values more conveniently:
 
-.. code:: ipython3
+.. code:: python3
 
     agg.to_dict()
 
@@ -479,14 +479,14 @@ access the values more conveniently:
 
 .. parsed-literal::
 
-    {'triangle': 515, 'square': 485}
+    {'square': 525, 'triangle': 475}
 
 
 
 It supports the ``items()``, ``keys()`` and ``values()`` generators as
 known from the ``dict`` type:
 
-.. code:: ipython3
+.. code:: python3
 
     for key, value in agg.items():
         print(f"{key:12} {value}")
@@ -494,14 +494,14 @@ known from the ``dict`` type:
 
 .. parsed-literal::
 
-    triangle     515
-    square       485
+    square       525
+    triangle     475
 
 
-It also has a ``dict_rows()`` generator which preseves the **names** and
-**keys** of the aggregation:
+It also has a ``dict_rows()`` generator which preserves the **names**
+and **keys** of the aggregation:
 
-.. code:: ipython3
+.. code:: python3
 
     for row in agg.dict_rows():
         print(row)
@@ -509,14 +509,14 @@ It also has a ``dict_rows()`` generator which preseves the **names** and
 
 .. parsed-literal::
 
-    {'shapes': 'triangle', 'shapes.doc_count': 515}
-    {'shapes': 'square', 'shapes.doc_count': 485}
+    {'shapes': 'square', 'shapes.doc_count': 525}
+    {'shapes': 'triangle', 'shapes.doc_count': 475}
 
 
 The ``rows()`` generator flattens the ``dict_rows()`` into a CSV-style
 list:
 
-.. code:: ipython3
+.. code:: python3
 
     for row in agg.rows():
         print(row)
@@ -525,13 +525,13 @@ list:
 .. parsed-literal::
 
     ['shapes', 'shapes.doc_count']
-    ['triangle', 515]
-    ['square', 485]
+    ['square', 525]
+    ['triangle', 475]
 
 
 And we can print a nice table to the command-line:
 
-.. code:: ipython3
+.. code:: python3
 
     agg.print.table(colors=False)
 
@@ -540,8 +540,8 @@ And we can print a nice table to the command-line:
 
     shapes   │ shapes.doc_count                           
     ─────────┼────────────────────────────────────────────
-    triangle │ 515 ███████████████████████████████████████
-    square   │ 485 ████████████████████████████████████▊  
+    square   │ 525 ███████████████████████████████████████
+    triangle │ 475 ███████████████████████████████████▍   
 
 
 (The ``colors=False`` parameter disables console colors because they do
@@ -554,7 +554,7 @@ there is no conversion to a `pandas
 DataFrame <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html>`__
 built in:
 
-.. code:: ipython3
+.. code:: python3
 
     agg.to_pandas()  # or simply agg.df()
 
@@ -590,12 +590,12 @@ built in:
       </thead>
       <tbody>
         <tr>
-          <th>triangle</th>
-          <td>515</td>
+          <th>square</th>
+          <td>525</td>
         </tr>
         <tr>
-          <th>square</th>
-          <td>485</td>
+          <th>triangle</th>
+          <td>475</td>
         </tr>
       </tbody>
     </table>
@@ -610,7 +610,7 @@ containing ISO-formatted date strings will be converted to
 With ``matplotlib`` installed we can access the `pandas plotting
 interface <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.plot.html>`__:
 
-.. code:: ipython3
+.. code:: python3
 
     agg.df().plot.bar()
 
@@ -633,7 +633,7 @@ aggregations are involved.
 deeper aggregation agitation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: ipython3
+.. code:: python3
 
     agg = Search(index="elastipy-example-shapes") \
         .agg_terms("shapes", field="shape") \
@@ -656,7 +656,7 @@ A few notes:
 
 Now, what does the ``to_dict`` output look like?
 
-.. code:: ipython3
+.. code:: python3
 
     agg.to_dict()
 
@@ -665,19 +665,19 @@ Now, what does the ``to_dict`` output look like?
 
 .. parsed-literal::
 
-    {('triangle', 'blue'): 180,
-     ('triangle', 'green'): 174,
-     ('triangle', 'red'): 161,
+    {('square', 'green'): 198,
      ('square', 'blue'): 168,
-     ('square', 'green'): 159,
-     ('square', 'red'): 158}
+     ('square', 'red'): 159,
+     ('triangle', 'red'): 170,
+     ('triangle', 'green'): 162,
+     ('triangle', 'blue'): 143}
 
 
 
 It has put the **keys** that lead to each value into tuples. Without a
 lot of thinking we can say:
 
-.. code:: ipython3
+.. code:: python3
 
     data = agg.to_dict()
     print(f"There are {data[('triangle', 'red')]} red triangles in the database!")
@@ -685,7 +685,7 @@ lot of thinking we can say:
 
 .. parsed-literal::
 
-    There are 161 red triangles in the database!
+    There are 170 red triangles in the database!
 
 
 But where are the metrics gone?
@@ -705,7 +705,7 @@ branch. In this example the branch looks like this:
    -  area
    -  avg-area
 
-.. code:: ipython3
+.. code:: python3
 
     agg.print.table(digits=3, colors=False)
 
@@ -714,12 +714,12 @@ branch. In this example the branch looks like this:
 
     shapes   │ shapes.doc_count    │ colors │ colors.doc_count    │ area                    │ avg-area            
     ─────────┼─────────────────────┼────────┼─────────────────────┼─────────────────────────┼─────────────────────
-    triangle │ 515 ███████████████ │ blue   │ 180 ███████████████ │ 931.127 ███████████████ │ 5.173 ██████████████
-    triangle │ 515 ███████████████ │ green  │ 174 ██████████████▌ │ 883.961 ██████████████▍ │  5.08 █████████████▊
-    triangle │ 515 ███████████████ │ red    │ 161 █████████████▌  │ 767.655 ████████████▌   │ 4.768 ████████████▉ 
-    square   │ 485 ██████████████▎ │ blue   │ 168 ██████████████  │ 845.244 █████████████▋  │ 5.031 █████████████▋
-    square   │ 485 ██████████████▎ │ green  │ 159 █████████████▍  │ 779.222 ████████████▋   │ 4.901 █████████████▍
-    square   │ 485 ██████████████▎ │ red    │ 158 █████████████▎  │ 765.296 ████████████▌   │ 4.844 █████████████▎
+    square   │ 525 ███████████████ │ green  │ 198 ███████████████ │ 948.554 ███████████████ │ 4.791 ████████████▉ 
+    square   │ 525 ███████████████ │ blue   │ 168 ████████████▉   │ 854.801 █████████████▋  │ 5.088 █████████████▊
+    square   │ 525 ███████████████ │ red    │ 159 ████████████▎   │  792.28 ████████████▋   │ 4.983 █████████████▌
+    triangle │ 475 █████████████▋  │ red    │ 170 █████████████   │ 860.155 █████████████▋  │  5.06 █████████████▋
+    triangle │ 475 █████████████▋  │ green  │ 162 ████████████▌   │ 791.932 ████████████▋   │ 4.888 █████████████▎
+    triangle │ 475 █████████████▋  │ blue   │ 143 ███████████     │ 742.733 ███████████▉    │ 5.194 ██████████████
 
 
 Now all information is in the table. Note that the ``shapes.doc_count``
@@ -729,7 +729,7 @@ results, without changing the overall count of the shapes, of course.
 
 Now what is this method with the awesome name ``to_matrix``?
 
-.. code:: ipython3
+.. code:: python3
 
     names, keys, matrix = agg.to_matrix()
     print("names ", names)
@@ -740,8 +740,8 @@ Now what is this method with the awesome name ``to_matrix``?
 .. parsed-literal::
 
     names  ['shapes', 'colors']
-    keys   [['triangle', 'square'], ['blue', 'green', 'red']]
-    matrix [[180, 174, 161], [168, 159, 158]]
+    keys   [['square', 'triangle'], ['green', 'blue', 'red']]
+    matrix [[198, 168, 159], [162, 143, 170]]
 
 
 It produces a heatmap! At least in two dimensions. In this example we
@@ -750,7 +750,7 @@ have two dimensions from the **bucket** aggregations ``shapes`` and
 dimensions, but if it's one or two, we can also convert it to a
 ``DataFrame``:
 
-.. code:: ipython3
+.. code:: python3
 
     agg.df_matrix()
 
@@ -777,23 +777,23 @@ dimensions, but if it's one or two, we can also convert it to a
       <thead>
         <tr style="text-align: right;">
           <th></th>
-          <th>blue</th>
           <th>green</th>
+          <th>blue</th>
           <th>red</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <th>triangle</th>
-          <td>180</td>
-          <td>174</td>
-          <td>161</td>
-        </tr>
-        <tr>
           <th>square</th>
+          <td>198</td>
           <td>168</td>
           <td>159</td>
-          <td>158</td>
+        </tr>
+        <tr>
+          <th>triangle</th>
+          <td>162</td>
+          <td>143</td>
+          <td>170</td>
         </tr>
       </tbody>
     </table>
@@ -804,7 +804,7 @@ dimensions, but if it's one or two, we can also convert it to a
 And having something like `seaborn <https://seaborn.pydata.org/>`__
 installed we can easily plot it:
 
-.. code:: ipython3
+.. code:: python3
 
     import seaborn as sns
     

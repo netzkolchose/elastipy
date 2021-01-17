@@ -1,4 +1,9 @@
 #!env/bin/python
+"""
+Run this file to create rst versions from doc-related notebooks.
+
+All notebooks are executed and require a running elasticsearch at localhost:9200
+"""
 import subprocess
 import time
 import os
@@ -7,7 +12,7 @@ import shutil
 from elasticsearch import NotFoundError
 from elastipy import connections
 
-DOCS_DIR = "docs-sphinx"
+DOCS_DIR = "docs"
 HIDDEN_CELLS = [
     r"^# hidden.*",
 ]
@@ -31,13 +36,23 @@ def export_notebook(filename):
         )
 
 
-def update_tutorial():
+def rename_lexer(filename, old, new):
+    with open(filename, "r") as fp:
+        text = fp.read()
+    replaced_text = text.replace(
+        f".. code:: {old}",
+        f".. code:: {new}",
+    )
+    if replaced_text != text:
+        print(f"renaming lexer {old} to {new} in {filename}")
+        with open(filename, "w") as fp:
+            fp.write(replaced_text)
+
+
+def render_tutorial():
     # delete the shapes index if it is present
     try:
         connections.get().indices.delete("elastipy-example-shapes")
-        # we need to wait a while it seems, otherwise
-        # the notebook does not have any results
-        #time.sleep(1)
     except NotFoundError:
         pass
 
@@ -48,7 +63,8 @@ def update_tutorial():
         pass
 
     export_notebook("examples/tutorial.ipynb")
+    rename_lexer("docs/tutorial.rst", "ipython3", "python3")
 
 
 if __name__ == "__main__":
-    update_tutorial()
+    render_tutorial()

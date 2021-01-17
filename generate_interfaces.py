@@ -1,3 +1,4 @@
+#!env/bin/python
 import os
 
 from definition import generator
@@ -26,12 +27,12 @@ if __name__ == "__main__":
     )
 
     generate_file(
-        os.path.join("docs-sphinx", "reference", "agg_index.rst"),
+        os.path.join("docs", "reference", "agg_index.rst"),
         generator.render_rst_agg_index(),
     )
 
     generate_file(
-        os.path.join("docs-sphinx", "reference", "query_index.rst"),
+        os.path.join("docs", "reference", "query_index.rst"),
         generator.render_rst_query_index(),
     )
 

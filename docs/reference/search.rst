@@ -4,10 +4,14 @@ Search
 The `Search` class is the main entry for all queries and aggregation
 requests against *elasticsearch*.
 
-Below is a list of queries that are currently supported by elastipy.
+supported queries
+-----------------
 
 .. include:: ./query_index.rst
 
+
+reference
+---------
 
 .. autoclass:: elastipy.Search
    :members:

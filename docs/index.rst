@@ -12,7 +12,6 @@ elastipy's documentation!
    tutorial
    reference/search
    reference/aggregation
+   reference/exporter
 
 
-.. NOTE::
-    some important thing
