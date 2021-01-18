@@ -12,9 +12,20 @@ Actually i'm just learning this stuff and have the following requests:
 - some generic convenient data access to nested bucketed aggregations and such
 - the IDE/auto-completion should help a bit/lot with all the elasticsearch parameters
 
+
+#### requirements
+
+- elastipy itself requires [elasticsearch-py](https://github.com/elastic/elasticsearch-py)
+- doc building is listed in [docs/requirements.txt](docs/requirements.txt) and mainly
+consists of sphinx with the readthedocs theme.
+- generating the interface and running the tests and notebooks is listed in 
+[requirements.txt](requirements.txt) and contains pyyaml and coverage as well as the 
+usual stack of jupyter, scipy, matplotlib, ..   
+
+
 #### configuration
 
-By default all requests go against **localhost:9200**. There are currently two ways 
+By default all requests hit `localhost:9200`. There are currently two ways 
 to specify a different connection.
 
 ```python
@@ -34,6 +45,7 @@ connections.set("default", {"hosts": [...]})
 # then just say
 s = Search(index="bla")
 ```
+
 
 #### aggregation example
 
@@ -223,23 +235,42 @@ Exporter().delete_index()
    [online documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html)
 
 
-### development / testing
+### testing
 
 To run the tests call:
-```bash
+```shell script
 python test.py
 ````
 
 To include testing against a live elasticsearch:
-```bash
+```shell script
 python test.py --live
 ```
 
-This runs by default against **localhost:9200**. If you need to change the connection
+To change **localhost:9200** to something different
 pass any arguments as json:
-```bash
+```shell script
 python test.py --live --elasticsearch '{"hosts": [{"host": "127.0.0.5", "port": 1200}], "http_auth": ["user", "password"]}'
 ```
 
 The live tests will create new indices and immediately destroy them afterwards. 
 They are prefixed with **elastipy---unittest-**
+
+
+### development
+
+The interface python code is rendered via 
+```shell script
+# in project root
+python generate_interfaces.py
+``` 
+using all the yamls and some rendering code from the [definition/](definition/) directory.
+
+Notebooks that create part of the documentation are executed and converted to .rst files in 
+the [docs/](docs/) directory with
+```shell script
+python run_doc_notebooks.py
+``` 
+
+I'm stuck with restructuredtext for the docstrings although besides the `:param:` syntax 
+i find it simply repellent. It still has the most supported toolchain it seems.  
