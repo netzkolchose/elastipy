@@ -1,6 +1,6 @@
 import json
 from copy import copy, deepcopy
-from typing import Optional, Union, Mapping, Callable, Sequence
+from typing import Optional, Union, Mapping, Callable, Sequence, List
 
 from elasticsearch import Elasticsearch
 
@@ -103,7 +103,7 @@ class Search(QueryInterface, AggregationInterface):
     def to_request(self) -> dict:
         """
         Returns the complete request parameters as would be accepted
-        by `elasticsearch.Elasticsearch.search()`
+        by ``elasticsearch.Elasticsearch.search()``.
         :return: dict
         """
         return {
@@ -300,22 +300,38 @@ class Response(dict):
     """
 
     @property
-    def total_hits(self):
+    def total_hits(self) -> int:
         return self["hits"]["total"]
 
     @property
-    def aggregations(self):
+    def aggregations(self) -> List[dict]:
         return self["aggregations"]
 
     @property
-    def documents(self):
+    def hits(self) -> List[dict]:
+        """Returns the hits list"""
+        return self["hits"]
+
+    @property
+    def documents(self) -> List[dict]:
+        """Returns a list of all documents inside each hit"""
         return [
             doc["_source"]
             for doc in self["hits"]["hits"]
         ]
 
-    def dump(self, indent=2, file=None):
-        print(json.dumps(self, indent=indent), file=file)
+    @property
+    def scores(self) -> List[float]:
+        """Returns the list of scores of each hit"""
+        return [
+            hit["_score"]
+            for hit in self["hits"]["hits"]
+        ]
+
+    @property
+    def dump(self):
+        from .response_print import ResponsePrintWrapper
+        return ResponsePrintWrapper(self)
 
 
 def _to_query(query):

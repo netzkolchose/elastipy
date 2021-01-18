@@ -1,20 +1,41 @@
 import json
 from typing import Optional, List, Iterable, Union, Tuple, TextIO, Sequence, Mapping
 
-from .aggregation import Aggregation
-from .visitor import Visitor
+from .search import Response
 
 
-class PrintWrapper:
+class ResponsePrintWrapper:
 
-    def __init__(self, agg: Aggregation):
-        self.agg = agg
+    def __init__(self, response: Response):
+        self.response = response
 
-    def dict(self, key_separator="|", default=None, indent=2, file=None):
-        print(json.dumps(self.agg.to_dict(key_separator=key_separator, default=default), indent=indent), file=file)
+    def __call__(self, indent: Union[int, str, None] = 2, file: TextIO = None):
+        """
+        Print the complete response.
+        :param indent: the json indentation, defaults to 2
+        :param file: optional output stream
+        """
+        print(json.dumps(self.response, indent=indent), file=file)
+
+    def documents(self, indent: Union[int, str, None] = 2, file: TextIO = None):
+        """
+        Print the list of documents inside the hits.
+        :param indent: the json indentation, defaults to 2
+        :param file: optional output stream
+        """
+        print(json.dumps(self.response.documents, indent=indent), file=file)
+
+    def aggregations(self, indent: Union[int, str, None] = 2, file: TextIO = None):
+        """
+        Print the aggregations part of the response.
+        :param indent: the json indentation, defaults to 2
+        :param file: optional output stream
+        """
+        print(json.dumps(self.response.aggregations, indent=indent), file=file)
 
     def table(
             self,
+            score: bool = True,
             sort: str = None,
             digits: int = None,
             header: bool = True,
@@ -27,7 +48,10 @@ class PrintWrapper:
             file=None
     ):
         """
-        Print the result of the dict_rows() function as table to console.
+        Print the hit documents as a table.
+
+        :param score: bool
+            Include the score for each hit
         :param sort: str
             optional sort column name which must match a 'header' key.
             can be prefixed with '-' to reverse order
@@ -50,8 +74,18 @@ class PrintWrapper:
             The maximum size a bar should have
         :param file: optional text stream to print to
         """
-        from ..plot.text import Table
-        Table(self.agg).print(
+        from .plot.text import Table
+
+        docs = self.response.documents
+        if score:
+            for i, (s, doc) in enumerate(zip(self.response.scores, docs)):
+                docs[i] = {
+                    "_score": s,
+                    **doc
+                }
+
+        table = Table(docs)
+        table.print(
             sort=sort,
             digits=digits,
             header=header,

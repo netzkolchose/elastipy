@@ -249,7 +249,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "9X4IE3cBeebHNMb6-Niq",
+            "_id": "fX41E3cBeebHNMb6W-y9",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -260,7 +260,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "NX4IE3cBeebHNMb6-Nmq",
+            "_id": "vX41E3cBeebHNMb6W-y9",
             "_score": 2.1868048,
             "_source": {
               "shape": "triangle",
@@ -271,7 +271,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "WX4IE3cBeebHNMb6-Nmq",
+            "_id": "4X41E3cBeebHNMb6W-y9",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",

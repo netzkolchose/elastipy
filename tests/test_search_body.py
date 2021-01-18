@@ -14,7 +14,7 @@ class TestSearchRequest(unittest.TestCase):
             self._assert_obj_rec(search, expected_request, request)
             # test if copy works
             search = search.copy()
-    
+
     def _assert_obj_rec(self, search: Search, expected_data: dict, real_data: dict):
         for key, value in expected_data.items():
             if key not in real_data:

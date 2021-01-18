@@ -70,6 +70,12 @@ class TestPlot(TestCase):
         )
         agg_sku_qty.plot.text.hbar()
 
+    def test_orders_documents_table(self):
+        s = self.search()
+        s = s.term(field="sku", value="sku-1") | s.term(field="sku", value="sku-2")
+
+        s.execute().dump.table()
+
 
 if __name__ == "__main__":
     unittest.main()
