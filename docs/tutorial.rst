@@ -249,7 +249,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "fX41E3cBeebHNMb6W-y9",
+            "_id": "TX5GE3cBeebHNMb6XfR8",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -260,7 +260,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "vX41E3cBeebHNMb6W-y9",
+            "_id": "jX5GE3cBeebHNMb6XfR8",
             "_score": 2.1868048,
             "_source": {
               "shape": "triangle",
@@ -271,7 +271,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "4X41E3cBeebHNMb6W-y9",
+            "_id": "sX5GE3cBeebHNMb6XfR8",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -355,8 +355,10 @@ allows for short and powerful oneliners:
 
 
 
-So this was the document response. Let's dive inside and start
-aggregating on fields.
+So that was rambling about the filtering and the documents in the
+response. There is a lot of functionality in elasticsearch that is not
+covered by this library right now. To move on in happiness we just start
+the next chapter.
 
 agitated aggregation
 --------------------
@@ -426,8 +428,7 @@ Let's look at the result from elasticsearch:
 
 .. code:: python3
 
-    s.execute()
-    s.dump.response()
+    s.execute().dump()
 
 
 .. parsed-literal::
@@ -500,7 +501,7 @@ known from the ``dict`` type:
 
 
 It also has a ``dict_rows()`` generator which preserves the **names**
-and **keys** of the aggregation:
+and **keys** of the aggregations:
 
 .. code:: python3
 
