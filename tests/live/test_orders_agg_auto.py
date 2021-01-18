@@ -185,7 +185,13 @@ class TestOrdersAggregationsAuto(TestCase):
 
                 params[name] = value
 
-        return parent.aggregation(agg_type, **params)
+        prefix = {"bucket": "agg"}.get(definition["group"], definition["group"])
+        params = {
+            key.replace(".", "__"): value
+            for key, value in params.items()
+        }
+        return getattr(parent, f"{prefix}_{agg_type}")(**params)
+        # return parent.aggregation(agg_type, **params)
 
     def test_all(self):
         not_working = dict()
