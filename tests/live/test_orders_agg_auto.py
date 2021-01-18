@@ -250,9 +250,9 @@ class TestOrdersAggregationsAuto(TestCase):
 
                 print("-"*10)
                 if search._response:
-                    search.dump_response()
+                    search.dump.response()
                 print("-"*10)
-                search.dump_body()
+                search.dump.body()
                 print("AGGREGATIONS", search._aggregations)
                 raise
 

@@ -54,7 +54,7 @@ class TestOrdersQueryAll(TestCase):
             try:
                 count = search.execute().total_hits
             except BaseException:
-                search.dump_body()
+                search.dump.body()
                 print(search.get_query())
                 raise
 

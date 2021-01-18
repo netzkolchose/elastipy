@@ -106,7 +106,7 @@ Our request to elasticsearch would look like this right now:
 
 .. code:: python3
 
-    s.dump_body()
+    s.dump.body()
 
 
 .. parsed-literal::
@@ -123,12 +123,20 @@ Our request to elasticsearch would look like this right now:
     }
 
 
+
+
+.. parsed-literal::
+
+    <elastipy.search_print.SearchPrintWrapper at 0x7fd868f3edd8>
+
+
+
 More queries can be added, which defaults to an **AND** combination:
 
 .. code:: python3
 
     s = s.range(field="area", gt=5.)
-    s.dump_body()
+    s.dump.body()
 
 
 .. parsed-literal::
@@ -158,6 +166,14 @@ More queries can be added, which defaults to an **AND** combination:
     }
 
 
+
+
+.. parsed-literal::
+
+    <elastipy.search_print.SearchPrintWrapper at 0x7fd7eae472e8>
+
+
+
 **OR** combinations can be archived with the
 `bool <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html>`__
 query itself or by applying the ``|`` operator to the query classes in
@@ -166,7 +182,7 @@ query itself or by applying the ``|`` operator to the query classes in
 .. code:: python3
 
     s = s | (query.Term(field="color", value="red") & query.Range(field="area", gt=8.))
-    s.dump_body()
+    s.dump.body()
 
 
 .. parsed-literal::
@@ -222,6 +238,14 @@ query itself or by applying the ``|`` operator to the query classes in
     }
 
 
+
+
+.. parsed-literal::
+
+    <elastipy.search_print.SearchPrintWrapper at 0x7fd7eae478d0>
+
+
+
 Better execute the search now before the body get's too complicated:
 
 .. code:: python3
@@ -242,40 +266,40 @@ Better execute the search now before the body get's too complicated:
         "failed": 0
       },
       "hits": {
-        "total": 160,
-        "max_score": 2.1111784,
+        "total": 177,
+        "max_score": 2.114218,
         "hits": [
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "m36dEncBeebHNMb6ZqLo",
-            "_score": 2.1111784,
-            "_source": {
-              "shape": "triangle",
-              "color": "red",
-              "area": 8.17915722687888
-            }
-          },
-          {
-            "_index": "elastipy-example-shapes",
-            "_type": "_doc",
-            "_id": "qn6dEncBeebHNMb6ZqPo",
-            "_score": 2.1111784,
+            "_id": "mH7mEncBeebHNMb6HbCf",
+            "_score": 2.114218,
             "_source": {
               "shape": "square",
               "color": "red",
-              "area": 9.41696689525332
+              "area": 8.640626950013564
             }
           },
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "bn6dEncBeebHNMb6Z6Qi",
-            "_score": 2.1111784,
+            "_id": "hX7mEncBeebHNMb6HbGf",
+            "_score": 2.114218,
             "_source": {
-              "shape": "triangle",
+              "shape": "square",
               "color": "red",
-              "area": 8.324826950777933
+              "area": 8.038291694399371
+            }
+          },
+          {
+            "_index": "elastipy-example-shapes",
+            "_type": "_doc",
+            "_id": "y37mEncBeebHNMb6HbPM",
+            "_score": 2.114218,
+            "_source": {
+              "shape": "square",
+              "color": "red",
+              "area": 8.922134320375719
             }
           }
         ]
@@ -295,9 +319,9 @@ convenience properties.
 
 .. parsed-literal::
 
-    [{'shape': 'triangle', 'color': 'red', 'area': 8.17915722687888},
-     {'shape': 'square', 'color': 'red', 'area': 9.41696689525332},
-     {'shape': 'triangle', 'color': 'red', 'area': 8.324826950777933}]
+    [{'shape': 'square', 'color': 'red', 'area': 8.640626950013564},
+     {'shape': 'square', 'color': 'red', 'area': 8.038291694399371},
+     {'shape': 'square', 'color': 'red', 'area': 8.922134320375719}]
 
 
 
@@ -331,26 +355,26 @@ allows for short and powerful oneliners:
 
 .. parsed-literal::
 
-    [{'shape': 'square', 'color': 'red', 'area': 9.41696689525332},
-     {'shape': 'square', 'color': 'green', 'area': 9.02472981039032},
-     {'shape': 'triangle', 'color': 'blue', 'area': 9.02265697599545},
-     {'shape': 'triangle', 'color': 'green', 'area': 8.617033205021066},
-     {'shape': 'triangle', 'color': 'red', 'area': 8.582965113185116},
-     {'shape': 'triangle', 'color': 'blue', 'area': 8.363185730018822},
-     {'shape': 'square', 'color': 'green', 'area': 8.328266337758555},
-     {'shape': 'triangle', 'color': 'red', 'area': 8.324826950777933},
-     {'shape': 'triangle', 'color': 'red', 'area': 8.17915722687888},
-     {'shape': 'triangle', 'color': 'blue', 'area': 8.145256959263298},
-     {'shape': 'square', 'color': 'blue', 'area': 8.000280299211164},
-     {'shape': 'triangle', 'color': 'blue', 'area': 7.989303448648723},
-     {'shape': 'square', 'color': 'blue', 'area': 7.974097947091801},
-     {'shape': 'square', 'color': 'green', 'area': 7.936424959566199},
-     {'shape': 'triangle', 'color': 'blue', 'area': 7.914946696722728},
-     {'shape': 'square', 'color': 'green', 'area': 7.892872609734206},
-     {'shape': 'triangle', 'color': 'red', 'area': 7.8552543419864485},
-     {'shape': 'square', 'color': 'blue', 'area': 7.849391463022361},
-     {'shape': 'triangle', 'color': 'red', 'area': 7.766401073233563},
-     {'shape': 'triangle', 'color': 'blue', 'area': 7.7514482605013715}]
+    [{'shape': 'square', 'color': 'red', 'area': 8.922134320375719},
+     {'shape': 'triangle', 'color': 'green', 'area': 8.896385335940034},
+     {'shape': 'square', 'color': 'green', 'area': 8.888874416256126},
+     {'shape': 'square', 'color': 'red', 'area': 8.640626950013564},
+     {'shape': 'triangle', 'color': 'green', 'area': 8.536276584409386},
+     {'shape': 'triangle', 'color': 'green', 'area': 8.49361222991555},
+     {'shape': 'square', 'color': 'green', 'area': 8.321892812120968},
+     {'shape': 'square', 'color': 'blue', 'area': 8.265855679382522},
+     {'shape': 'triangle', 'color': 'green', 'area': 8.095071515925572},
+     {'shape': 'square', 'color': 'red', 'area': 8.038291694399371},
+     {'shape': 'triangle', 'color': 'blue', 'area': 8.022825807753907},
+     {'shape': 'square', 'color': 'blue', 'area': 8.000227241540383},
+     {'shape': 'square', 'color': 'blue', 'area': 7.968911361906706},
+     {'shape': 'triangle', 'color': 'blue', 'area': 7.891008752826181},
+     {'shape': 'square', 'color': 'green', 'area': 7.858878708447717},
+     {'shape': 'triangle', 'color': 'green', 'area': 7.8271173381994155},
+     {'shape': 'square', 'color': 'green', 'area': 7.735793561616248},
+     {'shape': 'square', 'color': 'red', 'area': 7.732347982936842},
+     {'shape': 'square', 'color': 'green', 'area': 7.71179285932556},
+     {'shape': 'triangle', 'color': 'red', 'area': 7.705692157784982}]
 
 
 
@@ -370,7 +394,7 @@ instance, so there is no copying like with the queries above.
     
     agg = s.agg_terms(field="shape")
     
-    s.dump_body()
+    s.dump.body()
 
 
 .. parsed-literal::
@@ -390,6 +414,14 @@ instance, so there is no copying like with the queries above.
     }
 
 
+
+
+.. parsed-literal::
+
+    <elastipy.search_print.SearchPrintWrapper at 0x7fd7eabe9828>
+
+
+
 As we can see, a `terms
 aggregation <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html>`__
 has been added to the search body. The names of aggregations are
@@ -401,7 +433,7 @@ auto-generated, but can be explicitly stated:
     
     agg = s.agg_terms("shapes", field="shape")
     
-    s.dump_body()
+    s.dump.body()
 
 
 .. parsed-literal::
@@ -421,12 +453,20 @@ auto-generated, but can be explicitly stated:
     }
 
 
+
+
+.. parsed-literal::
+
+    <elastipy.search_print.SearchPrintWrapper at 0x7fd7eabe9940>
+
+
+
 Let's look at the result from elasticsearch:
 
 .. code:: python3
 
     s.execute()
-    s.dump_response()
+    s.dump.response()
 
 
 .. parsed-literal::
@@ -452,16 +492,24 @@ Let's look at the result from elasticsearch:
           "buckets": [
             {
               "key": "square",
-              "doc_count": 525
+              "doc_count": 514
             },
             {
               "key": "triangle",
-              "doc_count": 475
+              "doc_count": 486
             }
           ]
         }
       }
     }
+
+
+
+
+.. parsed-literal::
+
+    <elastipy.search_print.SearchPrintWrapper at 0x7fd7eabe96a0>
+
 
 
 valuable access
@@ -479,7 +527,7 @@ access the values more conveniently:
 
 .. parsed-literal::
 
-    {'square': 525, 'triangle': 475}
+    {'square': 514, 'triangle': 486}
 
 
 
@@ -494,8 +542,8 @@ known from the ``dict`` type:
 
 .. parsed-literal::
 
-    square       525
-    triangle     475
+    square       514
+    triangle     486
 
 
 It also has a ``dict_rows()`` generator which preserves the **names**
@@ -509,8 +557,8 @@ and **keys** of the aggregation:
 
 .. parsed-literal::
 
-    {'shapes': 'square', 'shapes.doc_count': 525}
-    {'shapes': 'triangle', 'shapes.doc_count': 475}
+    {'shapes': 'square', 'shapes.doc_count': 514}
+    {'shapes': 'triangle', 'shapes.doc_count': 486}
 
 
 The ``rows()`` generator flattens the ``dict_rows()`` into a CSV-style
@@ -525,23 +573,31 @@ list:
 .. parsed-literal::
 
     ['shapes', 'shapes.doc_count']
-    ['square', 525]
-    ['triangle', 475]
+    ['square', 514]
+    ['triangle', 486]
 
 
 And we can print a nice table to the command-line:
 
 .. code:: python3
 
-    agg.print.table(colors=False)
+    agg.dump.table(colors=False)
 
 
 .. parsed-literal::
 
     shapes   │ shapes.doc_count                           
     ─────────┼────────────────────────────────────────────
-    square   │ 525 ███████████████████████████████████████
-    triangle │ 475 ███████████████████████████████████▍   
+    square   │ 514 ███████████████████████████████████████
+    triangle │ 486 ████████████████████████████████████▉  
+
+
+
+
+.. parsed-literal::
+
+    <elastipy.aggregation.print_wrapper.PrintWrapper at 0x7fd868f292b0>
+
 
 
 (The ``colors=False`` parameter disables console colors because they do
@@ -591,11 +647,11 @@ built in:
       <tbody>
         <tr>
           <th>square</th>
-          <td>525</td>
+          <td>514</td>
         </tr>
         <tr>
           <th>triangle</th>
-          <td>475</td>
+          <td>486</td>
         </tr>
       </tbody>
     </table>
@@ -665,12 +721,12 @@ Now, what does the ``to_dict`` output look like?
 
 .. parsed-literal::
 
-    {('square', 'green'): 198,
-     ('square', 'blue'): 168,
-     ('square', 'red'): 159,
-     ('triangle', 'red'): 170,
-     ('triangle', 'green'): 162,
-     ('triangle', 'blue'): 143}
+    {('square', 'blue'): 178,
+     ('square', 'green'): 168,
+     ('square', 'red'): 168,
+     ('triangle', 'green'): 178,
+     ('triangle', 'red'): 160,
+     ('triangle', 'blue'): 148}
 
 
 
@@ -685,7 +741,7 @@ lot of thinking we can say:
 
 .. parsed-literal::
 
-    There are 170 red triangles in the database!
+    There are 160 red triangles in the database!
 
 
 But where are the metrics gone?
@@ -696,7 +752,7 @@ Generally, ``keys()``, ``values()``, ``items()``, ``to_dict()`` and
 parent **bucket** aggregations that lead to the values are included.
 
 The methods ``dict_rows()``, ``rows()``, ``to_pandas()`` and
-``print.table()`` will access **all values** from the whole aggregation
+``.dump.table()`` will access **all values** from the whole aggregation
 branch. In this example the branch looks like this:
 
 -  shapes
@@ -707,19 +763,27 @@ branch. In this example the branch looks like this:
 
 .. code:: python3
 
-    agg.print.table(digits=3, colors=False)
+    agg.dump.table(digits=3, colors=False)
 
 
 .. parsed-literal::
 
     shapes   │ shapes.doc_count    │ colors │ colors.doc_count    │ area                    │ avg-area            
     ─────────┼─────────────────────┼────────┼─────────────────────┼─────────────────────────┼─────────────────────
-    square   │ 525 ███████████████ │ green  │ 198 ███████████████ │ 948.554 ███████████████ │ 4.791 ████████████▉ 
-    square   │ 525 ███████████████ │ blue   │ 168 ████████████▉   │ 854.801 █████████████▋  │ 5.088 █████████████▊
-    square   │ 525 ███████████████ │ red    │ 159 ████████████▎   │  792.28 ████████████▋   │ 4.983 █████████████▌
-    triangle │ 475 █████████████▋  │ red    │ 170 █████████████   │ 860.155 █████████████▋  │  5.06 █████████████▋
-    triangle │ 475 █████████████▋  │ green  │ 162 ████████████▌   │ 791.932 ████████████▋   │ 4.888 █████████████▎
-    triangle │ 475 █████████████▋  │ blue   │ 143 ███████████     │ 742.733 ███████████▉    │ 5.194 ██████████████
+    square   │ 514 ███████████████ │ blue   │ 178 ███████████████ │ 878.022 ██████████████▊ │ 4.933 █████████████▋
+    square   │ 514 ███████████████ │ green  │ 168 ██████████████▎ │ 850.693 ██████████████▍ │ 5.064 █████████████▉
+    square   │ 514 ███████████████ │ red    │ 168 ██████████████▎ │ 852.811 ██████████████▍ │ 5.076 ██████████████
+    triangle │ 486 ██████████████▎ │ green  │ 178 ███████████████ │ 889.475 ███████████████ │ 4.997 █████████████▊
+    triangle │ 486 ██████████████▎ │ red    │ 160 █████████████▋  │ 784.082 █████████████▍  │ 4.901 █████████████▌
+    triangle │ 486 ██████████████▎ │ blue   │ 148 ████████████▋   │ 747.068 ████████████▊   │ 5.048 █████████████▉
+
+
+
+
+.. parsed-literal::
+
+    <elastipy.aggregation.print_wrapper.PrintWrapper at 0x7fd7dfe8bc88>
+
 
 
 Now all information is in the table. Note that the ``shapes.doc_count``
@@ -740,8 +804,8 @@ Now what is this method with the awesome name ``to_matrix``?
 .. parsed-literal::
 
     names  ['shapes', 'colors']
-    keys   [['square', 'triangle'], ['green', 'blue', 'red']]
-    matrix [[198, 168, 159], [162, 143, 170]]
+    keys   [['square', 'triangle'], ['blue', 'green', 'red']]
+    matrix [[178, 168, 168], [148, 178, 160]]
 
 
 It produces a heatmap! At least in two dimensions. In this example we
@@ -777,23 +841,23 @@ dimensions, but if it's one or two, we can also convert it to a
       <thead>
         <tr style="text-align: right;">
           <th></th>
-          <th>green</th>
           <th>blue</th>
+          <th>green</th>
           <th>red</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <th>square</th>
-          <td>198</td>
+          <td>178</td>
           <td>168</td>
-          <td>159</td>
+          <td>168</td>
         </tr>
         <tr>
           <th>triangle</th>
-          <td>162</td>
-          <td>143</td>
-          <td>170</td>
+          <td>148</td>
+          <td>178</td>
+          <td>160</td>
         </tr>
       </tbody>
     </table>

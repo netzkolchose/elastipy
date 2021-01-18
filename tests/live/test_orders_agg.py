@@ -30,7 +30,7 @@ class TestOrdersAggregations(TestCase):
         agg_sku_count = q.agg_terms(field="sku")
         agg_sku_qty = agg_sku_count.metric_sum(field="quantity", return_self=True)
 
-        #q.dump_body()
+        #q.dump.body()
         q.execute()#.dump()
 
         self.assertEqual(
@@ -115,7 +115,7 @@ class TestOrdersAggregations(TestCase):
                 .metric_sum("qty", field="quantity", return_self=True),
         ]
         for agg in aggs:
-            #q.dump_body()
+            #q.dump.body()
             agg.execute()#.dump()
 
             #agg.dump_table()
@@ -211,7 +211,7 @@ class TestOrdersAggregations(TestCase):
             }).metric_sum("qty", field="quantity", return_self=True),
         ]
         for agg in aggregations:
-            agg.execute()#.print.dict()#.search.dump_body()
+            agg.execute()#.print.dict()#.search.dump.body()
 
             self.assertEqual(
                 [
@@ -246,7 +246,7 @@ class TestOrdersAggregations(TestCase):
         q = self.search()
         items_per_day = q.agg_date_histogram(field="timestamp", calendar_interval="1d")
         orders_per_day = items_per_day.metric_cardinality(field="order_id", return_self=True)
-        #q.dump_body()
+        #q.dump.body()
         q.execute()#.dump()
 
         self.assertEqual(

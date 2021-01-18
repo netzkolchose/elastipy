@@ -41,7 +41,7 @@ class Aggregation(ConverterMixin, AggregationInterface):
         return f"{self.__class__.__name__}('{self.name}', '{self.type}')"
 
     @property
-    def print(self):
+    def dump(self):
         """
         Access to printing interface
         :return: PrintWrapper instance

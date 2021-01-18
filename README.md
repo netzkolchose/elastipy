@@ -104,7 +104,7 @@ agg.to_dict()
 #     ("dinner", "i can't reach the spoon"): 60,
 # }
 
-# the dict_rows() and print.table() methods operate on the whole aggregation branch
+# the dict_rows() and .dump.table() methods operate on the whole aggregation branch
 agg.dict_rows()
 # [
 #     {
@@ -125,7 +125,7 @@ agg.dict_rows()
 #     }
 # ]
 
-agg.print.table()
+agg.dump.table()
 # ocassion | occasion.doc_count | rare-excuses            | rare-excuses.doc_count | avg-length | max-length
 # dinner   | 1234567            | my mouth is too dry     | 100                    | 12.7       | 122.3
 # dinner   | 1234567            | i can't reach the spoon | 60                     | 5.1        | 27.0

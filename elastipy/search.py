@@ -40,6 +40,12 @@ class Search(QueryInterface, AggregationInterface):
         self._body = dict()
         self._response: Optional[Response] = None
 
+    @property
+    def dump(self):
+        """Access the print interface"""
+        from .search_print import SearchPrintWrapper
+        return SearchPrintWrapper(self)
+
     def get_index(self) -> str:
         """Return current index"""
         return self._index
@@ -254,12 +260,6 @@ class Search(QueryInterface, AggregationInterface):
         for agg in self._aggregations:
             agg._response = self.response
         return self
-
-    def dump_body(self, indent=2, file=None):
-        print(json.dumps(self.to_body(), indent=indent), file=file)
-
-    def dump_response(self, indent=2, file=None):
-        print(json.dumps(self.response, indent=indent), file=file)
 
     # -- private impl --
 
