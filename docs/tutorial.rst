@@ -124,14 +124,6 @@ Our request to elasticsearch would look like this right now:
     }
 
 
-
-
-.. parsed-literal::
-
-    <elastipy.search_print.SearchPrintWrapper at 0x7f96147c5c18>
-
-
-
 More queries can be added, which defaults to an **AND** combination:
 
 .. code:: python3
@@ -165,14 +157,6 @@ More queries can be added, which defaults to an **AND** combination:
       },
       "size": 3
     }
-
-
-
-
-.. parsed-literal::
-
-    <elastipy.search_print.SearchPrintWrapper at 0x7f9594661358>
-
 
 
 **OR** combinations can be archived with the
@@ -239,14 +223,6 @@ query itself or by applying the ``|`` operator to the query classes in
     }
 
 
-
-
-.. parsed-literal::
-
-    <elastipy.search_print.SearchPrintWrapper at 0x7f9594661940>
-
-
-
 Better execute the search now before the body get's too complicated:
 
 .. code:: python3
@@ -273,7 +249,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "Cn7oEncBeebHNMb6vbRf",
+            "_id": "Z37_EncBeebHNMb6A8FQ",
             "_score": 2.1203249,
             "_source": {
               "shape": "square",
@@ -284,7 +260,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "F37oEncBeebHNMb6vbRf",
+            "_id": "dH7_EncBeebHNMb6A8FQ",
             "_score": 2.1203249,
             "_source": {
               "shape": "triangle",
@@ -295,7 +271,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "Gn7oEncBeebHNMb6vbRf",
+            "_id": "d37_EncBeebHNMb6A8FQ",
             "_score": 2.1203249,
             "_source": {
               "shape": "square",
@@ -415,14 +391,6 @@ instance, so there is no copying like with the queries above.
     }
 
 
-
-
-.. parsed-literal::
-
-    <elastipy.search_print.SearchPrintWrapper at 0x7f95943ae860>
-
-
-
 As we can see, a `terms
 aggregation <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html>`__
 has been added to the search body. The names of aggregations are
@@ -454,14 +422,6 @@ auto-generated, but can be explicitly stated:
     }
 
 
-
-
-.. parsed-literal::
-
-    <elastipy.search_print.SearchPrintWrapper at 0x7f95943ae9e8>
-
-
-
 Let's look at the result from elasticsearch:
 
 .. code:: python3
@@ -473,7 +433,7 @@ Let's look at the result from elasticsearch:
 .. parsed-literal::
 
     {
-      "took": 1,
+      "took": 0,
       "timed_out": false,
       "_shards": {
         "total": 1,
@@ -503,14 +463,6 @@ Let's look at the result from elasticsearch:
         }
       }
     }
-
-
-
-
-.. parsed-literal::
-
-    <elastipy.search_print.SearchPrintWrapper at 0x7f95943ae438>
-
 
 
 valuable access
@@ -591,14 +543,6 @@ And we can print a nice table to the command-line:
     ─────────┼─────────────────
     square   │ 500             
     triangle │ 500             
-
-
-
-
-.. parsed-literal::
-
-    <elastipy.aggregation.print_wrapper.PrintWrapper at 0x7f96147c5c18>
-
 
 
 (The ``colors=False`` parameter disables console colors because they do
@@ -777,14 +721,6 @@ branch. In this example the branch looks like this:
     triangle │ 500              │ red    │ 185 ████████████████ │  925.21 ███████████████ │ 5.001 ███████████████▊
     triangle │ 500              │ blue   │ 169 ██████████████▋  │ 861.256 ██████████████  │ 5.096 ████████████████
     triangle │ 500              │ green  │ 146 ████████████▊    │ 738.947 ████████████▎   │ 5.061 ███████████████▉
-
-
-
-
-.. parsed-literal::
-
-    <elastipy.aggregation.print_wrapper.PrintWrapper at 0x7f9589728208>
-
 
 
 Now all information is in the table. Note that the ``shapes.doc_count``
