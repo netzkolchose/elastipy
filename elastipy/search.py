@@ -30,12 +30,13 @@ class Search(QueryInterface, AggregationInterface):
         :param client: elasticsearch.Client instance, if None elastipy.connections.get("default") is used
         :param timestamp_field: str, the default timestamp field used for fields that require dates
         """
+        from .query import Query
         AggregationInterface.__init__(self, timestamp_field=timestamp_field)
         self._index = index
         self._client = client
         self._sort = None
         self._size = None
-        self._query = EmptyQuery()
+        self._query: Query = EmptyQuery()
         self._aggregations = []
         self._body = dict()
         self._response: Optional[Response] = None
@@ -50,7 +51,7 @@ class Search(QueryInterface, AggregationInterface):
         """Return current index"""
         return self._index
 
-    def get_query(self) -> QueryInterface:
+    def get_query(self):
         """Return current query"""
         return self._query
 
@@ -99,6 +100,20 @@ class Search(QueryInterface, AggregationInterface):
 
         return make_json_compatible(body)
 
+    def to_request(self) -> dict:
+        """
+        Returns the complete request parameters as would be accepted
+        by `elasticsearch.Elasticsearch.search()`
+        :return: dict
+        """
+        return {
+            "index": self._index,
+            "params": {
+                "rest_total_hits_as_int": "true"
+            },
+            "body": self.to_body()
+        }
+
     def execute(self) -> 'Response':
         """
         Sends the search against the current client and returns the response.
@@ -109,13 +124,7 @@ class Search(QueryInterface, AggregationInterface):
         if client is None:
             client = connections.get()
 
-        response = client.search(
-            index=self._index,
-            params={
-                "rest_total_hits_as_int": "true"
-            },
-            body=self.to_body(),
-        )
+        response = client.search(**self.to_request())
 
         self.set_response(response)
         return self._response
@@ -209,9 +218,6 @@ class Search(QueryInterface, AggregationInterface):
         es = self.copy()
         es._query = es._query.new_query(name, **params)
         return es
-
-    def query_to_dict(self):
-        return self._query.to_dict()
 
     # -- attach the AggregationInterface --
 

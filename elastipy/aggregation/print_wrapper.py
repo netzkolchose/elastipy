@@ -12,7 +12,6 @@ class PrintWrapper:
 
     def dict(self, key_separator="|", default=None, indent=2, file=None):
         print(json.dumps(self.agg.to_dict(key_separator=key_separator, default=default), indent=indent), file=file)
-        return self
 
     def table(
             self,
@@ -64,4 +63,3 @@ class PrintWrapper:
             max_bar_width=max_bar_width,
             file=file,
         )
-        return self

@@ -83,8 +83,6 @@ class Query(QueryInterface):
 
 
 def value_to_dict(value):
-    #if hasattr(value, "query_to_dict"):
-    #    return value.query_to_dict()
     if hasattr(value, "to_dict"):
         return value.to_dict()
     elif isinstance(value, (list, tuple)):

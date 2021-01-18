@@ -6,42 +6,51 @@ import unittest
 from elastipy import Search, query
 
 
-class TestSearchBody(unittest.TestCase):
+class TestSearchRequest(unittest.TestCase):
 
-    def assertBody(self, search: Search, expected_body: dict):
+    def assertRequest(self, search: Search, expected_request: dict):
         for i in range(2):
-            body = search.to_body()
-            for key, value in expected_body.items():
-                if key not in body:
-                    raise AssertionError(
-                        f"missing field '{key}' in body of {search}"
-                    )
-                if value != body[key]:
-                    raise AssertionError(
-                        f"expected value {repr(value)} in body of {search}, got {repr(body[key])}"
-                    )
+            request = search.to_request()
+            self._assert_obj_rec(search, expected_request, request)
             # test if copy works
             search = search.copy()
+    
+    def _assert_obj_rec(self, search: Search, expected_data: dict, real_data: dict):
+        for key, value in expected_data.items():
+            if key not in real_data:
+                raise AssertionError(
+                    f"missing field '{key}' in request of {search}"
+                )
+            if isinstance(value, dict):
+                self._assert_obj_rec(search, value, real_data[key])
+            else:
+                if value != real_data[key]:
+                    raise AssertionError(
+                        f"expected value {repr(value)} in request of {search}, got {repr(real_data[key])}"
+                    )
 
     def test_index(self):
         s = Search().index("Bob!")
-        self.assertEqual(
-            "Bob!",
-            s.get_index(),
-        )
+        self.assertRequest(s, {
+            "index": "Bob!"
+        })
 
     def test_size(self):
         s = Search().size(23)
-        self.assertBody(s, {
-            "size": 23,
+        self.assertRequest(s, {
+            "body": {
+                "size": 23,
+            },
         })
 
     def test_sort(self):
         s = Search().sort("-field")
-        self.assertBody(s, {
-            "sort": [
-                {"field": "desc"},
-            ],
+        self.assertRequest(s, {
+            "body": {
+                "sort": [
+                    {"field": "desc"},
+                ],
+            }
         })
 
 
