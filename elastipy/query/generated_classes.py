@@ -6,7 +6,7 @@ from .query import Query, QueryInterface
 
 
 __all__ = (
-    "_Bool", "Match", "MatchAll", "MatchNone", "QueryString", "Range", "Term",
+    "_Bool", "Match", "_MatchAll", "_MatchNone", "QueryString", "Range", "Term",
     "_Terms"
 )
 
@@ -209,7 +209,7 @@ class Match(Query):
         )
 
 
-class MatchAll(Query):
+class _MatchAll(Query, factory=False):
 
     """
     The most simple query, which matches all documents, giving them all a _score
@@ -246,7 +246,7 @@ class MatchAll(Query):
         )
 
 
-class MatchNone(Query):
+class _MatchNone(Query, factory=False):
 
     """
     This is the inverse of the match_all query, which matches no documents.
