@@ -143,9 +143,16 @@ class Exporter:
 
         :return: bool, True if deleted, False otherwise
         """
+        from .aggregation.helper import wildcard_match
+
+        name = self.index_name()
         try:
-            self.client.indices.delete(index=self.index_name())
+            self.client.indices.delete(index=name)
             self._index_updated.pop(self.index_name(), None)
+            if "*" in name:
+                for key in list(self._index_updated):
+                    if wildcard_match(key, name):
+                        self._index_updated.pop(key)
             return True
         except NotFoundError:
             return False
