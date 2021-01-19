@@ -21,14 +21,26 @@ class Search(QueryInterface, AggregationInterface):
     def __init__(
             self,
             index: str = None,
-            client: Union[Elasticsearch, Callable] = None,
+            client: Union[Elasticsearch, str, None] = None,
             timestamp_field: str = "timestamp",
     ):
         """
         Create a new Search instance.
+
         :param index: str, optional index name/pattern, can also be set later via index()
-        :param client: elasticsearch.Client instance, if None elastipy.connections.get("default") is used
-        :param timestamp_field: str, the default timestamp field used for fields that require dates
+        :param client:
+            Can be an ``elasticsearch.Elasticsearch`` instance.
+
+            If None, then ``elastipy.connections.get("default")`` is used.
+
+            Can also be a string to change the connection alias
+            from "default" to something else.
+
+            Can also be a callable, which get's the whole ``to_request``__
+            as parameters.
+
+        :param timestamp_field: str
+            The default timestamp field used for fields that require dates.
         """
         from .query import Query
         AggregationInterface.__init__(self, timestamp_field=timestamp_field)
@@ -57,7 +69,13 @@ class Search(QueryInterface, AggregationInterface):
 
     def get_client(self):
         """Return current client"""
-        return self._client
+        client = self._client
+        if client is None:
+            client = connections.get()
+        elif isinstance(client, str):
+            client = connections.get(client)
+
+        return client
 
     def copy(self):
         """
@@ -120,11 +138,17 @@ class Search(QueryInterface, AggregationInterface):
         If no client is specified, elastipy.connections.get("default") will be used.
         :return: Response, a dict wrapper with some convenience methods
         """
-        client = self._client
-        if client is None:
-            client = connections.get()
+        client = self.get_client()
 
-        response = client.search(**self.to_request())
+        if callable(client):
+            response = client(**self.to_request())
+        elif hasattr(client, "search") and callable(client.search):
+            response = client.search(**self.to_request())
+        else:
+            raise TypeError(
+                f"The client must have a search() method or must itself be callable, "
+                f"got {type(client).__name__}"
+            )
 
         self.set_response(response)
         return self._response
