@@ -15,7 +15,9 @@ Actually i'm just learning this stuff and have the following requests:
 
 #### requirements
 
-- elastipy itself requires [elasticsearch-py](https://github.com/elastic/elasticsearch-py)
+One thing is, of course, to [install elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html).
+
+- **elastipy** itself requires [elasticsearch-py](https://github.com/elastic/elasticsearch-py)
 - doc building is listed in [docs/requirements.txt](docs/requirements.txt) and mainly
 consists of sphinx with the readthedocs theme.
 - generating the interface and running the tests and notebooks is listed in 
@@ -23,7 +25,7 @@ consists of sphinx with the readthedocs theme.
 usual stack of jupyter, scipy, matplotlib, ..   
 
 
-#### configuration
+### configuration
 
 By default all requests hit `localhost:9200`. There are currently two ways 
 to specify a different connection.
@@ -162,9 +164,6 @@ languages_per_country.to_dict()
 q = q.query(query.MatchAll())
 ```
 
-There is some housekeeping and glue code for the basics. The methods for queries and aggregations as 
-well as the query classes are auto-generated from [yaml files](definition). They include all parameters,
-default values and documentation.
 
 #### export example
 
@@ -258,6 +257,11 @@ They are prefixed with **elastipy---unittest-**
 
 
 ### development
+
+There is some housekeeping and glue code for the basics. 
+The methods for queries and aggregations as well as the query 
+classes are auto-generated from [yaml files](definition). 
+They include all parameters, default values and documentation.
 
 The interface python code is rendered via 
 ```shell script
