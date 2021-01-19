@@ -1,6 +1,6 @@
 import json
 from copy import copy, deepcopy
-from typing import Optional, Union, Mapping, Callable, Sequence, List
+from typing import Optional, Union, Mapping, Callable, Sequence, List, Any
 
 from elasticsearch import Elasticsearch
 
@@ -21,7 +21,7 @@ class Search(QueryInterface, AggregationInterface):
     def __init__(
             self,
             index: str = None,
-            client: Union[Elasticsearch, str, None] = None,
+            client: Union[str, Callable, Elasticsearch, Any, None] = None,
             timestamp_field: str = "timestamp",
     ):
         """
@@ -238,11 +238,6 @@ class Search(QueryInterface, AggregationInterface):
         es._query = es._query.add_query(name, **params)
         return es
 
-    def new_query(self, name, **params):
-        es = self.copy()
-        es._query = es._query.new_query(name, **params)
-        return es
-
     # -- attach the AggregationInterface --
 
     def aggregation(self, *aggregation_name_type, **params) -> Aggregation:
@@ -297,7 +292,7 @@ class Search(QueryInterface, AggregationInterface):
         # print("ADD BODY", path, value)
         if isinstance(path, str):
             ppath = path.split(".")
-        else:
+        else:  # pragma: no cover
             ppath = copy(path)
 
         body = self._body
@@ -312,10 +307,6 @@ class Search(QueryInterface, AggregationInterface):
             else:
                 if override or key not in body:
                     body[key] = value
-
-    def _add_bool_filter(self, data):
-        self._add_body(f"query.bool.filter", [], override=False)
-        self._body["query"]["bool"]["filter"].append(data)
 
 
 class Response(dict):

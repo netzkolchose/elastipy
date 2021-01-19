@@ -14,4 +14,4 @@ class EmptyQuery(Query):
         }
 
     def add_query(self, name, **params) -> 'Query':
-        return self.new_query(name, **params)
+        return self.query_factory(name, **params)

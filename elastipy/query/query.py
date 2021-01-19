@@ -68,7 +68,7 @@ class Query(QueryInterface):
         query = factory(name, **params)
         return factory("bool", must=[self, query])
 
-    def new_query(self, name, **params) -> 'Query':
+    def query_factory(self, name, **params) -> 'Query':
         return factory(name, **params)
 
     def _map_parameters(self, params: Mapping) -> dict:
