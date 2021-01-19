@@ -5,5 +5,7 @@ from .test_generator import *
 from .test_json import *
 from .test_query_body import *
 from .test_query_housing import *
-from .test_search_body import *
+from .test_response import *
+from .test_search import *
+from .test_search_request import *
 from .test_table import *

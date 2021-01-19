@@ -9,6 +9,7 @@ class MockElasticsearch:
         self.transport = Transport(self)
         self.indices = FakeIndices(self)
         self.bulk_calls = []
+        self.search_calls = []
 
     def exists(self, index, id):
         return False
@@ -29,6 +30,24 @@ class MockElasticsearch:
             print(f"--- bulk call #{i+1} ---")
             for d in bc:
                 print(json.dumps(d, indent=2))
+
+    def search(self, **kwargs):
+        self.search_calls.append(kwargs)
+        return {
+            "took": 0,
+            "timed_out": False,
+            "_shards": {
+                "total": 1,
+                "successful": 1,
+                "skipped": 0,
+                "failed": 0
+            },
+            "hits": {
+                "total": 0,
+                "max_score": None,
+                "hits": []
+            }
+        }
 
 
 class Transport:
