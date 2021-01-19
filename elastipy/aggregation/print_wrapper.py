@@ -8,10 +8,10 @@ from .visitor import Visitor
 class PrintWrapper:
 
     def __init__(self, agg: Aggregation):
-        self.agg = agg
+        self._agg = agg
 
     def dict(self, key_separator="|", default=None, indent=2, file=None):
-        print(json.dumps(self.agg.to_dict(key_separator=key_separator, default=default), indent=indent), file=file)
+        print(json.dumps(self._agg.to_dict(key_separator=key_separator, default=default), indent=indent), file=file)
 
     def table(
             self,
@@ -51,7 +51,7 @@ class PrintWrapper:
         :param file: optional text stream to print to
         """
         from ..plot.text import Table
-        Table(self.agg).print(
+        Table(self._agg).print(
             sort=sort,
             digits=digits,
             header=header,

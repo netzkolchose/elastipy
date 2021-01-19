@@ -7,7 +7,7 @@ from .search import Search
 class SearchPrintWrapper:
 
     def __init__(self, search: Search):
-        self.search = search
+        self._search = search
 
     def __call__(self, indent: Union[int, str, None] = 2, file: TextIO = None):
         """
@@ -24,7 +24,7 @@ class SearchPrintWrapper:
         :param indent: the json indentation, defaults to 2
         :param file: optional output stream
         """
-        print(json.dumps(self.search.get_query().to_dict(), indent=indent), file=file)
+        print(json.dumps(self._search.get_query().to_dict(), indent=indent), file=file)
 
     def body(self, indent: Union[int, str, None] = 2, file: TextIO = None):
         """
@@ -32,7 +32,7 @@ class SearchPrintWrapper:
         :param indent: the json indentation, defaults to 2
         :param file: optional output stream
         """
-        print(json.dumps(self.search.to_body(), indent=indent), file=file)
+        print(json.dumps(self._search.to_body(), indent=indent), file=file)
 
     def request(self, indent: Union[int, str, None] = 2, file: TextIO = None):
         """
@@ -41,7 +41,7 @@ class SearchPrintWrapper:
         :param indent: the json indentation, defaults to 2
         :param file: optional output stream
         """
-        print(json.dumps(self.search.to_request(), indent=indent), file=file)
+        print(json.dumps(self._search.to_request(), indent=indent), file=file)
 
     def response(self, indent: Union[int, str, None] = 2, file: TextIO = None):
         """
@@ -53,4 +53,4 @@ class SearchPrintWrapper:
         :param indent: the json indentation, defaults to 2
         :param file: optional output stream
         """
-        print(json.dumps(self.search.response, indent=indent), file=file)
+        print(json.dumps(self._search.response, indent=indent), file=file)

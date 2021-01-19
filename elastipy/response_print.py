@@ -7,7 +7,7 @@ from .search import Response
 class ResponsePrintWrapper:
 
     def __init__(self, response: Response):
-        self.response = response
+        self._response = response
 
     def __call__(self, indent: Union[int, str, None] = 2, file: TextIO = None):
         """
@@ -15,7 +15,7 @@ class ResponsePrintWrapper:
         :param indent: the json indentation, defaults to 2
         :param file: optional output stream
         """
-        print(json.dumps(self.response, indent=indent), file=file)
+        print(json.dumps(self._response, indent=indent), file=file)
 
     def documents(self, indent: Union[int, str, None] = 2, file: TextIO = None):
         """
@@ -23,7 +23,7 @@ class ResponsePrintWrapper:
         :param indent: the json indentation, defaults to 2
         :param file: optional output stream
         """
-        print(json.dumps(self.response.documents, indent=indent), file=file)
+        print(json.dumps(self._response.documents, indent=indent), file=file)
 
     def aggregations(self, indent: Union[int, str, None] = 2, file: TextIO = None):
         """
@@ -31,7 +31,7 @@ class ResponsePrintWrapper:
         :param indent: the json indentation, defaults to 2
         :param file: optional output stream
         """
-        print(json.dumps(self.response.aggregations, indent=indent), file=file)
+        print(json.dumps(self._response.aggregations, indent=indent), file=file)
 
     def table(
             self,
@@ -76,9 +76,9 @@ class ResponsePrintWrapper:
         """
         from .plot.text import Table
 
-        docs = self.response.documents
+        docs = self._response.documents
         if score:
-            for i, (s, doc) in enumerate(zip(self.response.scores, docs)):
+            for i, (s, doc) in enumerate(zip(self._response.scores, docs)):
                 docs[i] = {
                     "_score": s,
                     **doc
