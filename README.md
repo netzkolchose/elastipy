@@ -19,6 +19,7 @@ Actually i'm just learning this stuff and have the following requests:
     - [aggregations](#aggregations)
     - [metrics](#nested-aggregations-and-metrics)
     - [query](#queries)
+    - [exporting](#exporting)
 - [testing](#testing)
 - [development](#development)
 
@@ -34,6 +35,11 @@ consists of sphinx with the readthedocs theme.
 - generating the interface and running the tests and notebooks is listed in 
 [requirements.txt](requirements.txt) and contains pyyaml and coverage as well as the 
 usual stack of jupyter, scipy, matplotlib, ..   
+
+
+
+
+
 
 
 
@@ -156,7 +162,7 @@ list(agg.values())
 
 Without a [metric](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics.html) these numbers are the document counts.
 
-Above example as a one-line:
+Above example as a one-liner:
 
 
 ```python
