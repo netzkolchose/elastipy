@@ -8,6 +8,7 @@ import subprocess
 import time
 import os
 import shutil
+import shutil
 
 from elasticsearch import NotFoundError
 from elastipy import connections
@@ -131,10 +132,35 @@ def render_tutorial():
 
 
 def render_quickref():
+    """
+    Renders the docs/quickref.ipynb notebook, converts to markdown
+    and inserts the stuff into the README.md
+    """
     export_notebook("docs/quickref.ipynb", "markdown", ".")
+
+    with open("quickref.md") as fp:
+        quickref = fp.read()
+
+    README_START = "### configuration"
+    README_END = "**More examples can be found [here](examples).**"
+
+    with open("README.md") as fp:
+        readme = fp.read()
+
+    index_start = readme.index(README_START)
+    index_end = readme.index(README_END)
+
+    old_readme = readme
+    readme = readme[:index_start] + quickref + readme[index_end:]
+
+    if readme != old_readme:
+        print(f"Putting quickref into README.md")
+        with open("README.md", "w") as fp:
+            fp.write(readme)
+
+    os.remove("quickref.md")
 
 
 if __name__ == "__main__":
-    #render_tutorial()
+    render_tutorial()
     render_quickref()
-    #remove_hidden_cells_in_markdown("quickref.md")
