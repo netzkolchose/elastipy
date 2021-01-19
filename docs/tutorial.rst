@@ -3,7 +3,7 @@ don't be plastic, elastipy!
 
 Hi there, this tutorial is actually a `jupyter
 notebook <https://jupyter.org/>`__ and can be found in
-`examples <https://github.com/defgsus/elastipy/blob/development/examples/>`__/`tutorial.ipynb <https://github.com/defgsus/elastipy/blob/development/examples/tutorial.ipynb>`__
+`examples <https://github.com/netzkolchose/elastipy/blob/development/examples/>`__/`tutorial.ipynb <https://github.com/netzkolchose/elastipy/blob/development/examples/tutorial.ipynb>`__
 
 exporting some objects
 ----------------------
@@ -249,7 +249,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "zX9PGncBeebHNMb6aH2H",
+            "_id": "LX9-GncBeebHNMb694fe",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -260,7 +260,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "DX9PGncBeebHNMb6aH6H",
+            "_id": "bX9-GncBeebHNMb694fe",
             "_score": 2.1868048,
             "_source": {
               "shape": "triangle",
@@ -271,7 +271,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "MX9PGncBeebHNMb6aH6H",
+            "_id": "kX9-GncBeebHNMb694fe",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",

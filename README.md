@@ -1,7 +1,7 @@
 ## elastipy
 
-[![Build Status](https://travis-ci.com/defgsus/elastipy.svg?branch=development)](https://travis-ci.com/defgsus/elastipy)
-[![Coverage Status](https://coveralls.io/repos/github/defgsus/elastipy/badge.svg?branch=feature/travis)](https://coveralls.io/github/defgsus/elastipy?branch=feature/travis)
+[![Build Status](https://travis-ci.com/netzkolchose/elastipy.svg?branch=development)](https://travis-ci.com/netzkolchose/elastipy)
+[![Coverage Status](https://coveralls.io/repos/github/netzkolchose/elastipy/badge.svg?branch=development)](https://coveralls.io/github/netzkolchose/elastipy?branch=development)
 [![Documentation Status](https://readthedocs.org/projects/elastipy/badge/?version=latest)](https://elastipy.readthedocs.io/en/latest/?badge=latest)
 
 A python wrapper to make elasticsearch queries and aggregations more fun.
@@ -35,6 +35,11 @@ consists of sphinx with the readthedocs theme.
 - generating the interface and running the tests and notebooks is listed in 
 [requirements.txt](requirements.txt) and contains pyyaml and coverage as well as the 
 usual stack of jupyter, scipy, matplotlib, ..   
+
+
+
+
+
 
 
 
