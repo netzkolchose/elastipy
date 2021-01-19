@@ -15,7 +15,7 @@ __all__ = (
 class Terms(_Terms):
 
     def to_dict(self):
-        # the 'field' parameter is not mentioned by key but by actually value
+        # the 'field' parameter is not mentioned by key but by actual value
         dic = {
             self.parameters["field"]: self.parameters["value"]
         }
