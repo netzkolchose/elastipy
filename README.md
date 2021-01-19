@@ -393,15 +393,6 @@ This will actually delete all sub-indices because there's this wildcard `*` in t
 **More examples can be found [here](examples).**
 
 
-#### The big steps to success
-
-  - make sure that all the combinations of queries work as expected
-  - finalize the generic keys/values gathering from all those different aggregations with all their little 
-  peculiarities
-  - complete the yaml definitions by carefully reading all the 
-   [online documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html)
-
-
 ### testing
 
 To run the tests call:
@@ -445,4 +436,14 @@ python run_doc_notebooks.py
 ``` 
 
 I'm stuck with restructuredtext for the docstrings although besides the `:param:` syntax 
-i find it simply repellent. It still has the most supported toolchain it seems.  
+i find it simply repellent. It still has the most supported toolchain it seems.
+
+
+#### The big steps to success
+
+  - make sure that all the combinations of queries work as expected
+  - finalize the generic keys/values gathering from all those different aggregations with all their little 
+  peculiarities
+  - complete the yaml definitions by carefully reading all the 
+   [online documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html)
+
