@@ -3,7 +3,10 @@ import datetime
 from decimal import Decimal
 
 from definition.generator import change_text_indent
-from definition.renderer import doc_to_rst, markdown_links_to_rst
+from definition.renderer import (
+    doc_to_rst, remove_single_newlines,
+    markdown_links_to_rst, markdown_literals_to_rst,
+)
 
 
 class TestGenerator(unittest.TestCase):
@@ -33,6 +36,22 @@ class TestGenerator(unittest.TestCase):
             """),
         )
 
+    def test_markdown_literals(self):
+        self.assertEqualText(
+            """This is ``code``, and this ``also``""",
+            markdown_literals_to_rst(
+                """This is `code`, and this `also`"""
+            ),
+        )
+
+    def test_markdown_literals_exceptions(self):
+        self.assertEqualText(
+            """Someone already did it ``doubly``, and even ``trice``, and ``correctly``""",
+            markdown_literals_to_rst(
+                """Someone already did it ``doubly``, and even ```trice```, and `correctly`"""
+            ),
+        )
+
     def test_sections(self):
         self.assertEqualText(change_text_indent(
             """
@@ -56,6 +75,45 @@ class TestGenerator(unittest.TestCase):
                 Warning:
                     Stuff!
                 """))
+        )
+
+    def test_remove_single_newlines(self):
+        self.assertEqualText(change_text_indent(
+                """
+                A text that has been wrapped around by the author.
+                
+                This is a new paragraph.
+                """
+            ),
+            remove_single_newlines(change_text_indent(
+                """
+                A text that has been 
+                wrapped around by the
+                author.
+                
+                This is a new paragraph.
+                """
+            ))
+        )
+
+    def test_remove_single_newlines_indent(self):
+        self.assertEqualText(change_text_indent(
+            """
+            A text that has been wrapped around by the author.
+            
+                This is a new indented paragraph. I keep writing on...
+            """
+        ),
+            remove_single_newlines(change_text_indent(
+                """
+                A text that has been 
+                wrapped around by the
+                author.
+                
+                    This is a new indented paragraph.
+                    I keep writing on...
+                """
+            ))
         )
 
 

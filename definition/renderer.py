@@ -5,15 +5,46 @@ from typing import Union
 INDENT = "    "
 
 
+# detect markdown links
 MARKDOWN_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+# detect single `literals`
+MARKDOWN_LITERALS_RE = re.compile(r"`+([^`]+)`+")
 
 
 def doc_to_rst(text):
+    text = remove_single_newlines(text)
+    text = markdown_literals_to_rst(text)
     text = markdown_links_to_rst(text)
     text = sections_to_rst(text)
     text = "\n".join("" if not line.strip() else line for line in text.splitlines())
     text = proper_rst_newlines(text)
     return text
+
+
+def remove_single_newlines(text: str) -> str:
+    ret_lines = []
+    cur_line = []
+    for line in text.splitlines():
+        # an empty line
+        if not line.strip():
+            if cur_line:
+                ret_lines.append(" ".join(cur_line))
+                cur_line.clear()
+                ret_lines.append("")
+            elif ret_lines:
+                ret_lines.append("")
+            else:
+                continue
+        else:
+            if cur_line:
+                cur_line.append(line.strip())
+            else:
+                cur_line.append(line.rstrip())
+
+    if cur_line:
+        ret_lines.append(" ".join(cur_line))
+
+    return "\n".join(ret_lines)
 
 
 def sections_to_rst(text: str) -> str:
@@ -63,6 +94,16 @@ def markdown_links_to_rst(text):
     for i, line in enumerate(lines):
         lines[i] = MARKDOWN_LINK_RE.sub(
             r"`\1 <\2>`__",
+            line
+        )
+    return "\n".join(lines)
+
+
+def markdown_literals_to_rst(text):
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        lines[i] = MARKDOWN_LITERALS_RE.sub(
+            r"``\1``",
             line
         )
     return "\n".join(lines)
