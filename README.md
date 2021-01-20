@@ -14,6 +14,7 @@ Actually i'm just learning this stuff and have the following requests:
 
 ---
 
+- [installation](#installation)
 - [requirements](#requirements)
 - quickref
     - [aggregations](#aggregations)
@@ -24,6 +25,14 @@ Actually i'm just learning this stuff and have the following requests:
 - [development](#development)
 
 ---
+
+### installation
+
+Currently you can only use the github link, e.g.:
+
+```shell script
+pip install https://github.com/netzkolchose/elastipy/archive/v0.1.1.zip
+``` 
 
 #### requirements
 
