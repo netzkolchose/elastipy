@@ -66,6 +66,11 @@ usual stack of jupyter, scipy, matplotlib, ..
 
 
 
+
+
+
+
+
 ### configuration 
 
 By default an [elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/elasticsearch-intro.html) host is expected at `localhost:9200`. There are currently two ways 
@@ -142,7 +147,7 @@ s = Search(index="world")
 # create an Aggregation class connected to the Search
 agg = s.agg_date_histogram(calendar_interval="1w")
 # (for date-specific aggregations we can leave out the 'field' parameter 
-#  it fall's back to Search.timestamp_field which is "timestamp" by default)
+#  it falls back to Search.timestamp_field which is "timestamp" by default)
 
 # submit the whole request
 s.execute()

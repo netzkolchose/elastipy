@@ -249,7 +249,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "LX9-GncBeebHNMb694fe",
+            "_id": "fH_WHncBeebHNMb6QZVe",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -260,7 +260,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "bX9-GncBeebHNMb694fe",
+            "_id": "vH_WHncBeebHNMb6QZVe",
             "_score": 2.1868048,
             "_source": {
               "shape": "triangle",
@@ -271,7 +271,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "kX9-GncBeebHNMb694fe",
+            "_id": "4H_WHncBeebHNMb6QZVe",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -434,7 +434,7 @@ Let's look at the result from elasticsearch:
 .. parsed-literal::
 
     {
-      "took": 0,
+      "took": 1,
       "timed_out": false,
       "_shards": {
         "total": 1,
