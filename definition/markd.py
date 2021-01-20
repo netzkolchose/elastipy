@@ -21,13 +21,13 @@ def parse_markdown(text: str):
         block = "\n".join(block_lines)
 
         doc = Document(block)
-        print("-"*30)
+        # print("-"*30)
         block = convert_markdown_block(doc)
         block = "\n".join(
             " " * (block_indent - text_indent) + line
             for line in block.splitlines()
         )
-        print(block)
+        # print(block)
         out_blocks.append(block)
 
     return "\n\n".join(out_blocks)

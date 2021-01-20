@@ -155,7 +155,7 @@ class Match(Query):
             values and more information.
 
             If the fuzziness parameter is not 0, the match query uses a
-            fuzzy_rewrite method of top_terms_blended_freqs_${max_expansions} by
+            fuzzy_rewrite method of ``top_terms_blended_freqs_${max_expansions}`` by
             default.
 
         :param lenient: ``bool``
@@ -164,9 +164,12 @@ class Match(Query):
 
         :param operator: ``Optional[str]``
             Boolean logic used to interpret text in the query value. Valid values
-            are: OR (Default) For example, a query value of capital of Hungary is
-            interpreted as capital OR of OR Hungary. AND For example, a query value
-            of capital of Hungary is interpreted as capital AND of AND Hungary.
+            are:
+
+                - ``OR`` (Default) For example, a query value of capital of Hungary
+                  is interpreted as capital OR of OR Hungary.
+                - ``AND`` For example, a query value of capital of Hungary is
+                  interpreted as capital AND of AND Hungary.
 
         :param minimum_should_match: ``Optional[str]``
             Minimum number of clauses that must match for a document to be returned.
@@ -198,8 +201,8 @@ class Match(Query):
 class _MatchAll(Query, factory=False):
 
     """
-    The most simple query, which matches all documents, giving them all a _score
-    of 1.0.
+    The most simple query, which matches all documents, giving them all a
+    ``_score`` of 1.0.
 
     The _score can be changed with the boost parameter
 
@@ -216,8 +219,8 @@ class _MatchAll(Query, factory=False):
             boost: Optional[float] = None,
     ):
         """
-        The most simple query, which matches all documents, giving them all a _score
-        of 1.0.
+        The most simple query, which matches all documents, giving them all a
+        ``_score`` of 1.0.
 
         The _score can be changed with the boost parameter
 
@@ -266,8 +269,8 @@ class QueryString(Query):
 
     This query uses a `syntax
     <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax>`__
-    to parse and split the provided query string based on operators, such as AND
-    or NOT. The query then `analyzes
+    to parse and split the provided query string based on operators, such as
+    ``AND`` or ``NOT``. The query then `analyzes
     <https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html>`__
     each split text independently before returning matching documents.
 
@@ -327,8 +330,8 @@ class QueryString(Query):
 
         This query uses a `syntax
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax>`__
-        to parse and split the provided query string based on operators, such as AND
-        or NOT. The query then `analyzes
+        to parse and split the provided query string based on operators, such as
+        ``AND`` or ``NOT``. The query then `analyzes
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html>`__
         each split text independently before returning matching documents.
 
@@ -412,10 +415,12 @@ class QueryString(Query):
 
         :param default_operator: ``Optional[str]``
             Default boolean logic used to interpret text in the query string if no
-            operators are specified. Valid values are: OR (Default) For example, a
-            query string of capital of Hungary is interpreted as capital OR of OR
-            Hungary. AND For example, a query string of capital of Hungary is
-            interpreted as capital AND of AND Hungary.
+            operators are specified. Valid values are:
+
+                - ``OR`` (Default) For example, a query string of capital of Hungary
+                  is interpreted as capital OR of OR Hungary.
+                - ``AND`` For example, a query string of capital of Hungary is
+                  interpreted as capital AND of AND Hungary.
 
         :param enable_position_increments: ``bool``
             If true, enable position increments in queries constructed from a
@@ -429,9 +434,9 @@ class QueryString(Query):
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-multi-field>`__.
 
         :param fuzziness: ``Optional[str]``
-            Maximum edit distance allowed for matching. See Fuzziness for valid
-            values and more information. See Fuzziness in the match query for an
-            example.
+            Maximum edit distance allowed for matching. See `Fuzziness
+            <https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#fuzziness>`__
+            for valid values and more information.
 
         :param fuzzy_max_expansions: ``int``
             Maximum number of terms to which the query will expand. Defaults to 50.
@@ -463,14 +468,21 @@ class QueryString(Query):
 
         :param minimum_should_match: ``Optional[str]``
             Minimum number of clauses that must match for a document to be returned.
-            See the minimum_should_match parameter for valid values and more
-            information.
+            See the `minimum_should_match parameter
+            <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-minimum-should-match.html>`__
+            for valid values and more information.
+
+            See `How minimum_should_match works
+            <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-min-should-match>`__
+            for an example.
 
         :param quote_analyzer: ``Optional[str]``
             `Analyzer
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html>`__
             used to convert quoted text in the query string into tokens. Defaults to
-            the search_quote_analyzer mapped for the default_field.
+            the `search_quote_analyzer
+            <https://www.elastic.co/guide/en/elasticsearch/reference/current/analyzer.html#search-quote-analyzer>`__
+            mapped for the default_field.
 
             For quoted text, this parameter overrides the analyzer specified in the
             analyzer parameter.
@@ -499,18 +511,19 @@ class QueryString(Query):
             <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>`__ used
             to convert date values in the query string to UTC.
 
-            Valid values are ISO 8601 UTC offsets, such as +01:00 or -08:00, and
-            IANA time zone IDs, such as America/Los_Angeles.
+            Valid values are ISO 8601 UTC offsets, such as ``+01:00`` or ``-08:00``,
+            and IANA time zone IDs, such as ``America/Los_Angeles``.
 
             .. NOTE::
 
                 The time_zone parameter does not affect the `date math
                 <https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math>`__
                 value of now. now is always the current system time in UTC. However,
-                the time_zone parameter does convert dates calculated using now and
-                `date math rounding
+                the time_zone parameter does convert dates calculated using ``now``
+                and `date math rounding
                 <https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math>`__.
-                For example, the time_zone parameter will convert a value of now/d.
+                For example, the ``time_zone`` parameter will convert a value of
+                ``now/d``.
         """
         super().__init__(
             query=query,
@@ -544,7 +557,7 @@ class Range(Query):
     Returns documents that contain terms within a provided range.
 
     When the <field> parameter is a date field data type, you can use date math
-    with the 'gt', 'gte', 'lt' and 'lte' parameters. See `date math
+    with the ``gt``, ``gte``, ``lt`` and ``lte`` parameters. See `date math
     <https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math>`__
 
     `elasticsearch documentation
@@ -572,7 +585,7 @@ class Range(Query):
         Returns documents that contain terms within a provided range.
 
         When the <field> parameter is a date field data type, you can use date math
-        with the 'gt', 'gte', 'lt' and 'lte' parameters. See `date math
+        with the ``gt``, ``gte``, ``lt`` and ``lte`` parameters. See `date math
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math>`__
 
         `elasticsearch documentation
@@ -596,7 +609,7 @@ class Range(Query):
         :param format: ``Optional[str]``
             Date format used to convert date values in the query.
 
-            By default, Elasticsearch uses the date format provided in the <field>'s
+            By default, Elasticsearch uses the date format provided in the <field>`s
             mapping. This value overrides that mapping format.
 
             For valid syntax see `mapping data format
@@ -604,18 +617,21 @@ class Range(Query):
 
         :param relation: ``str``
             Indicates how the range query matches values for range fields. Valid
-            values are: INTERSECTS (Default) Matches documents with a range field
-            value that intersects the query’s range. CONTAINS Matches documents with
-            a range field value that entirely contains the query’s range. WITHIN
-            Matches documents with a range field value entirely within the query’s
-            range.
+            values are:
+
+                - ``INTERSECTS`` (Default) Matches documents with a range field
+                  value that intersects the query’s range.
+                - ``CONTAINS`` Matches documents with a range field value that
+                  entirely contains the query’s range.
+                - ``WITHIN`` Matches documents with a range field value entirely
+                  within the query’s range.
 
         :param time_zone: ``Optional[str]``
             Coordinated Universal Time (UTC) offset or IANA time zone used to
             convert date values in the query to UTC.
 
-            Valid values are ISO 8601 UTC offsets, such as +01:00 or -08:00, and
-            IANA time zone IDs, such as America/Los_Angeles.
+            Valid values are ISO 8601 UTC offsets, such as ``+01:00`` or ``-08:00``,
+            and IANA time zone IDs, such as ``America/Los_Angeles``.
 
         :param boost: ``Optional[float]``
             Floating point number used to decrease or increase the relevance scores
@@ -694,7 +710,7 @@ class Term(Query):
             1.0 increases the relevance score.
 
         :param case_insensitive: ``Optional[bool]``
-            allows ASCII case insensitive matching of the value with the indexed
+            Allows ASCII case insensitive matching of the value with the indexed
             field values when set to true. Default is false which means the case
             sensitivity of matching depends on the underlying field’s mapping.
         """

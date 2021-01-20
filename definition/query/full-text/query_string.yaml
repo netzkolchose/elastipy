@@ -2,32 +2,48 @@ url: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-q
 doc: |
     Returns documents based on a provided query string, using a parser with a strict syntax.
 
-    This query uses a [syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax) to parse and split the provided query string based on operators, such as AND or NOT. The query then [analyzes](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html) each split text independently before returning matching documents.
+    This query uses a
+    [syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax)
+    to parse and split the provided query string based on operators, such as `AND` or `NOT`. The query then
+    [analyzes](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html) each split
+    text independently before returning matching documents.
 
-    You can use the query_string query to create a complex search that includes wildcard characters, searches across multiple fields, and more. While versatile, the query is strict and returns an error if the query string includes any invalid syntax.
+    You can use the query_string query to create a complex search that includes wildcard characters, searches
+    across multiple fields, and more. While versatile, the query is strict and returns an error if the
+    query string includes any invalid syntax.
 
     Warning:
-        Because it returns an error for any invalid syntax, we don’t recommend using the query_string query for search boxes.
+        Because it returns an error for any invalid syntax, we don’t recommend using the
+        query_string query for search boxes.
 
-        If you don’t need to support a query syntax, consider using the [match](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html) query. If you need the features of a query syntax, use the [simple_query_string](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html) query, which is less strict.
+        If you don’t need to support a query syntax, consider using the
+        [match](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html) query.
+        If you need the features of a query syntax, use the
+        [simple_query_string](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html)
+        query, which is less strict.
 parameters:
     query:
         type: str
         required: True
         doc: |
-            Query string you wish to parse and use for search. See [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
+            Query string you wish to parse and use for search.
+            See [Query string syntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
     default_field:
         type: str
         doc: |
             Default field you wish to search if no field is provided in the query string.
 
-            Defaults to the `index.query.default_field` index setting, which has a default value of `*`. The `*` value extracts all fields that are eligible for term queries and filters the metadata fields. All extracted fields are then combined to build a query if no prefix is specified.
+            Defaults to the `index.query.default_field` index setting, which has a default value
+            of `*`. The `*` value extracts all fields that are eligible for term queries and filters
+            the metadata fields. All extracted fields are then combined to build a query if no prefix is specified.
 
-            Searching across all eligible fields does not include nested documents. Use a nested query to search those documents.
+            Searching across all eligible fields does not include nested documents.
+            Use a nested query to search those documents.
 
             For mappings with a large number of fields, searching across all eligible fields could be expensive.
 
-            There is a limit on the number of fields that can be queried at once. It is defined by the indices.query.bool.max_clause_count search setting, which defaults to 1024.
+            There is a limit on the number of fields that can be queried at once.
+            It is defined by the indices.query.bool.max_clause_count search setting, which defaults to 1024.
     allow_leading_wildcard:
         type: bool
         default: True
@@ -41,26 +57,35 @@ parameters:
     analyzer:
         type: str
         doc: |
-            [Analyzer](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html) used to convert text in the query string into tokens. Defaults to the [index-time analyzer](https://www.elastic.co/guide/en/elasticsearch/reference/current/specify-analyzer.html#specify-index-time-analyzer) mapped for the default_field. If no analyzer is mapped, the index’s default analyzer is used.
+            [Analyzer](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html)
+            used to convert text in the query string into tokens. Defaults to the
+            [index-time analyzer](https://www.elastic.co/guide/en/elasticsearch/reference/current/specify-analyzer.html#specify-index-time-analyzer)
+            mapped for the default_field. If no analyzer is mapped, the index’s default analyzer is used.
     auto_generate_synonyms_phrase_query:
         type: bool
         doc: |
-            If true, [match phrase](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query-phrase.html) queries are automatically created for multi-term synonyms. Defaults to true. See [Synonyms and the query_string query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-synonyms) for an example.
+            If true, [match phrase](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query-phrase.html)
+            queries are automatically created for multi-term synonyms. Defaults to true.
+            See [Synonyms and the query_string query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-synonyms) for an example.
     boost:
         type: float
         default: 1.
         doc: |
-            Floating point number used to decrease or increase the [relevance scores](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-context.html#relevance-scores) of the query. Defaults to 1.0.
+            Floating point number used to decrease or increase the
+            [relevance scores](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-context.html#relevance-scores)
+            of the query. Defaults to 1.0.
 
-            Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
+            Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the
+            relevance score. A value greater than 1.0 increases the relevance score.
     default_operator:
         type: str
         doc: |
             Default boolean logic used to interpret text in the query string if no operators are specified. Valid values are:
-                OR (Default)
-                    For example, a query string of capital of Hungary is interpreted as capital OR of OR Hungary.
-                AND
-                    For example, a query string of capital of Hungary is interpreted as capital AND of AND Hungary.
+
+                - `OR` (Default)
+                For example, a query string of capital of Hungary is interpreted as capital OR of OR Hungary.
+                - `AND`
+                For example, a query string of capital of Hungary is interpreted as capital AND of AND Hungary.
     enable_position_increments:
         type: bool
         default: True
@@ -71,11 +96,14 @@ parameters:
         doc: |
             Array of fields you wish to search.
 
-            You can use this parameter query to search across multiple fields. See [Search multiple fields](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-multi-field).
+            You can use this parameter query to search across multiple fields.
+            See [Search multiple fields](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-multi-field).
     fuzziness:
         type: str
         doc: |
-            Maximum edit distance allowed for matching. See Fuzziness for valid values and more information. See Fuzziness in the match query for an example.
+            Maximum edit distance allowed for matching.
+            See [Fuzziness](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#fuzziness)
+            for valid values and more information.
     fuzzy_max_expansions:
         type: int
         default: 50
@@ -90,51 +118,79 @@ parameters:
         type: bool
         default: True
         doc: |
-            If true, edits for fuzzy matching include transpositions of two adjacent characters (ab → ba). Defaults to true.
+            If true, edits for fuzzy matching include transpositions of two adjacent
+            characters (ab → ba). Defaults to true.
     lenient:
         type: bool
         default: False
         doc: |
-            If true, format-based errors, such as providing a text query value for a numeric field, are ignored. Defaults to false. 
+            If true, format-based errors, such as providing a text query value for a
+            numeric field, are ignored. Defaults to false.
     max_determinized_states:
         type: int
         default: 10000
         doc: |
-            Maximum number of [automaton states](https://en.wikipedia.org/wiki/Deterministic_finite_automaton) required for the query. Default is 10000.
+            Maximum number of
+            [automaton states](https://en.wikipedia.org/wiki/Deterministic_finite_automaton)
+            required for the query. Default is 10000.
 
-            Elasticsearch uses Apache Lucene internally to parse regular expressions. Lucene converts each regular expression to a finite automaton containing a number of determinized states.
+            Elasticsearch uses Apache Lucene internally to parse regular expressions.
+            Lucene converts each regular expression to a finite automaton containing
+            a number of determinized states.
 
-            You can use this parameter to prevent that conversion from unintentionally consuming too many resources. You may need to increase this limit to run complex regular expressions.
+            You can use this parameter to prevent that conversion from unintentionally
+            consuming too many resources. You may need to increase this limit to run
+            complex regular expressions.
     minimum_should_match:
         type: str
         doc: |
-            Minimum number of clauses that must match for a document to be returned. See the minimum_should_match parameter for valid values and more information.
+            Minimum number of clauses that must match for a document to be returned.
+            See the [minimum_should_match parameter](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-minimum-should-match.html)
+            for valid values and more information.
+
+            See [How minimum_should_match works](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-min-should-match)
+            for an example.
     quote_analyzer:
         type: str
         doc: |
-            [Analyzer](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html) used to convert quoted text in the query string into tokens. Defaults to the search_quote_analyzer mapped for the default_field.
+            [Analyzer](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html)
+            used to convert quoted text in the query string into tokens. Defaults to the
+            [search_quote_analyzer](https://www.elastic.co/guide/en/elasticsearch/reference/current/analyzer.html#search-quote-analyzer)
+            mapped for the default_field.
 
             For quoted text, this parameter overrides the analyzer specified in the analyzer parameter.
     phrase_slop:
         type: int
         default: 0
         doc: |
-            Maximum number of positions allowed between matching tokens for phrases. Defaults to 0. If 0, exact phrase matches are required. Transposed terms have a slop of 2.
+            Maximum number of positions allowed between matching tokens for phrases.
+            Defaults to 0. If 0, exact phrase matches are required. Transposed terms have a slop of 2.
     quote_field_suffix:
         type: str
         doc: |
             Suffix appended to quoted text in the query string.
 
-            You can use this suffix to use a different analysis method for exact matches. See [Mixing exact search with stemming](https://www.elastic.co/guide/en/elasticsearch/reference/current/mixing-exact-search-with-stemming.html).
+            You can use this suffix to use a different analysis method for exact matches.
+            See [Mixing exact search with stemming](https://www.elastic.co/guide/en/elasticsearch/reference/current/mixing-exact-search-with-stemming.html).
     rewrite:
         type: str
         doc: |
-            Method used to rewrite the query. For valid values and more information, see the [rewrite parameter](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-multi-term-rewrite.html).
+            Method used to rewrite the query. For valid values and more information,
+            see the [rewrite parameter](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-multi-term-rewrite.html).
     time_zone:
         type: str
         doc: |
-            [Coordinated Universal Time (UTC) offset](https://en.wikipedia.org/wiki/List_of_UTC_time_offsets) or [IANA time zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) used to convert date values in the query string to UTC.
+            [Coordinated Universal Time (UTC) offset](https://en.wikipedia.org/wiki/List_of_UTC_time_offsets)
+            or [IANA time zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) used to convert
+            date values in the query string to UTC.
 
-            Valid values are ISO 8601 UTC offsets, such as +01:00 or -08:00, and IANA time zone IDs, such as America/Los_Angeles.
+            Valid values are ISO 8601 UTC offsets, such as `+01:00` or `-08:00`,
+            and IANA time zone IDs, such as `America/Los_Angeles`.
 
-            Note: The time_zone parameter does not affect the [date math](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math) value of now. now is always the current system time in UTC. However, the time_zone parameter does convert dates calculated using now and [date math rounding](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math). For example, the time_zone parameter will convert a value of now/d.
+            Note:
+                The time_zone parameter does not affect the
+                [date math](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math)
+                value of now. now is always the current system time in UTC. However, the time_zone parameter does convert
+                dates calculated using `now` and
+                [date math rounding](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math).
+                For example, the `time_zone` parameter will convert a value of `now/d`.

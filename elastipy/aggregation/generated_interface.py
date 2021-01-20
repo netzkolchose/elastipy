@@ -1033,8 +1033,10 @@ class AggregationInterface(AggregationInterfaceBase):
         For example, the upper right longitude will typically be greater than the
         lower left longitude of a geographic bounding box. However, when the area
         crosses the 180° meridian, the value of the lower left longitude will be
-        greater than the value of the upper right longitude. See Geographic bounding
-        box on the Open Geospatial Consortium website for more information.
+        greater than the value of the upper right longitude. See `Geographic
+        bounding box
+        <http://docs.opengeospatial.org/is/12-063r5/12-063r5.html#30>`__ on the Open
+        Geospatial Consortium website for more information.
 
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-geobounds-aggregation.html>`__
@@ -1088,11 +1090,12 @@ class AggregationInterface(AggregationInterfaceBase):
 
         .. WARNING::
 
-            Using geo_centroid as a sub-aggregation of geohash_grid The geohash_grid
-            aggregation places documents, not individual geo-points, into buckets.
-            If a document’s geo_point field contains multiple values, the document
-            could be assigned to multiple buckets, even if one or more of its
-            geo-points are outside the bucket boundaries.
+            Using geo_centroid as a sub-aggregation of ``geohash_grid``:
+
+            The geohash_grid aggregation places documents, not individual
+            geo-points, into buckets. If a document’s geo_point field contains
+            multiple values, the document could be assigned to multiple buckets,
+            even if one or more of its geo-points are outside the bucket boundaries.
 
             If a geocentroid sub-aggregation is also used, each centroid is
             calculated using all geo-points in a bucket, including those outside the
@@ -2698,7 +2701,7 @@ class AggregationInterface(AggregationInterfaceBase):
         contributes to the final value is extracted from the document, or provided
         by a script.
 
-        As a formula, a weighted average is the ∑(value * weight) / ∑(weight)
+        As a formula, a weighted average is the ``∑(value * weight) / ∑(weight)``
 
         A regular average can be thought of as a weighted average where every value
         has an implicit weight of 1
