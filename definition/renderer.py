@@ -1,6 +1,7 @@
 import re
 from typing import Union
 
+from .markd import parse_markdown
 
 INDENT = "    "
 
@@ -12,56 +13,14 @@ MARKDOWN_LITERALS_RE = re.compile(r"`+([^`]+)`+")
 
 
 def doc_to_rst(text):
-    text = remove_single_newlines(text)
-    text = markdown_literals_to_rst(text)
-    text = markdown_links_to_rst(text)
+    text = parse_markdown(text)
     text = sections_to_rst(text)
     text = "\n".join("" if not line.strip() else line for line in text.splitlines())
-    text = proper_rst_newlines(text)
     return text
 
 
 def is_bullet_line(line: str) -> bool:
     return line.lstrip().startswith("- ")
-
-
-def remove_single_newlines(text: str) -> str:
-    ret_lines = []
-    cur_line = []
-    last_indent = None
-    was_bullet = False
-    for line in text.splitlines():
-        # an empty line
-        if not line.strip():
-            last_indent = None
-            was_bullet = False
-            if cur_line:
-                ret_lines.append(" ".join(cur_line))
-                cur_line.clear()
-                ret_lines.append("")
-            elif ret_lines:
-                ret_lines.append("")
-            else:
-                continue
-        else:
-            if cur_line:
-                cur_line.append(line.strip())
-            else:
-                cur_line.append(line.rstrip())
-
-            indent = len(line) - len(line.lstrip())
-            if not was_bullet:
-                if is_bullet_line(line) or (last_indent is not None and last_indent != indent):
-                    ret_lines.append(" ".join(cur_line))
-                    cur_line.clear()
-
-            last_indent = indent
-            was_bullet = is_bullet_line(line)
-
-    if cur_line:
-        ret_lines.append(" ".join(cur_line))
-
-    return "\n".join(ret_lines)
 
 
 def sections_to_rst(text: str) -> str:
@@ -78,52 +37,6 @@ def sections_to_rst(text: str) -> str:
         text = text.replace(f"{word}: ", f".. {rst_section}::\n\n    ")
         text = text.replace(f"{word}:", f".. {rst_section}::\n   ")
     return text
-
-
-def proper_rst_newlines(text: str) -> str:
-    lines = []
-    last_indent = 0
-    last_empty = False
-    last_bullet = False
-    for line in text.splitlines():
-        empty = not line.strip()
-        if not empty:
-
-            indent = len(line) - len(line.lstrip())
-
-            if indent != last_indent and not last_empty:
-                lines.append("")
-            elif last_bullet and not last_empty:
-                lines.append("")
-
-            last_indent = indent
-            last_bullet = is_bullet_line(line)
-        last_empty = empty
-
-        lines.append(line)
-
-
-    return "\n".join(lines)
-
-
-def markdown_links_to_rst(text):
-    lines = text.splitlines()
-    for i, line in enumerate(lines):
-        lines[i] = MARKDOWN_LINK_RE.sub(
-            r"`\1 <\2>`__",
-            line
-        )
-    return "\n".join(lines)
-
-
-def markdown_literals_to_rst(text):
-    lines = text.splitlines()
-    for i, line in enumerate(lines):
-        lines[i] = MARKDOWN_LITERALS_RE.sub(
-            r"``\1``",
-            line
-        )
-    return "\n".join(lines)
 
 
 def type_to_str(param):
