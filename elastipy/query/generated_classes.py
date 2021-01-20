@@ -164,17 +164,9 @@ class Match(Query):
 
         :param operator: ``Optional[str]``
             Boolean logic used to interpret text in the query value. Valid values
-            are:
-
-                OR (Default)
-
-                    For example, a query value of capital of Hungary is interpreted
-                    as capital OR of OR Hungary. 
-
-                AND
-
-                    For example, a query value of capital of Hungary is interpreted
-                    as capital AND of AND Hungary.
+            are: OR (Default) For example, a query value of capital of Hungary is
+            interpreted as capital OR of OR Hungary. AND For example, a query value
+            of capital of Hungary is interpreted as capital AND of AND Hungary.
 
         :param minimum_should_match: ``Optional[str]``
             Minimum number of clauses that must match for a document to be returned.
@@ -183,15 +175,9 @@ class Match(Query):
 
         :param zero_terms_query: ``str``
             Indicates whether no documents are returned if the analyzer removes all
-            tokens, such as when using a stop filter. Valid values are:
-
-                none (Default)
-
-                    No documents are returned if the analyzer removes all tokens.
-
-                all
-
-                    Returns all documents, similar to a match_all query.
+            tokens, such as when using a stop filter. Valid values are: none
+            (Default) No documents are returned if the analyzer removes all tokens.
+            all Returns all documents, similar to a match_all query.
         """
         super().__init__(
             field=field,
@@ -375,10 +361,10 @@ class QueryString(Query):
             Default field you wish to search if no field is provided in the query
             string.
 
-            Defaults to the index.query.default_field index setting, which has a
-            default value of *. The * value extracts all fields that are eligible
-            for term queries and filters the metadata fields. All extracted fields
-            are then combined to build a query if no prefix is specified.
+            Defaults to the ``index.query.default_field`` index setting, which has a
+            default value of ``*``. The ``*`` value extracts all fields that are
+            eligible for term queries and filters the metadata fields. All extracted
+            fields are then combined to build a query if no prefix is specified.
 
             Searching across all eligible fields does not include nested documents.
             Use a nested query to search those documents.
@@ -426,17 +412,10 @@ class QueryString(Query):
 
         :param default_operator: ``Optional[str]``
             Default boolean logic used to interpret text in the query string if no
-            operators are specified. Valid values are:
-
-                OR (Default)
-
-                    For example, a query string of capital of Hungary is interpreted
-                    as capital OR of OR Hungary.
-
-                AND
-
-                    For example, a query string of capital of Hungary is interpreted
-                    as capital AND of AND Hungary.
+            operators are specified. Valid values are: OR (Default) For example, a
+            query string of capital of Hungary is interpreted as capital OR of OR
+            Hungary. AND For example, a query string of capital of Hungary is
+            interpreted as capital AND of AND Hungary.
 
         :param enable_position_increments: ``bool``
             If true, enable position increments in queries constructed from a
@@ -565,8 +544,7 @@ class Range(Query):
     Returns documents that contain terms within a provided range.
 
     When the <field> parameter is a date field data type, you can use date math
-    with the 'gt', 'gte', 'lt' and 'lte' parameters.
-    See `date math
+    with the 'gt', 'gte', 'lt' and 'lte' parameters. See `date math
     <https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math>`__
 
     `elasticsearch documentation
@@ -594,8 +572,7 @@ class Range(Query):
         Returns documents that contain terms within a provided range.
 
         When the <field> parameter is a date field data type, you can use date math
-        with the 'gt', 'gte', 'lt' and 'lte' parameters.
-        See `date math
+        with the 'gt', 'gte', 'lt' and 'lte' parameters. See `date math
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math>`__
 
         `elasticsearch documentation
@@ -627,22 +604,11 @@ class Range(Query):
 
         :param relation: ``str``
             Indicates how the range query matches values for range fields. Valid
-            values are:
-
-                INTERSECTS (Default)
-
-                    Matches documents with a range field value that intersects the
-                    query’s range.
-
-                CONTAINS
-
-                    Matches documents with a range field value that entirely
-                    contains the query’s range.
-
-                WITHIN
-
-                    Matches documents with a range field value entirely within the
-                    query’s range.
+            values are: INTERSECTS (Default) Matches documents with a range field
+            value that intersects the query’s range. CONTAINS Matches documents with
+            a range field value that entirely contains the query’s range. WITHIN
+            Matches documents with a range field value entirely within the query’s
+            range.
 
         :param time_zone: ``Optional[str]``
             Coordinated Universal Time (UTC) offset or IANA time zone used to

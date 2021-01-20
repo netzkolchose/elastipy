@@ -91,8 +91,7 @@ class RstRenderer(BaseRenderer):
         return self.render_inner(token)
 
     def render_block_code(self, token):
-        # TODO
-        raise NotImplementedError
+        return f".. CODE::\n\n{self.render_inner(token)}"
 
     def render_list(self, token):
         return '\n'.join(
