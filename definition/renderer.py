@@ -21,12 +21,20 @@ def doc_to_rst(text):
     return text
 
 
+def is_bullet_line(line: str) -> bool:
+    return line.lstrip().startswith("- ")
+
+
 def remove_single_newlines(text: str) -> str:
     ret_lines = []
     cur_line = []
+    last_indent = None
+    was_bullet = False
     for line in text.splitlines():
         # an empty line
         if not line.strip():
+            last_indent = None
+            was_bullet = False
             if cur_line:
                 ret_lines.append(" ".join(cur_line))
                 cur_line.clear()
@@ -40,6 +48,15 @@ def remove_single_newlines(text: str) -> str:
                 cur_line.append(line.strip())
             else:
                 cur_line.append(line.rstrip())
+
+            indent = len(line) - len(line.lstrip())
+            if not was_bullet:
+                if is_bullet_line(line) or (last_indent is not None and last_indent != indent):
+                    ret_lines.append(" ".join(cur_line))
+                    cur_line.clear()
+
+            last_indent = indent
+            was_bullet = is_bullet_line(line)
 
     if cur_line:
         ret_lines.append(" ".join(cur_line))
@@ -80,7 +97,7 @@ def proper_rst_newlines(text: str) -> str:
                 lines.append("")
 
             last_indent = indent
-            last_bullet = line.lstrip().startswith("- ")
+            last_bullet = is_bullet_line(line)
         last_empty = empty
 
         lines.append(line)
@@ -215,12 +232,14 @@ def render_class(class_name, super_class_name, class_parameters, doc=None, funct
     return code.rstrip() + "\n"
 
 
-def change_text_indent(text, indent: Union[str, int]=0, max_length=None):
+def change_text_indent(text: str, indent: Union[str, int] = 0, max_length=None) -> str:
     """
     Changes the indentation of a block of text.
     All leading whitespace on each line is stripped up to the
     maximum common length of ws for each line and then 'len' spaces are inserted.
     Also merges multiple new-lines into one
+
+    :param text: str, the text to change
     :param indent: int|str, Number of spaces to have in front
     :param max_length: int|None, Number of maximum columns to occupy or None for unlimited
     :return: str
@@ -234,31 +253,29 @@ def change_text_indent(text, indent: Union[str, int]=0, max_length=None):
     while lines and not lines[-1].strip():
         lines = lines[:-1]
 
-    min_space = -1
-    for line in lines:
-        for i, k in enumerate(line):
-            if not (k == " " or k == "\n"):
-                if min_space < 0:
-                    min_space = i
-                else:
-                    min_space = min(min_space, i)
-                break
+    if not lines:
+        return ""
+    min_space = min(len(line) - len(line.lstrip()) for line in lines)
 
     pre = " " * indent
     text = ""
     was_nl = False
+    was_bullet = False
     for line in lines:
         li = line[min_space:]
         if li:
             if not max_length:
                 text += pre + li + "\n"
             else:
-                text += break_line(pre, li, max_length) + "\n"
+                if li.lstrip().startswith("- "):
+                    was_bullet = True
+                text += break_line(pre, li, max_length, was_bullet) + "\n"
             was_nl = False
         else:
             if not was_nl:
                 text += "\n"
             was_nl = True
+            was_bullet = False
 
     if text.endswith("\n"):
         text = text[:-1]
@@ -266,15 +283,19 @@ def change_text_indent(text, indent: Union[str, int]=0, max_length=None):
     return text
 
 
-def break_line(pre, line, max_length):
+def break_line(pre: str, line: str, max_length: int, is_bullet: bool) -> str:
+    # print(f"BREAK [{pre}] [{line}]")
+
     text = ""
     add_pre = len(line) - len(line.lstrip())
     line = line[add_pre:]
+
     pre += " " * add_pre
+    bullet_pre = pre + "  "
 
     while line:
         line_part = line
-        new_line = pre + line_part
+        new_line = (bullet_pre if is_bullet and not is_bullet_line(line_part) else pre) + line_part
         while len(new_line) > max_length:
             try:
                 space_idx = line_part.rindex(" ")
@@ -283,11 +304,11 @@ def break_line(pre, line, max_length):
             if not space_idx:
                 break
             line_part = line_part[:space_idx]
-            new_line = pre + line_part
+            new_line = (bullet_pre if is_bullet and not is_bullet_line(line_part) else pre) + line_part
 
         if text:
             text += "\n"
-        text += new_line
+        text += new_line.rstrip()
         line = line[len(line_part)+1:]
 
     return text

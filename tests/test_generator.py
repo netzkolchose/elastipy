@@ -12,12 +12,62 @@ from definition.renderer import (
 class TestGenerator(unittest.TestCase):
 
     def assertEqualText(self, expected: str, real: str):
+        expected = "\n".join(line.rstrip() for line in expected.splitlines()).rstrip()
+        real = "\n".join(line.rstrip() for line in real.splitlines()).rstrip()
+
         self.assertEqual(
             expected, real,
             "\n\nExpected:\n%s\n\nGot:\n%s" % (
                 "\n".join(f"[{line}]" for line in expected.splitlines()),
                 "\n".join(f"[{line}]" for line in real.splitlines()),
             )
+        )
+
+    def test_change_indent(self):
+        self.assertEqualText(
+"""
+level 1
+    level 2
+        level 3
+""".strip(),
+            change_text_indent("""
+    level 1
+        level 2
+            level 3
+""")
+        )
+
+    def test_change_indent_bullets(self):
+        self.assertEqualText(
+"""
+- a short bullet point
+- a long bullet point where
+  the new line's indentation
+  should be after the bullet
+    - a sub bullet point that
+      should also break
+      correctly
+""".strip(),
+            change_text_indent("""
+    - a short bullet point
+    - a long bullet point where the new line's indentation should be after the bullet 
+        - a sub bullet point that should also break correctly
+""", max_length=30)
+        )
+
+    def test_change_indent_bullets_authors_newline(self):
+        self.assertEqualText(
+            """
+- a short bullet point
+- a long bullet point where 
+  the new line's indentation 
+  should be after the bullet
+""".strip(),
+            change_text_indent(remove_single_newlines("""
+    - a short bullet point
+    - a long bullet point where the new line's 
+    indentation should be after the bullet 
+"""), max_length=30)
         )
 
     def test_markdown_links(self):
