@@ -23,7 +23,7 @@ class AggregationInterface(AggregationInterfaceBase):
 
         The matrix is said to be symmetric so we only return half of it. To do this
         we sort the filter name strings and always use the lowest of a pair as the
-        value to the left of the "&" separator.
+        value to the left of the ``"&"`` separator.
 
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-adjacency-matrix-aggregation.html>`__
@@ -90,32 +90,34 @@ class AggregationInterface(AggregationInterfaceBase):
             efficient, as the aggregation will not attempt to round at any interval
             lower than minimum_interval.
 
-            The accepted units for minimum_interval are:
-
-                year, month, day, hour, minute, second
+            The accepted units for minimum_interval are: year, month, day, hour,
+            minute, second
 
         :param time_zone: ``Optional[str]``
-            Elasticsearch stores date-times in Coordinated Universal Time (UTC). By
-            default, all bucketing and rounding is also done in UTC. Use the
-            time_zone parameter to indicate that bucketing should use a different
-            time zone.
+            Date-times are stored in Elasticsearch in UTC. By default, all bucketing
+            and rounding is also done in UTC. The ``time_zone`` parameter can be
+            used to indicate that bucketing should use a different time zone.
 
-            For example, if the interval is a calendar day and the time zone is
-            America/New_York then 2020-01-03T01:00:01Z is : # Converted to
-            2020-01-02T18:00:01 # Rounded down to 2020-01-02T00:00:00 # Then
-            converted back to UTC to produce 2020-01-02T05:00:00:00Z # Finally, when
-            the bucket is turned into a string key it is printed in America/New_York
-            so it’ll display as "2020-01-02T00:00:00"
+            Time zones may either be specified as an ISO 8601 UTC offset (e.g.
+            ``+01:00`` or ``-08:00``) or as a timezone id, an identifier used in the
+            TZ database like America/Los_Angeles.
 
-            It looks like: bucket_key = localToUtc(Math.floor(utcToLocal(value) /
-            interval) * interval))
+            .. WARNING::
 
-            You can specify time zones as an ISO 8601 UTC offset (e.g. +01:00 or
-            -08:00) or as an IANA time zone ID, such as America/Los_Angeles.
+                When using time zones that follow DST (daylight savings time)
+                changes, buckets close to the moment when those changes happen can
+                have slightly different sizes than neighbouring buckets. For
+                example, consider a DST start in the CET time zone: on 27 March 2016
+                at 2am, clocks were turned forward 1 hour to 3am local time. If the
+                result of the aggregation was daily buckets, the bucket covering
+                that day will only hold data for 23 hours instead of the usual 24
+                hours for other buckets. The same is true for shorter intervals like
+                e.g. 12h. Here, we will have only a 11h bucket on the morning of 27
+                March when the DST shift happens.
 
         :param format: ``Optional[str]``
-            Specifies the format of the 'key_as_string' response.
-            See: `mapping date format
+            Specifies the format of the 'key_as_string' response. See: `mapping date
+            format
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html>`__
 
         :param keyed: ``bool``
@@ -463,11 +465,8 @@ class AggregationInterface(AggregationInterfaceBase):
             The sources parameter can be any of the following types:
 
                 - Terms
-
                 - Histogram
-
                 - Date histogram
-
                 - GeoTile grid
 
             .. NOTE::
@@ -482,8 +481,8 @@ class AggregationInterface(AggregationInterfaceBase):
             for each composite bucket in an array containing the values extracted
             from each value source.
 
-            Pagination: If the number of composite buckets is too high (or unknown)
-            to be returned in a single response it is possible to split the
+            **Pagination**: If the number of composite buckets is too high (or
+            unknown) to be returned in a single response it is possible to split the
             retrieval in multiple requests. Since the composite buckets are flat by
             nature, the requested size is exactly the number of composite buckets
             that will be returned in the response (assuming that they are at least
@@ -493,7 +492,7 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param after: ``Optional[Union[str, int, float, datetime]]``
             To get the next set of buckets, resend the same aggregation with the
-            after parameter set to the after_key value returned in the response.
+            after parameter set to the ``after_key`` value returned in the response.
 
             .. NOTE::
 
@@ -502,9 +501,9 @@ class AggregationInterface(AggregationInterfaceBase):
                 after_key instead of derriving it from the buckets.
 
             In order to optimize the early termination it is advised to set
-            track_total_hits in the request to false. The number of total hits that
-            match the request can be retrieved on the first request and it would be
-            costly to compute this number on every page.
+            ``track_total_hits`` in the request to false. The number of total hits
+            that match the request can be retrieved on the first request and it
+            would be costly to compute this number on every page.
 
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
@@ -553,8 +552,9 @@ class AggregationInterface(AggregationInterfaceBase):
         :param calendar_interval: ``Optional[str]``
             Calendar-aware intervals are configured with the calendar_interval
             parameter. You can specify calendar intervals using the unit name, such
-            as month, or as a single unit quantity, such as 1M. For example, day and
-            1d are equivalent. Multiple quantities, such as 2d, are not supported.
+            as ``month``, or as a single unit quantity, such as ``1M``. For example,
+            ``day`` and ``1d`` are equivalent. Multiple quantities, such as ``2d``,
+            are not supported.
 
         :param fixed_interval: ``Optional[str]``
             In contrast to calendar-aware intervals, fixed intervals are a fixed
@@ -567,19 +567,33 @@ class AggregationInterface(AggregationInterfaceBase):
             Attempting to specify a calendar interval like month or quarter will
             throw an exception.
 
+            The accepted units for fixed intervals are:
+
+                - milliseconds (``ms``): A single millisecond. This is a very, very
+                  small interval.
+                - seconds (``s``): Defined as 1000 milliseconds each.
+                - minutes (``m``): Defined as 60 seconds each (60,000 milliseconds).
+                  All minutes begin at 00 seconds.
+                - hours (``h``): Defined as 60 minutes each (3,600,000
+                  milliseconds). All hours begin at 00 minutes and 00 seconds.
+                - days (``d``): Defined as 24 hours (86,400,000 milliseconds). All
+                  days begin at the earliest possible time, which is usually
+                  00:00:00 (midnight).
+
         :param min_doc_count: ``int``
-            Minimum documents to required for a bucket. Set to 0 to allow creating
+            Minimum documents required for a bucket. Set to 0 to allow creating
             empty buckets.
 
         :param offset: ``Optional[str]``
             Use the offset parameter to change the start value of each bucket by the
-            specified positive (+) or negative offset (-) duration, such as 1h for
-            an hour, or 1d for a day. See Time units for more possible time duration
-            options.
+            specified positive (+) or negative offset (-) duration, such as ``1h``
+            for an hour, or ``1d`` for a day. See `Time units
+            <https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#time-units>`__
+            for more possible time duration options.
 
             For example, when using an interval of day, each bucket runs from
-            midnight to midnight. Setting the offset parameter to +6h changes each
-            bucket to run from 6am to 6am
+            midnight to midnight. Setting the offset parameter to ``+6h`` changes
+            each bucket to run from 6am to 6am
 
         :param time_zone: ``Optional[str]``
             Elasticsearch stores date-times in Coordinated Universal Time (UTC). By
@@ -588,21 +602,26 @@ class AggregationInterface(AggregationInterfaceBase):
             time zone.
 
             For example, if the interval is a calendar day and the time zone is
-            America/New_York then 2020-01-03T01:00:01Z is : # Converted to
-            2020-01-02T18:00:01 # Rounded down to 2020-01-02T00:00:00 # Then
-            converted back to UTC to produce 2020-01-02T05:00:00:00Z # Finally, when
-            the bucket is turned into a string key it is printed in America/New_York
-            so it’ll display as "2020-01-02T00:00:00"
+            ``America/New_York`` then ``2020-01-03T01:00:01Z`` is
 
-            It looks like: ``bucket_key = localToUtc(Math.floor(utcToLocal(value) /
-            interval) * interval))``
+                - converted to ``2020-01-02T18:00:01``
+                - rounded down to ``2020-01-02T00:00:00``
+                - then converted back to UTC to produce ``2020-01-02T05:00:00:00Z``
+                - finally, when the bucket is turned into a string key it is printed
+                  in ``America/New_York`` so it’ll display as
+                  ``"2020-01-02T00:00:00"``
 
-            You can specify time zones as an ISO 8601 UTC offset (e.g. +01:00 or
-            -08:00) or as an IANA time zone ID, such as America/Los_Angeles.
+            It looks like:
+
+                ``bucket_key = localToUtc(Math.floor(utcToLocal(value) / interval) *
+                interval))``
+
+            You can specify time zones as an ISO 8601 UTC offset (e.g. ``+01:00`` or
+            ``-08:00``) or as an IANA time zone ID, such as America/Los_Angeles.
 
         :param format: ``Optional[str]``
-            Specifies the format of the 'key_as_string' response.
-            See: `mapping date format
+            Specifies the format of the 'key_as_string' response. See: `mapping date
+            format
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html>`__
 
         :param keyed: ``bool``
@@ -653,8 +672,12 @@ class AggregationInterface(AggregationInterfaceBase):
         aggregation is that the from and to values can be expressed in `Date Math
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math>`__
         expressions, and it is also possible to specify a date format by which the
-        from and to response fields will be returned. Note that this aggregation
-        includes the from value and excludes the to value for each range.
+        from and to response fields will be returned.
+
+        .. NOTE::
+
+            Note that this aggregation includes the from value and excludes the to
+            value for each range.
 
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html>`__
@@ -667,12 +690,12 @@ class AggregationInterface(AggregationInterfaceBase):
 
             Example:
 
-                [
+            .. CODE::
 
+                [
                     {"to": "1970-01-01"},
                     {"from": "1970-01-01", "to": "1980-01-01"},
                     {"from": "1980-01-01"},
-
                 ]
 
             Instead of date values any `Date Math
@@ -680,9 +703,7 @@ class AggregationInterface(AggregationInterfaceBase):
             expression can be used as well.
 
             Alternatively this parameter can be a list of strings. The above example
-            can be rewritten as:
-
-                ["1970-01-01", "1980-01-01"]
+            can be rewritten as: ``["1970-01-01", "1980-01-01"]``
 
             .. NOTE::
 
@@ -705,7 +726,8 @@ class AggregationInterface(AggregationInterfaceBase):
             time_zone parameter.
 
             Time zones may either be specified as an ISO 8601 UTC offset (e.g.
-            +01:00 or -08:00) or as one of the time zone ids from the TZ database.
+            ``+01:00`` or ``-08:00``) or as one of the time zone ids from the TZ
+            database.
 
             The time_zone parameter is also applied to rounding in date math
             expressions.
@@ -806,10 +828,10 @@ class AggregationInterface(AggregationInterfaceBase):
             max_docs_per_value: int = 1,
     ):
         """
-        Like the sampler aggregation this is a filtering aggregation used to limit
-        any sub aggregations' processing to a sample of the top-scoring documents.
-        The diversified_sampler aggregation adds the ability to limit the number of
-        matches that share a common value such as an "author".
+        Like the ``sampler`` aggregation this is a filtering aggregation used to
+        limit any sub aggregations' processing to a sample of the top-scoring
+        documents. The ``diversified_sampler`` aggregation adds the ability to limit
+        the number of matches that share a common value such as an "author".
 
         .. NOTE::
 
@@ -823,18 +845,16 @@ class AggregationInterface(AggregationInterfaceBase):
         Example use cases:
 
             - Tightening the focus of analytics to high-relevance matches rather
-            than the potentially very long tail of low-quality matches
-
+              than the potentially very long tail of low-quality matches
             - Removing bias from analytics by ensuring fair representation of
-            content from different sources
-
+              content from different sources
             - Reducing the running cost of aggregations that can produce useful
-            results using only samples e.g. significant_terms
+              results using only samples e.g. significant_terms
 
         A choice of field or script setting is used to provide values used for
-        de-duplication and the max_docs_per_value setting controls the maximum
+        de-duplication and the ``max_docs_per_value`` setting controls the maximum
         number of documents collected on any one shard which share a common value.
-        The default setting for max_docs_per_value is 1.
+        The default setting for ``max_docs_per_value`` is 1.
 
         .. NOTE::
 
@@ -845,27 +865,22 @@ class AggregationInterface(AggregationInterfaceBase):
         `Limitations:
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-diversified-sampler-aggregation.html#_limitations_5>`__
 
-            Cannot be nested under breadth_first aggregations
+            Cannot be nested under breadth_first aggregations Being a quality-based
+            filter the diversified_sampler aggregation needs access to the relevance
+            score produced for each document. It therefore cannot be nested under a
+            terms aggregation which has the collect_mode switched from the default
+            depth_first mode to breadth_first as this discards scores. In this
+            situation an error will be thrown.
 
-                Being a quality-based filter the diversified_sampler aggregation
-                needs access to the relevance score produced for each document. It
-                therefore cannot be nested under a terms aggregation which has the
-                collect_mode switched from the default depth_first mode to
-                breadth_first as this discards scores. In this situation an error
-                will be thrown.
+            Limited de-dup logic. The de-duplication logic applies only at a shard
+            level so will not apply across shards.
 
-            Limited de-dup logic.
-
-                The de-duplication logic applies only at a shard level so will not
-                apply across shards.
-
-            No specialized syntax for geo/date fields
-
-                Currently the syntax for defining the diversifying values is defined
-                by a choice of field or script - there is no added syntactical sugar
-                for expressing geo or date units such as "7d" (7 days). This support
-                may be added in a later release and users will currently have to
-                create these sorts of values using a script.
+            No specialized syntax for geo/date fields Currently the syntax for
+            defining the diversifying values is defined by a choice of field or
+            script - there is no added syntactical sugar for expressing geo or date
+            units such as ``"7d"`` (7 days). This support may be added in a later
+            release and users will currently have to create these sorts of values
+            using a script.
 
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-diversified-sampler-aggregation.html>`__
@@ -1018,8 +1033,10 @@ class AggregationInterface(AggregationInterfaceBase):
         For example, the upper right longitude will typically be greater than the
         lower left longitude of a geographic bounding box. However, when the area
         crosses the 180° meridian, the value of the lower left longitude will be
-        greater than the value of the upper right longitude. See Geographic bounding
-        box on the Open Geospatial Consortium website for more information.
+        greater than the value of the upper right longitude. See `Geographic
+        bounding box
+        <http://docs.opengeospatial.org/is/12-063r5/12-063r5.html#30>`__ on the Open
+        Geospatial Consortium website for more information.
 
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-geobounds-aggregation.html>`__
@@ -1073,7 +1090,8 @@ class AggregationInterface(AggregationInterfaceBase):
 
         .. WARNING::
 
-            Using geo_centroid as a sub-aggregation of geohash_grid
+            Using geo_centroid as a sub-aggregation of ``geohash_grid``:
+
             The geohash_grid aggregation places documents, not individual
             geo-points, into buckets. If a document’s geo_point field contains
             multiple values, the document could be assigned to multiple buckets,
@@ -1144,13 +1162,8 @@ class AggregationInterface(AggregationInterfaceBase):
 
             .. CODE::
 
-                [
-
-                    { "to": 100000 },
-                    { "from": 100000, "to": 300000 },
-                    { "from": 300000 }
-
-                ]
+                [ { "to": 100000 }, { "from": 100000, "to": 300000 }, { "from":
+                300000 } ]
 
             Alternatively this parameter can be a list of numbers. The above example
             can be rewritten as ``[100000, 300000]``
@@ -1160,15 +1173,13 @@ class AggregationInterface(AggregationInterfaceBase):
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-point.html>`__:
 
                 - Object format: ``{ "lat" : 52.3760, "lon" : 4.894 }`` - this is
-                the safest format as it is the most explicit about the lat & lon
-                values
-
+                  the safest format as it is the most explicit about the lat & lon
+                  values
                 - String format: ``"52.3760, 4.894"`` - where the first number is
-                the lat and the second is the lon
-
+                  the lat and the second is the lon
                 - Array format: ``[4.894, 52.3760]`` - which is based on the GeoJson
-                standard and where the first number is the lon and the second one is
-                the lat
+                  standard and where the first number is the lon and the second one
+                  is the lat
 
         :param unit: ``str``
             By default, the distance unit is ``m`` (meters) but it can also accept:
@@ -1176,12 +1187,12 @@ class AggregationInterface(AggregationInterfaceBase):
             ``cm`` (centimeters), ``mm`` (millimeters).
 
         :param distance_type: ``str``
-            There are two distance calculation modes: arc (the default), and plane.
-            The arc calculation is the most accurate. The plane is the fastest but
-            least accurate. Consider using plane when your search context is
-            "narrow", and spans smaller geographical areas (~5km). plane will return
-            higher error margins for searches across very large areas (e.g. cross
-            continent search)
+            There are two distance calculation modes: ``arc`` (the default), and
+            ``plane``. The arc calculation is the most accurate. The plane is the
+            fastest but least accurate. Consider using plane when your search
+            context is "narrow", and spans smaller geographical areas (~5km).
+            ``plane`` will return higher error margins for searches across very
+            large areas (e.g. cross continent search).
 
         :param keyed: ``bool``
             Setting the keyed flag to true will associate a unique string key with
@@ -1218,10 +1229,10 @@ class AggregationInterface(AggregationInterfaceBase):
         user-definable precision.
 
             - High precision geohashes have a long string length and represent cells
-            that cover only a small area.
+              that cover only a small area.
 
             - Low precision geohashes have a short string length and represent cells
-            that each cover a large area.
+              that each cover a large area.
 
         Geohashes used in this aggregation can have a choice of precision between 1
         and 12.
@@ -1237,10 +1248,10 @@ class AggregationInterface(AggregationInterfaceBase):
             Optional name of the aggregation. Otherwise it will be auto-generated.
 
         :param field: ``str``
-            The specified field must be of type geo_point or geo_shape (which can
-            only be set explicitly in the mappings). And it can also hold an array
-            of geo_point fields, in which case all will be taken into account during
-            aggregation.
+            The specified field must be of type ``geo_point`` or ``geo_shape``
+            (which can only be set explicitly in the mappings). And it can also hold
+            an array of geo_point fields, in which case all will be taken into
+            account during aggregation.
 
             Aggregating on Geo-shape fields works just as it does for points, except
             that a single shape can be counted for in multiple tiles. A shape will
@@ -1252,8 +1263,8 @@ class AggregationInterface(AggregationInterfaceBase):
             more precise.
 
             Alternatively, the precision level can be approximated from a distance
-            measure like "1km", "10m". The precision level is calculate such that
-            cells will not exceed the specified size (diagonal) of the required
+            measure like ``"1km"``, ``"10m"``. The precision level is calculate such
+            that cells will not exceed the specified size (diagonal) of the required
             precision. When this would lead to precision levels higher than the
             supported 12 levels, (e.g. for distances <5.6cm) the value is rejected.
 
@@ -1285,8 +1296,8 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param shard_size: ``Optional[int]``
             To allow for more accurate counting of the top cells returned in the
-            final result the aggregation defaults to returning max(10,(size x
-            number-of-shards)) buckets from each shard. If this heuristic is
+            final result the aggregation defaults to returning ``max(10, (size x
+            number-of-shards))`` buckets from each shard. If this heuristic is
             undesirable, the number considered from each shard can be over-ridden
             using this parameter.
 
@@ -1322,18 +1333,18 @@ class AggregationInterface(AggregationInterfaceBase):
         precision.
 
             - High precision keys have a larger range for x and y, and represent
-            tiles that cover only a small area.
+              tiles that cover only a small area.
 
             - Low precision keys have a smaller range for x and y, and represent
-            tiles that each cover a large area.
+              tiles that each cover a large area.
 
         .. WARNING::
 
             The highest-precision geotile of length 29 produces cells that cover
             less than a 10cm by 10cm of land and so high-precision requests can be
-            very costly in terms of RAM and result sizes. Please see the example
-            below on how to first filter the aggregation to a smaller geographic
-            area before requesting high-levels of detail.
+            very costly in terms of RAM and result sizes. Please first filter the
+            aggregation to a smaller geographic area before requesting high-levels
+            of detail.
 
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-geotilegrid-aggregation.html>`__
@@ -1365,7 +1376,7 @@ class AggregationInterface(AggregationInterfaceBase):
             `accepted formats
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-bounding-box-query.html#query-dsl-geo-bounding-box-query-accepted-formats>`__
             of the bounds specified in the Geo Bounding Box Query. This bounding box
-            can be used with or without an additional geo_bounding_box query
+            can be used with or without an additional ``geo_bounding_box`` query
             filtering the points prior to aggregating. It is an independent bounding
             box that can intersect with, be equal to, or be disjoint to any
             additional geo_bounding_box queries defined in the context of the
@@ -1378,8 +1389,8 @@ class AggregationInterface(AggregationInterfaceBase):
 
         :param shard_size: ``Optional[int]``
             To allow for more accurate counting of the top cells returned in the
-            final result the aggregation defaults to returning max(10,(size x
-            number-of-shards)) buckets from each shard. If this heuristic is
+            final result the aggregation defaults to returning ``max(10, (size x
+            number-of-shards))`` buckets from each shard. If this heuristic is
             undesirable, the number considered from each shard can be over-ridden
             using this parameter.
 
@@ -1452,7 +1463,8 @@ class AggregationInterface(AggregationInterfaceBase):
         bucket that is associated with the key 30. To make this more formal, here is
         the rounding function that is used:
 
-            bucket_key = Math.floor((value - offset) / interval) * interval + offset
+            ``bucket_key = Math.floor((value - offset) / interval) * interval +
+            offset``
 
         For range values, a document can fall into multiple buckets. The first
         bucket is computed from the lower bound of the range in the same way as a
@@ -1520,7 +1532,7 @@ class AggregationInterface(AggregationInterfaceBase):
             aggregation to start building buckets on a specific min value and also
             keep on building buckets up to a max value (even if there are no
             documents anymore). Using extended_bounds only makes sense when
-            min_doc_count is 0 (the empty buckets will never be returned if
+            ``min_doc_count`` is 0 (the empty buckets will never be returned if
             min_doc_count is greater than 0).
 
             Note that (as the name suggest) extended_bounds is not filtering
@@ -1549,8 +1561,8 @@ class AggregationInterface(AggregationInterfaceBase):
             that can result in a very large number of buckets.
 
         :param format: ``Optional[str]``
-            Specifies the format of the 'key_as_string' response.
-            See: `mapping date format
+            Specifies the format of the 'key_as_string' response. See: `mapping date
+            format
             <https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html>`__
 
         :param order: ``Optional[Union[Mapping, str]]``
@@ -1614,18 +1626,16 @@ class AggregationInterface(AggregationInterfaceBase):
 
             Example:
 
-                [
+            .. CODE::
 
+                [
                     {"to": "10.0.0.5"},
                     {"from": "10.0.0.5", "to": "10.0.0.127"},
                     {"from": "10.0.0.127"},
-
                 ]
 
             Alternatively this parameter can be a list of strings. The above example
-            can be rewritten as:
-
-                ["10.0.0.5", "10.0.0.127"]
+            can be rewritten as: ``["10.0.0.5", "10.0.0.127"]``
 
         :param keyed: ``bool``
             Setting the keyed flag to true associates a unique string key with each
@@ -1946,9 +1956,12 @@ class AggregationInterface(AggregationInterfaceBase):
         A multi-bucket value source based aggregation that enables the user to
         define a set of ranges - each representing a bucket. During the aggregation
         process, the values extracted from each document will be checked against
-        each bucket range and "bucket" the relevant/matching document. Note that
-        this aggregation includes the from value and excludes the to value for each
-        range.
+        each bucket range and "bucket" the relevant/matching document.
+
+        .. NOTE::
+
+            Note that this aggregation includes the from value and excludes the to
+            value for each range.
 
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html>`__
@@ -1961,18 +1974,16 @@ class AggregationInterface(AggregationInterfaceBase):
 
             Example:
 
-                [
+            .. CODE::
 
+                [
                     {"to": 10},
                     {"from": 10, "to": 20},
                     {"from": 20},
-
                 ]
 
             Alternatively this parameter can be a list of strings. The above example
-            can be rewritten as:
-
-                [10, 20]
+            can be rewritten as: ``[10, 20]``
 
             .. NOTE::
 
@@ -2014,7 +2025,7 @@ class AggregationInterface(AggregationInterfaceBase):
         A multi-bucket value source based aggregation which finds "rare"
         terms — terms that are at the long-tail of the distribution and are not
         frequent. Conceptually, this is like a terms aggregation that is sorted by
-        _count ascending. As noted in the `terms aggregation docs
+        ``_count`` ascending. As noted in the `terms aggregation docs
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-order>`__,
         actually ordering a terms agg by count ascending has unbounded error.
         Instead, you should use the rare_terms aggregation.
@@ -2128,10 +2139,10 @@ class AggregationInterface(AggregationInterfaceBase):
         Example use cases:
 
             - Tightening the focus of analytics to high-relevance matches rather
-            than the potentially very long tail of low-quality matches
+              than the potentially very long tail of low-quality matches
 
             - Reducing the running cost of aggregations that can produce useful
-            results using only samples e.g. significant_terms
+              results using only samples e.g. significant_terms
 
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-sampler-aggregation.html>`__
@@ -2690,7 +2701,7 @@ class AggregationInterface(AggregationInterfaceBase):
         contributes to the final value is extracted from the document, or provided
         by a script.
 
-        As a formula, a weighted average is the ∑(value * weight) / ∑(weight)
+        As a formula, a weighted average is the ``∑(value * weight) / ∑(weight)``
 
         A regular average can be thought of as a weighted average where every value
         has an implicit weight of 1

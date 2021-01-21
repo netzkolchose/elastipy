@@ -1,6 +1,11 @@
 url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html
 doc: |
-    A multi-bucket value source based aggregation that enables the user to define a set of ranges - each representing a bucket. During the aggregation process, the values extracted from each document will be checked against each bucket range and "bucket" the relevant/matching document. Note that this aggregation includes the from value and excludes the to value for each range.
+    A multi-bucket value source based aggregation that enables the user to define a set of
+    ranges - each representing a bucket. During the aggregation process, the values extracted
+    from each document will be checked against each bucket range and "bucket" the
+    relevant/matching document.
+
+    Note: Note that this aggregation includes the from value and excludes the to value for each range.
 parameters:
     ranges:
         type: Sequence[Union[Mapping[str, Any], Any]]
@@ -10,14 +15,17 @@ parameters:
             List of ranges to define the buckets
 
             Example:
+
+            ```
                 [
                     {"to": 10},
                     {"from": 10, "to": 20},
                     {"from": 20},
                 ]
+            ```
 
             Alternatively this parameter can be a list of strings. The above example can be rewritten as:
-                [10, 20]
+                `[10, 20]`
 
             Note: This aggregation includes the from value and excludes the to value for each range.
     field:
@@ -28,7 +36,8 @@ parameters:
         type: bool
         default: False
         doc: |
-            Setting the keyed flag to true associates a unique string key with each bucket and returns the ranges as a hash rather than an array.
+            Setting the keyed flag to true associates a unique string key with each bucket
+            and returns the ranges as a hash rather than an array.
     script:
         type: dict
         doc: |

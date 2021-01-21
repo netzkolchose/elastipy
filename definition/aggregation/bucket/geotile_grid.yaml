@@ -1,34 +1,59 @@
 url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-geotilegrid-aggregation.html
 doc: |
-    A multi-bucket aggregation that works on geo_point fields and groups points into buckets that represent cells in a grid. The resulting grid can be sparse and only contains cells that have matching data. Each cell corresponds to a [map tile](https://en.wikipedia.org/wiki/Tiled_web_map) as used by many online map sites. Each cell is labeled using a "{zoom}/{x}/{y}" format, where zoom is equal to the user-specified precision.
+    A multi-bucket aggregation that works on geo_point fields and groups points into buckets that represent
+    cells in a grid. The resulting grid can be sparse and only contains cells that have matching data.
+    Each cell corresponds to a
+    [map tile](https://en.wikipedia.org/wiki/Tiled_web_map) as used by many online map sites.
+    Each cell is labeled using a "{zoom}/{x}/{y}" format, where zoom is equal to the user-specified precision.
+
         - High precision keys have a larger range for x and y, and represent tiles that cover only a small area.
+
         - Low precision keys have a smaller range for x and y, and represent tiles that each cover a large area.
 
-    Warning: The highest-precision geotile of length 29 produces cells that cover less than a 10cm by 10cm of land and so high-precision requests can be very costly in terms of RAM and result sizes. Please see the example below on how to first filter the aggregation to a smaller geographic area before requesting high-levels of detail.
+    Warning: The highest-precision geotile of length 29 produces cells that cover less than
+    a 10cm by 10cm of land and so high-precision requests can be very costly in terms of RAM
+    and result sizes. Please first filter the aggregation to a smaller geographic area before
+    requesting high-levels of detail.
 
 parameters:
     field:
         type: str
         required: True
         doc: |
-            The specified field must be of type geo_point (which can only be set explicitly in the mappings). And it can also hold an array of geo_point fields, in which case all will be taken into account during aggregation.
+            The specified field must be of type geo_point (which can only be set explicitly in the mappings).
+            And it can also hold an array of geo_point fields, in which case all will be taken
+            into account during aggregation.
     precision:
         type: Union[int, str]
         default: 7
         doc: |
             The required precision of the grid in the range [1, 29]. Higher means more precise.
 
-            Note: When requesting detailed buckets (typically for displaying a "zoomed in" map) a filter like [geo_bounding_box](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-bounding-box-query.html) should be applied to narrow the subject area otherwise potentially millions of buckets will be created and returned.
+            Note: When requesting detailed buckets (typically for displaying a "zoomed in" map) a filter like
+            [geo_bounding_box](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-bounding-box-query.html)
+            should be applied to narrow the subject area otherwise potentially millions of
+            buckets will be created and returned.
     bounds:
         type: Mapping
         doc: |
-            The geotile_grid aggregation supports an optional bounds parameter that restricts the points considered to those that fall within the bounds provided. The bounds parameter accepts the bounding box in all the same [accepted formats](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-bounding-box-query.html#query-dsl-geo-bounding-box-query-accepted-formats) of the bounds specified in the Geo Bounding Box Query. This bounding box can be used with or without an additional geo_bounding_box query filtering the points prior to aggregating. It is an independent bounding box that can intersect with, be equal to, or be disjoint to any additional geo_bounding_box queries defined in the context of the aggregation.
+            The geotile_grid aggregation supports an optional bounds parameter that restricts the
+            points considered to those that fall within the bounds provided. The bounds parameter accepts the
+            bounding box in all the same
+            [accepted formats](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-bounding-box-query.html#query-dsl-geo-bounding-box-query-accepted-formats)
+            of the bounds specified in the Geo Bounding Box Query. This bounding box can be used with
+            or without an additional `geo_bounding_box` query filtering the points prior to aggregating.
+            It is an independent bounding box that can intersect with, be equal to, or be disjoint to any
+            additional geo_bounding_box queries defined in the context of the aggregation.
     size:
         type: int
         default: 10000
         doc: |
-            The maximum number of geohash buckets to return (defaults to 10,000). When results are trimmed, buckets are prioritised based on the volumes of documents they contain.
+            The maximum number of geohash buckets to return (defaults to 10,000).
+            When results are trimmed, buckets are prioritised based on the volumes of documents they contain.
     shard_size:
         type: int
         doc: |
-            To allow for more accurate counting of the top cells returned in the final result the aggregation defaults to returning max(10,(size x number-of-shards)) buckets from each shard. If this heuristic is undesirable, the number considered from each shard can be over-ridden using this parameter.
+            To allow for more accurate counting of the top cells returned in the final result
+            the aggregation defaults to returning `max(10, (size x number-of-shards))` buckets from each shard.
+            If this heuristic is undesirable, the number considered from each shard can be
+            over-ridden using this parameter.

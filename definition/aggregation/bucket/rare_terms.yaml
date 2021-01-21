@@ -1,6 +1,10 @@
 url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-rare-terms-aggregation.html
 doc: |
-    A multi-bucket value source based aggregation which finds "rare" terms — terms that are at the long-tail of the distribution and are not frequent. Conceptually, this is like a terms aggregation that is sorted by _count ascending. As noted in the [terms aggregation docs](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-order), actually ordering a terms agg by count ascending has unbounded error. Instead, you should use the rare_terms aggregation.
+    A multi-bucket value source based aggregation which finds "rare" terms — terms that are at the long-tail
+    of the distribution and are not frequent. Conceptually, this is like a terms aggregation that
+    is sorted by `_count` ascending. As noted in the
+    [terms aggregation docs](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-order),
+    actually ordering a terms agg by count ascending has unbounded error. Instead, you should use the rare_terms aggregation.
 parameters:
     field:
         type: str
@@ -13,24 +17,33 @@ parameters:
         doc: |
             The maximum number of documents a term should appear in.
 
-            The max_doc_count parameter is used to control the upper bound of document counts that a term can have. There is not a size limitation on the rare_terms agg like terms agg has. This means that terms which match the max_doc_count criteria will be returned. The aggregation functions in this manner to avoid the order-by-ascending issues that afflict the terms aggregation.
+            The max_doc_count parameter is used to control the upper bound of document
+            counts that a term can have. There is not a size limitation on the rare_terms agg
+            like terms agg has. This means that terms which match the max_doc_count criteria will
+            be returned. The aggregation functions in this manner to avoid the order-by-ascending
+            issues that afflict the terms aggregation.
 
-            This does, however, mean that a large number of results can be returned if chosen incorrectly. To limit the danger of this setting, the maximum max_doc_count is 100.
+            This does, however, mean that a large number of results can be returned if chosen incorrectly.
+            To limit the danger of this setting, the maximum max_doc_count is 100.
     include:
         type: Union[str, Sequence[str], Mapping[str, int]]
         doc: |
-            A [regexp](https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html) pattern that filters the documents which will be aggregated.
+            A [regexp](https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html)
+            pattern that filters the documents which will be aggregated.
 
             Alternatively can be a list of strings.
 
-            [Parition expressions](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#_filtering_values_with_partitions) are also possible.
+            [Parition expressions](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#_filtering_values_with_partitions)
+            are also possible.
     exclude:
         type: Union[str, Sequence[str]]
         doc: |
-            A [regexp](https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html) pattern that filters the documents which will be aggregated.
+            A [regexp](https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html)
+            pattern that filters the documents which will be aggregated.
 
             Alternatively can be a list of strings.
     missing:
         type: Any
         doc: |
-            The missing parameter defines how documents that are missing a value should be treated. By default they will be ignored but it is also possible to treat them as if they had a value.
+            The missing parameter defines how documents that are missing a value should be treated.
+            By default they will be ignored but it is also possible to treat them as if they had a value.

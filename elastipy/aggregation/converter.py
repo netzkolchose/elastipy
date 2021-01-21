@@ -12,6 +12,7 @@ class ConverterMixin:
 
     Must be bound into an Aggregation or compatible class
     to work properly. Especially:
+
         - must be compatible for Visitor(self)
         - needs access to self.root.name
     """

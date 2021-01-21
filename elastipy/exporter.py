@@ -15,16 +15,20 @@ class Exporter:
 
     Derive from class and define class attributes:
 
-        INDEX_NAME: str, name of index
+        ``INDEX_NAME``: str, name of index
             It can contain a wildcard *
-        MAPPINGS: dict, the mapping definition for the index
 
-    And optionally override:
-        transform_document()
+        ``MAPPINGS``: dict, the mapping definition for the index
+
+    And optionally override methods:
+
+        transform_document
             convert a document to elasticsearch
-        get_document_id()
+
+        get_document_id
             return a unique id for the elasticsearch document
-        get_document_index()
+
+        get_document_index
             return an alternative index name for the document
     """
 
@@ -105,10 +109,9 @@ class Exporter:
         The default function returns the result from index_name() but it's possible
         to put objects into separate indices.
 
-        For example you might define
-            INDEX_NAME = "documents-*"
-        and get_document_index() might return
-            self.index_name() + es_data["type"]
+        For example you might define ``INDEX_NAME = "documents-*"``
+
+        and get_document_index() might return ``self.index_name() + es_data["type"]``
 
         :param es_data: dict, single document as returned by transform_document()
         :return: str
