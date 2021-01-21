@@ -182,7 +182,7 @@ parameters:
                 it adds a round-trip to each shard, which can result in slower searches.
     seq_no_primary_term:
         type: bool
-        # TODO: what's the default? probably False
+        default: False
         doc: |
             If `true`, returns sequence number and primary term of the last modification of each hit.
             See [Optimistic concurrency control](https://www.elastic.co/guide/en/elasticsearch/reference/current/optimistic-concurrency-control.html).
@@ -298,4 +298,4 @@ parameters:
         default: False
         doc: |
             If `true`, returns document version as part of a hit. Defaults to `false`.
-    
+
