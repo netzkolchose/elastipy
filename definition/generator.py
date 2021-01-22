@@ -212,6 +212,9 @@ def render_search_param_class():
 
     code += f"\nclass SearchParameters(SearchParametersBase):\n\n"
 
+    code += f"{INDENT}# make sure sphinx get's the documentation string\n"
+    code += f"{INDENT}__doc__ = SearchParametersBase.__doc__\n\n"
+
     # stripped-down version of the definition to access at class level
     short_definition = dict()
     for param_name, param in SEARCH_PARAM_DEFINITION.items():

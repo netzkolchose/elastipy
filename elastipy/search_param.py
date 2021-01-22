@@ -2,6 +2,16 @@
 
 class SearchParametersBase:
 
+    """
+    Access to this class is through `Search.param`.
+
+    Each method returns a new Search instance.
+    ```
+    s = Search()
+    s = s.param.explain(True).param.size(100)
+    ```
+    """
+
     # will be replaced by the yaml-generated class
     DEFINITION = {}
 
@@ -17,12 +27,32 @@ class SearchParametersBase:
 
     def to_body(self) -> dict:
         """
-        Convert all parameters to the representation in the request body
+        Convert all parameters to the representation in the search request body
         :return: dict
         """
+        return self._to_dict("body")
+
+    def to_query_params(self) -> dict:
+        """
+        Convert all parameters to the representation as search request query parameters
+        :return: dict
+        """
+        params = self._to_dict("query")
+        for key, value in params.items():
+
+            if isinstance(value, bool):
+                value = repr(value).lower()
+
+            params[key] = value
+        return params
+
+    def _to_dict(self, group) -> dict:
         body = dict()
         for name, value in self._params.items():
             defi = self.DEFINITION.get(name) or {}
+            if defi.get("group") != group:
+                continue
+
             if value == defi.get("default"):
                 continue
 

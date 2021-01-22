@@ -66,7 +66,7 @@ class TestSearchRequest(unittest.TestCase):
             {
                 "index": None,
                 "params": {
-                    "rest_total_hits_as_int": "true",
+                    #"rest_total_hits_as_int": "true",
                 },
                 "body": {
                     "query": {
@@ -136,6 +136,19 @@ class TestSearchRequest(unittest.TestCase):
             }
         })
 
+    def test_sort_multi_param(self):
+        s = Search().sort("field", "-another", ["third"], ("-4th", ))
+        self.assertRequest(s, {
+            "body": {
+                "sort": [
+                    "field",
+                    {"another": "desc"},
+                    "third",
+                    {"4th": "desc"},
+                ],
+            }
+        })
+
     def test_replace_query(self):
         s = Search().query(query.MatchNone())
         self.assertRequest(s, {
@@ -193,6 +206,27 @@ class TestSearchRequest(unittest.TestCase):
         with self.assertRaises(ValueError):
             s = Search()
             s.aggregation(field="field")
+
+    def test_search_params_all(self):
+        s = Search()
+        for name, param in s.param.DEFINITION.items():
+            value = "23"
+
+            func_name = name.lstrip("_")
+            if func_name == "from":
+                func_name = "from_"
+            s2 = getattr(s.param, func_name)(value)
+
+            expected_value = value
+            if name == "sort":
+                expected_value = [value]
+
+            path = "params" if param["group"] == "query" else "body"
+            self.assertRequest(s2, {
+                path: {
+                    name: expected_value
+                },
+            })
 
 
 if __name__ == "__main__":
