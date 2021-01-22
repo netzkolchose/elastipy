@@ -32,6 +32,7 @@ def sections_to_rst(text: str) -> str:
     for word, rst_section in (
             ("Note", "NOTE"),
             ("Warning", "WARNING"),
+            ("Important", "IMPORTANT"),
             ("Code", "CODE"),
     ):
         text = text.replace(f"{word}: ", f".. {rst_section}::\n\n    ")
@@ -80,7 +81,7 @@ def render_function(
             param_str += f": {type_to_str(param)}"
 
         if not param.get("required") and param_name != "self" and not param_name.startswith("*"):
-            param_str += " = " + repr(param.get("default"))
+            param_str += " = " + (param.get("declaration_default") or repr(param.get("default")))
         code += f"{INDENT}{INDENT}{param_str},\n"
     code += f")"
 

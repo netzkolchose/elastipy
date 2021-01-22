@@ -1,4 +1,4 @@
-from .data import QUERY_DEFINITION, AGGREGATION_DEFINITION
+from .data import QUERY_DEFINITION, AGGREGATION_DEFINITION, SEARCH_PARAM_DEFINITION
 from .renderer import render_function, render_class, change_text_indent
 
 
@@ -199,6 +199,100 @@ def render_aggregation_class():
             return_type="AggregationInterface",
             return_doc=return_doc,
             annotate_return_type=False,
+            indent=INDENT,
+        ) + "\n"
+
+    return code.rstrip() + "\n"
+
+
+def render_search_param_class():
+    code = HEADLINE + "\n" + TYPING_IMPORT + "\n\n"
+    code += "from .search_param import SearchParametersBase\n"
+    code += "from .search import Search\n\n"
+
+    code += f"\nclass Unset:\n{INDENT}pass\n\n"
+
+    code += f"\nclass SearchParameters(SearchParametersBase):\n\n"
+
+    code += f"{INDENT}# make sure sphinx get's the documentation string\n"
+    code += f"{INDENT}__doc__ = SearchParametersBase.__doc__\n\n"
+
+    # stripped-down version of the definition to access at class level
+    short_definition = dict()
+    for param_name, param in SEARCH_PARAM_DEFINITION.items():
+        short_definition[param_name] = {
+            key: value
+            for key, value in param.items()
+            if key not in ("doc", "type")
+        }
+
+    code += f"{INDENT}DEFINITION = {repr(short_definition)}\n\n"
+
+    # -- combined method for all parameters --
+
+    COMBINED_DOC = change_text_indent("""
+        Can set all search parameters at once.
+        
+        Each parameter that is different than it's
+        default value is put into the search request.
+        
+        The parameters are automatically split into 
+        query and body representation. 
+    """)
+
+    def func_name(name):
+        func_name = name.lstrip('_')
+        func_name = {"from": "from_"}.get(func_name, func_name)
+        return func_name
+
+    combined_params = dict()
+    combined_body = "s = self._search.copy()\n"
+    for name, defi in SEARCH_PARAM_DEFINITION.items():
+        fname = func_name(name)
+        #combined_body += f"if {fname} != self.DEFINITION[\"{name}\"].get(\"default\")
+        combined_body += f"if {fname} is not Unset:\n"
+        combined_body += f"{INDENT}s._parameters._params[\"{name}\"] = {fname}\n"
+
+        defi = defi.copy()
+        # defi["type"] = f"Union[Type[Unset], {defi['type']}]"
+        defi["declaration_default"] = "Unset"
+        combined_params[fname] = defi
+    combined_body += "return s\n"
+
+    code += render_function(
+        function_name="__call__",
+        parameters={
+            "self": {},
+            **combined_params,
+        },
+        doc=COMBINED_DOC,
+        body=combined_body,
+        return_type="Search",
+        return_doc="A new Search instance is created",
+        annotate_return_type=True,
+        indent=INDENT,
+    ) + "\n"
+
+    # -- method for each search parameter ---
+
+    for param_name, definition in SEARCH_PARAM_DEFINITION.items():
+
+        # -- method body --
+        body = f"return self._set_parameter(\"{param_name}\", value)\n"
+
+        code += render_function(
+            function_name=f"{func_name(param_name)}",
+            parameters={
+                "self": {},
+                "value": {
+                    **definition
+                },
+            },
+            doc=f"A search **{definition['group']}** parameter.",
+            body=body,
+            return_type="Search",
+            return_doc="A new Search instance is created",
+            annotate_return_type=True,
             indent=INDENT,
         ) + "\n"
 

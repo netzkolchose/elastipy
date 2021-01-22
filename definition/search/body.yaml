@@ -1,0 +1,158 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-request-body
+parameters:
+    docvalue_fields:
+        type: Sequence[Union[str, Mapping[str, str]]]
+        doc: |
+            Array of wildcard (`*`) patterns. The request returns doc values for field names
+            matching these patterns in the `hits.fields` property of the response.
+
+            You can specify items in the array as a string or object.
+            See [Doc value fields](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html#docvalue-fields).
+
+            Properties of `docvalue_fields` objects:
+
+                - `field`
+                (Required, string) Wildcard pattern. The request returns doc values for field names
+                matching this pattern.
+                - `format`
+                (Optional, string) Format in which the doc values are returned.
+
+                For [date fields](https://www.elastic.co/guide/en/elasticsearch/reference/current/date.html),
+                you can specify a
+                [date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html9.
+                For [numeric fields](https://www.elastic.co/guide/en/elasticsearch/reference/current/number.html),
+                you can specify a [DecimalFormat pattern](https://docs.oracle.com/javase/8/docs/api/java/text/DecimalFormat.html).
+
+            For other field data types, this parameter is not supported.
+    fields:
+        type: Sequence[Union[str, Mapping[str, str]]]
+        doc: |
+            Array of wildcard (`*`) patterns. The request returns values for field names matching
+            these patterns in the `hits.fields` property of the response.
+
+            You can specify items in the array as a string or object.
+            See [Fields](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html#search-fields-param)
+            for more details.
+
+            Properties of `fields` objects:
+
+                - `field`
+                (Required, string) Wildcard pattern. The request returns values for field names matching this pattern.
+                - `format`
+
+                (Optional, string) Format in which the values are returned.
+
+                The date fields date and date_nanos accept a date format. Spatial fields accept either geojson for GeoJSON (the default) or wkt for Well Known Text.
+
+                For other field data types, this parameter is not supported.
+    explain:
+        type: bool
+        default: False
+        doc: |
+            If `true`, returns detailed information about score computation as part of a hit. Defaults to `false`.
+    from:
+        type: int
+        default: 0
+        doc: |
+          Starting document offset. Defaults to `0`.
+
+          By default, you cannot page through more than `10,000` hits using the from and size parameters.
+          To page through more hits, use the `search_after` parameter.
+    indices_boost:
+        type: Sequence[Mapping[str, float]]
+        doc: |
+          Boosts the `_score` of documents from specified indices.
+
+          Properties of `indices_boost` objects:
+
+              `<index>: <boost-value>`
+
+                  - `<index>` is the name of the index or index alias. Wildcard (`*`) expressions are supported.
+                  - `<boost-value>` is the `float` factor by which scores are multiplied.
+
+              A boost value greater than `1.0` increases the score.
+              A boost value between `0` and `1.0` decreases the score.
+    min_score:
+        type: float
+        doc: |
+            Minimum `_score` for matching documents. Documents with a lower `_score` are not
+            included in the search results.
+    seq_no_primary_term:
+        type: bool
+        default: False
+        doc: |
+            If `true`, returns sequence number and primary term of the last modification of each hit.
+            See [Optimistic concurrency control](https://www.elastic.co/guide/en/elasticsearch/reference/current/optimistic-concurrency-control.html).
+    size:
+        type: int
+        default: 10
+        doc: |
+            Defines the number of hits to return. Defaults to `10`.
+
+            By default, you cannot page through more than `10,000` hits using the from and size parameters.
+            To page through more hits, use the
+            [search_after](https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#search-after)
+            parameter.
+    sort:
+        type: Union[str, Sequence[Union[str, Mapping[str, str]]], Mapping[str, str]]
+        doc: |
+            Change the order of the returned documents.
+            See [sort search results](https://www.elastic.co/guide/en/elasticsearch/reference/current/sort-search-results.html).
+
+            The parameter can be:
+
+                - `"field"` or `"-field"` to sort a field ascending or descending
+                - `{"field": "asc"}` or `{"field": "desc"}` to sort a field ascending or descending
+                - a `list` of strings or objects as above to sort by a couple of fields
+                - `None` to turn off sorting
+    _source:
+        type: Union[bool, str, Sequence]
+        default: True
+        doc: |
+            Indicates which [source fields](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-source-field.html)
+            are returned for matching documents. These fields are returned in the `hits._source` property
+            of the search response. Defaults to `true`.
+
+            Valid values:
+
+                - `true` (Boolean) The entire document source is returned.
+                - `false` (Boolean) The document source is not returned.
+                - `<wildcard_pattern>`
+                (string or array of strings) Wildcard (`*`) pattern or array of patterns containing source fields to return.
+                - `<object>`
+                Object containing a list of source fields to include or exclude.
+                Properties for <object>:
+
+                    - `excludes`
+                    (string or array of strings) Wildcard (`*`) pattern or array of patterns containing source fields
+                    to exclude from the response.
+                    You can also use this property to exclude fields from the subset specified in includes property.
+                    - `includes`
+                    (string or array of strings) Wildcard (`*`) pattern or array of patterns containing source
+                    fields to return.
+                    If this property is specified, only these source fields are returned. You can exclude
+                    fields from this subset using the `excludes` property.
+    stats:
+        type: Sequence[str]
+        doc: |
+            Stats groups to associate with the search. Each group maintains a statistics aggregation
+            for its associated searches. You can retrieve these stats using the
+            [indices stats API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-stats.html).
+    terminate_after:
+        type: int
+        default: 0
+        doc: |
+            The maximum number of documents to collect for each shard,
+            upon reaching which the query execution will terminate early.
+
+            Defaults to `0`, which does not terminate query execution early.
+        timeout:
+          type: str
+          doc: |
+              Specifies the period of time to wait for a response in
+              [time units](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#time-units).
+              If no response is received before the timeout expires,
+              the request fails and returns an error. Defaults to no timeout.
+
+
+

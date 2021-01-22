@@ -234,7 +234,7 @@ Better execute the search now before the body get's too complicated:
 .. parsed-literal::
 
     {
-      "took": 0,
+      "took": 7,
       "timed_out": false,
       "_shards": {
         "total": 1,
@@ -243,13 +243,16 @@ Better execute the search now before the body get's too complicated:
         "failed": 0
       },
       "hits": {
-        "total": 185,
+        "total": {
+          "value": 185,
+          "relation": "eq"
+        },
         "max_score": 2.1868048,
         "hits": [
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "fH_WHncBeebHNMb6QZVe",
+            "_id": "FX8lK3cBeebHNMb6UKde",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -260,7 +263,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "vH_WHncBeebHNMb6QZVe",
+            "_id": "VX8lK3cBeebHNMb6UKde",
             "_score": 2.1868048,
             "_source": {
               "shape": "triangle",
@@ -271,7 +274,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "4H_WHncBeebHNMb6QZVe",
+            "_id": "eX8lK3cBeebHNMb6UKde",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -434,7 +437,7 @@ Let's look at the result from elasticsearch:
 .. parsed-literal::
 
     {
-      "took": 1,
+      "took": 0,
       "timed_out": false,
       "_shards": {
         "total": 1,
@@ -443,7 +446,10 @@ Let's look at the result from elasticsearch:
         "failed": 0
       },
       "hits": {
-        "total": 1000,
+        "total": {
+          "value": 1000,
+          "relation": "eq"
+        },
         "max_score": null,
         "hits": []
       },

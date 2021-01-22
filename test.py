@@ -4,6 +4,7 @@ import subprocess
 import argparse
 import json
 import time
+import fnmatch
 from typing import Sequence, Mapping
 
 import elasticsearch
@@ -29,6 +30,10 @@ def parse_arguments():
     parser.add_argument(
         "-m", "--missing", type=bool, default=False, nargs="?", const=True,
         help="Show missing line numbers in coverage report"
+    )
+    parser.add_argument(
+        "-i", "--include", type=str, nargs="+",
+        help="wildcard patterns to match specific tests"
     )
 
     return parser.parse_args()
@@ -72,6 +77,53 @@ def run_test(package_names: Sequence[str], extra_args, extra_env: Mapping = None
     )
 
 
+def get_test_names(package_names: list, patterns: list) -> list:
+    """
+    Return a list of strings passable as arguments to `python -m unittest`
+    which contain all tests that match any one of the wildcard patterns
+    :param package_names: `list[str]`
+    :param patterns: `list[str]`
+    :return: `list[str]`
+    """
+    import unittest
+    import inspect
+    import importlib
+
+    patterns = [
+        f"*{p}*" if not "*" in p and not "?" in p else p
+        for p in patterns
+    ]
+
+    classes = set()
+    for package_name in package_names:
+        module = importlib.import_module(package_name)
+        for key in dir(module):
+            thing = getattr(module, key)
+            if inspect.isclass(thing) and issubclass(thing, unittest.TestCase):
+                classes.add(thing)
+
+    names = []
+    for klass in classes:
+        for key in dir(klass):
+            thing = getattr(klass, key)
+            if key.startswith("test_") and callable(thing):
+                name = f"{klass.__name__}.{thing.__name__}"
+
+                filename = inspect.getfile(inspect.getmodule(klass))[:-3]
+                path = filename.split("/")
+                path = path[path.index("tests"):]
+                path = ".".join(path)
+
+                name = f"{path}.{name}"
+
+                for p in patterns:
+                    if fnmatch.fnmatch(name, p):
+                        names.append(name)
+                        break
+    
+    return sorted(names)
+
+
 if __name__ == "__main__":
 
     options = parse_arguments()
@@ -89,6 +141,13 @@ if __name__ == "__main__":
 
     if options.elasticsearch:
         extra_env["ELASTIPY_UNITTEST_SERVER"] = options.elasticsearch
+
+    if options.include:
+        extra_args += get_test_names(package_names, options.include)
+        package_names = []
+        if not extra_args:
+            print("No matches found")
+            exit(1)
 
     code = run_test(package_names, extra_args=extra_args, extra_env=extra_env)
     if code:

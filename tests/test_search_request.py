@@ -66,7 +66,7 @@ class TestSearchRequest(unittest.TestCase):
             {
                 "index": None,
                 "params": {
-                    "rest_total_hits_as_int": "true",
+                    #"rest_total_hits_as_int": "true",
                 },
                 "body": {
                     "query": {
@@ -136,6 +136,19 @@ class TestSearchRequest(unittest.TestCase):
             }
         })
 
+    def test_sort_multi_param(self):
+        s = Search().sort("field", "-another", ["third"], ("-4th", ))
+        self.assertRequest(s, {
+            "body": {
+                "sort": [
+                    "field",
+                    {"another": "desc"},
+                    "third",
+                    {"4th": "desc"},
+                ],
+            }
+        })
+
     def test_replace_query(self):
         s = Search().query(query.MatchNone())
         self.assertRequest(s, {
@@ -193,6 +206,79 @@ class TestSearchRequest(unittest.TestCase):
         with self.assertRaises(ValueError):
             s = Search()
             s.aggregation(field="field")
+
+    def test_search_params_all(self):
+        s = Search()
+        for name, param in s.param.DEFINITION.items():
+            value = "23"
+
+            expected_value = value
+            if name == "sort":
+                expected_value = [value]
+
+            expected_request = {
+                "index": None,
+                "params": {},
+                "body": {
+                    "query": {
+                        "match_all": {}
+                    },
+                },
+            }
+            path = "params" if param["group"] == "query" else "body"
+            expected_request[path][name] = expected_value
+
+            func_name = name.lstrip("_")
+            if func_name == "from":
+                func_name = "from_"
+
+            # change by s.param.func_name(value)
+            s2 = getattr(s.param, func_name)(value)
+            self.assertRequest(s2, expected_request)
+
+            # change by s.param(func_name=value)
+            s2 = s.param(**{func_name: value})
+            self.assertRequest(s2, expected_request)
+
+    def test_params_multi(self):
+        s = Search().param(
+            size=23,
+            from_=42,
+        )
+        self.assertRequest(s, {
+            "index": None,
+            "params": {},
+            "body": {
+                "from": 42,
+                "size": 23,
+                "query": {"match_all": {}}
+            },
+        }, and_not_more=True)
+
+        self.assertEqual(
+            s.to_request(),
+            s.param().to_request(),
+        )
+
+    def test_params_replace_to_default(self):
+        s = Search().size(23)
+        self.assertRequest(s, {
+            "index": None,
+            "params": {},
+            "body": {
+                "size": 23,
+                "query": {"match_all": {}}
+            },
+        }, and_not_more=True)
+
+        s = s.param(size=10)
+        self.assertRequest(s, {
+            "index": None,
+            "params": {},
+            "body": {
+                "query": {"match_all": {}}
+            },
+        }, and_not_more=True)
 
 
 if __name__ == "__main__":

@@ -72,7 +72,7 @@ class TestSearch(unittest.TestCase):
         with self.assertRaises(ValueError):
             _ = Search().response
 
-    def test_nresponse(self):
+    def test_response(self):
         s = Search()
         s.set_response({"hits": {"total": 23}})
         self.assertEqual(
