@@ -212,21 +212,73 @@ class TestSearchRequest(unittest.TestCase):
         for name, param in s.param.DEFINITION.items():
             value = "23"
 
-            func_name = name.lstrip("_")
-            if func_name == "from":
-                func_name = "from_"
-            s2 = getattr(s.param, func_name)(value)
-
             expected_value = value
             if name == "sort":
                 expected_value = [value]
 
-            path = "params" if param["group"] == "query" else "body"
-            self.assertRequest(s2, {
-                path: {
-                    name: expected_value
+            expected_request = {
+                "index": None,
+                "params": {},
+                "body": {
+                    "query": {
+                        "match_all": {}
+                    },
                 },
-            })
+            }
+            path = "params" if param["group"] == "query" else "body"
+            expected_request[path][name] = expected_value
+
+            func_name = name.lstrip("_")
+            if func_name == "from":
+                func_name = "from_"
+
+            # change by s.param.func_name(value)
+            s2 = getattr(s.param, func_name)(value)
+            self.assertRequest(s2, expected_request)
+
+            # change by s.param(func_name=value)
+            s2 = s.param(**{func_name: value})
+            self.assertRequest(s2, expected_request)
+
+    def test_params_multi(self):
+        s = Search().param(
+            size=23,
+            from_=42,
+        )
+        self.assertRequest(s, {
+            "index": None,
+            "params": {},
+            "body": {
+                "from": 42,
+                "size": 23,
+                "query": {"match_all": {}}
+            },
+        }, and_not_more=True)
+
+        self.assertEqual(
+            s.to_request(),
+            s.param().to_request(),
+        )
+
+    def test_params_replace_to_default(self):
+        s = Search().size(23)
+        self.assertRequest(s, {
+            "index": None,
+            "params": {},
+            "body": {
+                "size": 23,
+                "query": {"match_all": {}}
+            },
+        }, and_not_more=True)
+
+        s = s.param(size=10)
+        self.assertRequest(s, {
+            "index": None,
+            "params": {},
+            "body": {
+                "query": {"match_all": {}}
+            },
+        }, and_not_more=True)
 
 
 if __name__ == "__main__":

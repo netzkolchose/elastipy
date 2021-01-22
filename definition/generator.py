@@ -210,6 +210,8 @@ def render_search_param_class():
     code += "from .search_param import SearchParametersBase\n"
     code += "from .search import Search\n\n"
 
+    code += f"\nclass Unset:\n{INDENT}pass\n\n"
+
     code += f"\nclass SearchParameters(SearchParametersBase):\n\n"
 
     code += f"{INDENT}# make sure sphinx get's the documentation string\n"
@@ -226,19 +228,60 @@ def render_search_param_class():
 
     code += f"{INDENT}DEFINITION = {repr(short_definition)}\n\n"
 
-    # -- class method for each search parameter ---
+    # -- combined method for all parameters --
 
-    for param_name in sorted(SEARCH_PARAM_DEFINITION):
-        definition = SEARCH_PARAM_DEFINITION[param_name]
+    COMBINED_DOC = change_text_indent("""
+        Can set all search parameters at once.
+        
+        Each parameter that is different than it's
+        default value is put into the search request.
+        
+        The parameters are automatically split into 
+        query and body representation. 
+    """)
+
+    def func_name(name):
+        func_name = name.lstrip('_')
+        func_name = {"from": "from_"}.get(func_name, func_name)
+        return func_name
+
+    combined_params = dict()
+    combined_body = "s = self._search.copy()\n"
+    for name, defi in SEARCH_PARAM_DEFINITION.items():
+        fname = func_name(name)
+        #combined_body += f"if {fname} != self.DEFINITION[\"{name}\"].get(\"default\")
+        combined_body += f"if {fname} is not Unset:\n"
+        combined_body += f"{INDENT}s._parameters._params[\"{name}\"] = {fname}\n"
+
+        defi = defi.copy()
+        # defi["type"] = f"Union[Type[Unset], {defi['type']}]"
+        defi["declaration_default"] = "Unset"
+        combined_params[fname] = defi
+    combined_body += "return s\n"
+
+    code += render_function(
+        function_name="__call__",
+        parameters={
+            "self": {},
+            **combined_params,
+        },
+        doc=COMBINED_DOC,
+        body=combined_body,
+        return_type="Search",
+        return_doc="A new Search instance is created",
+        annotate_return_type=True,
+        indent=INDENT,
+    ) + "\n"
+
+    # -- method for each search parameter ---
+
+    for param_name, definition in SEARCH_PARAM_DEFINITION.items():
 
         # -- method body --
         body = f"return self._set_parameter(\"{param_name}\", value)\n"
 
-        func_name = param_name.lstrip('_')
-        func_name = {"from": "from_"}.get(func_name, func_name)
-
         code += render_function(
-            function_name=f"{func_name}",
+            function_name=f"{func_name(param_name)}",
             parameters={
                 "self": {},
                 "value": {
