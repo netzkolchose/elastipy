@@ -32,6 +32,7 @@ def sections_to_rst(text: str) -> str:
     for word, rst_section in (
             ("Note", "NOTE"),
             ("Warning", "WARNING"),
+            ("Important", "IMPORTANT"),
             ("Code", "CODE"),
     ):
         text = text.replace(f"{word}: ", f".. {rst_section}::\n\n    ")

@@ -38,7 +38,7 @@ parameters:
 
                 - `field`
                 (Required, string) Wildcard pattern. The request returns values for field names matching this pattern.
-                - `format´
+                - `format`
 
                 (Optional, string) Format in which the values are returned.
 
@@ -67,7 +67,7 @@ parameters:
 
               `<index>: <boost-value>`
 
-                  - `<index>` is the name of the index or index alias. Wildcard (´*`) expressions are supported.
+                  - `<index>` is the name of the index or index alias. Wildcard (`*`) expressions are supported.
                   - `<boost-value>` is the `float` factor by which scores are multiplied.
 
               A boost value greater than `1.0` increases the score.
@@ -76,7 +76,7 @@ parameters:
         type: float
         doc: |
             Minimum `_score` for matching documents. Documents with a lower `_score` are not
-          included in the search results.
+            included in the search results.
     seq_no_primary_term:
         type: bool
         default: False
@@ -93,12 +93,24 @@ parameters:
             To page through more hits, use the
             [search_after](https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#search-after)
             parameter.
+    sort:
+        type: Union[str, Sequence[Union[str, Mapping[str, str]]], Mapping[str, str]]
+        doc: |
+            Change the order of the returned documents.
+            See [sort search results](https://www.elastic.co/guide/en/elasticsearch/reference/current/sort-search-results.html).
+
+            The parameter can be:
+
+                - `"field"` or `"-field"` to sort a field ascending or descending
+                - `{"field": "asc"}` or `{"field": "desc"}` to sort a field ascending or descending
+                - a `list` of strings or objects as above to sort by a couple of fields
+                - `None` to turn off sorting
     _source:
-        type: Union[bool, str]
+        type: Union[bool, str, Sequence]
         default: True
         doc: |
             Indicates which [source fields](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-source-field.html)
-            are returned for matching documents. These fields are returned in the `hits._source´ property
+            are returned for matching documents. These fields are returned in the `hits._source` property
             of the search response. Defaults to `true`.
 
             Valid values:
@@ -109,7 +121,7 @@ parameters:
                 (string or array of strings) Wildcard (`*`) pattern or array of patterns containing source fields to return.
                 - `<object>`
                 Object containing a list of source fields to include or exclude.
-                Properties for <object>
+                Properties for <object>:
 
                     - `excludes`
                     (string or array of strings) Wildcard (`*`) pattern or array of patterns containing source fields

@@ -25,7 +25,7 @@ parameters:
         doc: |
             The number of shard results that should be reduced at once on the coordinating node.
             This value should be used as a protection mechanism to reduce the memory overhead per
-            search request if the potential number of shards in the request can be large. Defaults to ´512`.
+            search request if the potential number of shards in the request can be large. Defaults to `512`.
     ccs_minimize_roundtrips:
         type: bool
         default: true
@@ -49,7 +49,7 @@ parameters:
                 - `open` Expand only to open indices.
                 - `closed` Expand only to closed indices.
                 - `hidden` Expansion of wildcards will include hidden indices. Must be combined with open, closed, or both.
-                - `none´ Wildcard expressions are not accepted.
+                - `none` Wildcard expressions are not accepted.
 
             Defaults to `open`
     explain:
@@ -119,7 +119,7 @@ parameters:
                 If possible, run the search on the specified nodes IDs. If not, select shards using the default method.
                 - `_shards:<shard>,<shard>`
                 Run the search only on the specified shards. This value can be combined with other preference
-                values, but this value must come first. For example: `_shards:2,3|_local´
+                values, but this value must come first. For example: `_shards:2,3|_local`
                 - `<custom-string>`
                 Any string that does not start with _. If the cluster state and selected shards do not change,
                 searches using the same `<custom-string>` value are routed to the same shards in the same order.
@@ -128,7 +128,7 @@ parameters:
         doc: |
             Query in the Lucene query string syntax.
 
-            You can use the `q´ parameter to run a query parameter search. Query parameter searches
+            You can use the `q` parameter to run a query parameter search. Query parameter searches
             do not support the full Elasticsearch
             [Query DSL](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html)
             but are handy for testing.
@@ -205,7 +205,7 @@ parameters:
         default: True
         doc: |
             Indicates which [source fields](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-source-field.html)
-            are returned for matching documents. These fields are returned in the `hits._source´ property
+            are returned for matching documents. These fields are returned in the `hits._source` property
             of the search response. Defaults to `true`.
 
             Valid values:

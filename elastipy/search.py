@@ -43,15 +43,21 @@ class Search(QueryInterface, AggregationInterface):
             The default timestamp field used for fields that require dates.
         """
         from .query import Query
+        from .generated_search_param import SearchParameters
+
         AggregationInterface.__init__(self, timestamp_field=timestamp_field)
         self._index = index
         self._client = client
-        self._sort = None
-        self._size = None
+        self._parameters = SearchParameters(self)
         self._query: Query = EmptyQuery()
         self._aggregations = []
         self._body = dict()
         self._response: Optional[Response] = None
+
+    @property
+    def param(self):
+        """Access to the search parameters"""
+        return self._parameters
 
     @property
     def dump(self):
@@ -95,8 +101,7 @@ class Search(QueryInterface, AggregationInterface):
         es = self.__class__(index=self._index, client=self._client, timestamp_field=self.timestamp_field)
         es._body = deepcopy(self._body)
         es._query = self._query.copy()
-        es._sort = self._sort
-        es._size = self._size
+        es._parameters._params = deepcopy(self._parameters._params)
         return es
 
     def to_body(self) -> dict:
@@ -111,10 +116,9 @@ class Search(QueryInterface, AggregationInterface):
             query_dict = {"query": query_dict}
         body.update(query_dict)
 
-        if self._sort is not None:
-            body["sort"] = self._sort
-        if self._size is not None:
-            body["size"] = self._size
+        param_dict = self._parameters.to_body()
+        if param_dict:
+            body.update(param_dict)
 
         return make_json_compatible(body)
 
@@ -195,21 +199,7 @@ class Search(QueryInterface, AggregationInterface):
         :param sort: can be str, dict or list
         :return: new Search instance
         """
-        args = []
-        for s in sort:
-            if isinstance(s, (list, tuple)):
-                args += list(s)
-            else:
-                args.append(s)
-
-        for i, arg in enumerate(args):
-            if isinstance(arg, str):
-                if arg.startswith("-"):
-                    args[i] = {arg.lstrip("-"): "desc"}
-
-        es = self.copy()
-        es._sort = args or None
-        return es
+        return self._parameters.sort(sort)
 
     def size(self, size):
         """
@@ -217,9 +207,7 @@ class Search(QueryInterface, AggregationInterface):
         :param size: int. number of document hits to return
         :return: new Search instance
         """
-        es = self.copy()
-        es._size = size
-        return es
+        return self._parameters.size(size)
 
     def query(self, query: QueryInterface):
         """

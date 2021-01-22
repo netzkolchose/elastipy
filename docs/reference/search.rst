@@ -17,3 +17,11 @@ reference
    :members:
    :inherited-members:
    :show-inheritance:
+
+
+search parameters
+-----------------
+
+.. autoclass:: elastipy.generated_search_param.SearchParameters
+   :members:
+   :inherited-members:
