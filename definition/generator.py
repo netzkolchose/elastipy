@@ -307,7 +307,8 @@ def render_rst_agg_index():
         code += f"- {group}\n\n"
         for agg_name in sorted(filter(lambda key: AGGREGATION_DEFINITION[key]["group"] == group, AGGREGATION_DEFINITION)):
             definition = AGGREGATION_DEFINITION[agg_name]
-            code += f"  - `{agg_name} <#elastipy.aggregation.Aggregation.agg_{agg_name}>`__\n"
+            group = {"bucket": "agg"}.get(definition["group"], definition["group"])
+            code += f"  - `{agg_name} <#elastipy.aggregation.Aggregation.{group}_{agg_name}>`__\n"
         code += "\n"
 
     return code
