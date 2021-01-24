@@ -89,6 +89,8 @@ class Heatmap:
         if cell_height is None:
             cell_height = max(1, int(cell_width / 2 + .5))
 
+        right_end = left_width + 2 + cell_width * self.width
+
         xbar_segment = self.chars.line_hori * (cell_width // 2 - 1)
         xbar_segment += self.chars.line_cross
         xbar_segment += self.chars.line_hori * (cell_width - len(xbar_segment))
@@ -127,7 +129,11 @@ class Heatmap:
         x_labels = self._xlabels(left_width, cell_width, bottom_key_width, max_axis_lines)
         if x_labels:
             for row in x_labels:
-                print(clip_line("".join(row), max_width), file=file)
+                line = "".join(row)
+                if annot_lines and len(line) <= right_end:
+                    line += " " * (right_end - len(line))
+                    line += " " + annot_lines.pop(-1)
+                print(clip_line(line, max_width), file=file)
         else:
             # print x-labels vertically
             for y in range(bottom_key_width):
@@ -160,7 +166,7 @@ class Heatmap:
                 if x > 0:
                     if x >= len(row):
                         row.extend([" "] * (x + 1 - len(row)))
-                    if row[x] != " ":
+                    if row[x] != " " or (x == start_x and x > 0 and row[x-1] != " "):
                         return None
                     row[x] = c
 

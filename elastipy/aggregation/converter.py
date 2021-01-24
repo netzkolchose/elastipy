@@ -362,6 +362,8 @@ def is_key_match(key: str, include: Optional[Sequence], exclude: Optional[Sequen
     if not include and not exclude:
         return True
 
+    key = str(key)
+
     if exclude:
         for pattern in exclude:
             if fnmatch.fnmatch(key, pattern):
