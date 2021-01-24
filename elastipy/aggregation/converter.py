@@ -30,9 +30,10 @@ class ConverterMixin:
 
         For a nested bucket aggregation each key is a tuple of all parent keys as well.
 
-        :param key_separator: str
+        :param key_separator: ``str``
             Optional separator to concat multiple keys into one string
-        :param tuple_key: bool
+
+        :param tuple_key: ``bool``
             If True, the key is always a tuple
             If False, the key is a string if there is only one key
 
@@ -44,7 +45,8 @@ class ConverterMixin:
     def values(self, default=None):
         """
         Iterates through all values of this aggregation.
-        :param default: if not None any None-value will be replaced by this
+
+        :param default: If not None any None-value will be replaced by this.
         :return: generator
         """
         for key, value in self.items(default=default):
@@ -58,11 +60,18 @@ class ConverterMixin:
     ) -> Iterable[Tuple]:
         """
         Iterates through all key, value tuples.
-        :param key_separator: str, optional separator to concat multiple keys into one string
-        :param tuple_key: bool
-            If True, the key is always a tuple
-            If False, the key is a string if there is only one key
-        :param default: if not None any None-value will be replaced by this
+
+        :param key_separator: ``str``
+            Optional separator to concat multiple keys into one string.
+
+        :param tuple_key: ``bool``
+            If True, the key is always a tuple.
+
+            If False, the key is a string if there is only one key.
+
+        :param default:
+            If not None any None-value will be replaced by this.
+
         :return: generator
         """
         from .visitor import Visitor
@@ -85,9 +94,11 @@ class ConverterMixin:
 
         :param header: bool
             If True, the first row contains the names of the columns
+
         :param include: str or list of str
             Can be one or more (OR-combined) wildcard patterns.
             If used, any column that does not fit a pattern is removed
+
         :param exclude: str or list of str
             Can be one or more (OR-combined) wildcard patterns.
             If used, any column that fits a pattern is removed
@@ -122,8 +133,9 @@ class ConverterMixin:
     def to_dict(self, key_separator=None, default=None) -> dict:
         """
         Create a dictionary from all key/value pairs.
+
         :param key_separator: str, optional separator to concat multiple keys into one string
-        :param default: if not None any None-value will be replaced by this
+        :param default: If not None any None-value will be replaced by this.
         :return: dict
         """
         return {
@@ -138,14 +150,14 @@ class ConverterMixin:
             exclude: Union[str, Sequence[str]] = None,
     ):
         """
-        Converts the results of 'dict_rows()' to a pandas DataFrame.
+        Converts the results of ``dict_rows()`` to a pandas DataFrame.
 
         This will include all parent aggregations (up to the root) and all children
         aggregations (including metrics).
 
         Any columns containing dates will be automatically converted to pandas.Timestamp.
 
-        This method has a synonym: 'df'
+        This method has a synonym: ``df``
 
         :param index: str
             Can explicitly set a certain column as the DataFrame index.
@@ -192,31 +204,39 @@ class ConverterMixin:
         Each dimension corresponds to one of the parent bucket keys that lead
         to this aggregation.
 
-        ```
-        a = Search().agg_terms("color", field="color").agg_terms("shape", field="shape")
-        ...
-        names, keys, matrix = a.to_matrix()
-        names == ["color", "shape"]
-        keys == [["red", "green", "blue"], ["circle", "triangle"]]
-        matrix == [[23, 42], [84, 69], [4, 10]]
-        ```
+        .. CODE::
+
+            a = Search().agg_terms("color", field="color").agg_terms("shape", field="shape")
+            ...
+            names, keys, matrix = a.to_matrix()
+            names == ["color", "shape"]
+            keys == [["red", "green", "blue"], ["circle", "triangle"]]
+            matrix == [[23, 42], [84, 69], [4, 10]]
 
         :param sort:
             Can sort one or several keys/axises.
-                - `True` sorts all keys ascending
-                - `"-"` sorts all keys descending
-                - the name of an aggregation sorts it's keys ascending
-                    - a "-" prefix sorts descending
-                - an integer defines the aggregation by index
-                    - negative integers sort descending
-                - a sequence of strings or integers can sort multiple keys
+
+                - ``True`` sorts all keys ascending
+                - ``"-"`` sorts all keys descending
+                - The **name of an aggregation** sorts it's keys ascending.
+                  A "-" prefix sorts descending.
+                - An **integer** defines the aggregation by index.
+                  Negative integers sort descending.
+                - A **sequence** of strings or integers can sort multiple keys
 
             For example, `agg.to_matrix(sort=("color", "-shape", -4))` would
-            sort the color keys ascending, the shape keys descending and the
-            4th aggregation -whatever that is- descending.
+            sort the ``color`` keys ascending, the ``shape`` keys descending and the
+            4th aggregation *-whatever that is-* descending.
 
         :param default:
             If not None any None-value will be replaced by this value
+
+        :param include: ``str | seq[str]``
+            One or more wildcard patterns that include matching keys.
+            All other keys are removed from the output.
+
+        :param exclude: ``str | seq[str]``
+            One or more wildcard patterns that exclude matching keys.
 
         :return:
             A tuple of names, keys and matrix data, each as list.

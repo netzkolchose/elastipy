@@ -4,7 +4,7 @@ from typing import Optional, Union, TextIO, Sequence, Any
 from .aggregation import Aggregation
 
 
-class PrintWrapper:
+class AggregationDump:
 
     def __init__(self, agg: Aggregation):
         self._agg = agg
@@ -16,6 +16,17 @@ class PrintWrapper:
             indent: int = 2,
             file: Optional[TextIO] = None
     ):
+        """
+        Print the result of ``Aggregation.to_dict`` to console.
+
+        :param key_separator: ``str``
+            Separator to concat multiple keys into one string.
+            Defaults to ``|``
+
+        :param default: If not None any None-value will be replaced by this.
+        :param indent: The json indentation, defaults to 2.
+        :param file: Optional output stream.
+        """
         print(json.dumps(self._agg.to_dict(key_separator=key_separator, default=default), indent=indent), file=file)
 
     def table(
@@ -32,28 +43,46 @@ class PrintWrapper:
             file: Optional[TextIO] = None
     ):
         """
-        Print the result of the dict_rows() function as table to console.
-        :param sort: str
-            optional sort column name which must match a 'header' key.
-            can be prefixed with '-' to reverse order
-        :param digits: int, optional number of digits for rounding
-        :param header: bool, if True, include the names in the first row
-        :param bars: bool
+        Print the result of the ``Aggregation.dict_rows()`` function as table to console.
+
+        :param sort: ``str``
+            Optional sort column name which must match a 'header' key.
+            Can be prefixed with ``-`` (minus) to reverse order
+
+        :param digits: ``int``
+            Optional number of digits for rounding.
+
+        :param header: ``bool``
+            if True, include the names in the first row.
+
+        :param bars: ``bool``
             Enable display of horizontal bars in each number column.
             The table width will stretch out in size while limited
             to 'max_width' and 'max_bar_width'
+
         :param zero:
-                If True: the bar axis starts at zero (or at a negative value if appropriate)
-                If False: the bar starts at the minimum of all values in the column
-                If a number is provides, the bar starts there, regardless of the minimum of all values
-        :param colors: bool, enable console colors
-        :param ascii: bool, if True fall back to ascii characters
-        :param max_width: int
+            - If ``True``: the bar axis starts at zero
+              (or at a negative value if appropriate).
+            - If ``False``: the bar starts at the minimum of all values in the column.
+            - If a **number** is provided, the bar starts there,
+              regardless of the minimum of all values.
+
+        :param colors: ``bool``
+            Enable console colors.
+
+        :param ascii: ``bool``
+            If ``True`` fall back to ascii characters.
+
+        :param max_width: ``int``
             Will limit the expansion of the table when bars are enabled.
             If left None, the terminal width is used.
-        :param max_bar_width: int
+
+        :param max_bar_width: ``int``
             The maximum size a bar should have
-        :param file: optional text stream to print to
+
+        :param file:
+            Optional text stream to print to.
+
         """
         from elastipy.dump import Table
         Table(self._agg).print(
@@ -70,6 +99,13 @@ class PrintWrapper:
         )
 
     def matrix(self, indent: int = 2, file: TextIO = None, **kwargs):
+        """
+        Print a representation of ``Aggregation.to_matrix()`` to console.
+
+        :param indent: The json indentation, defaults to 2.
+        :param file: Optional output stream.
+        :param kwargs: TODO: list additional to_matrix parameters
+        """
         indent = " " * indent
         names, keys, matrix = self._agg.to_matrix(**kwargs)
         print("names =", names, file=file)
@@ -79,6 +115,7 @@ class PrintWrapper:
             print(indent, k, file=file)
         print("]", file=file)
 
+        # TODO: print with recursive indentation
         print("matrix = [", file=file)
         for m in matrix:
             print(indent, m, file=file)
@@ -87,14 +124,57 @@ class PrintWrapper:
 
     def heatmap(
             self,
-            colors: bool = True,
-            ascii: bool = False,
             sort: Optional[Union[bool, str, int, Sequence[Union[str, int]]]] = None,
             default: Optional[Any] = None,
             include: Optional[Union[str, Sequence[str]]] = None,
             exclude: Optional[Union[str, Sequence[str]]] = None,
+            colors: bool = True,
+            ascii: bool = False,
             **kwargs
     ):
+        """
+        Prints a heat-map from a two-dimensional matrix.
+
+        :param sort:
+            Can sort one or several keys/axises.
+
+                - ``True`` sorts all keys ascending
+                - ``"-"`` sorts all keys descending
+                - The **name of an aggregation** sorts it's keys ascending.
+                  A "-" prefix sorts descending.
+                - An **integer** defines the aggregation by index.
+                  Negative integers sort descending.
+                - A **sequence** of strings or integers can sort multiple keys
+
+            For example, `agg.heatmap(sort=("color", "-shape", -4))` would
+            sort the ``color`` keys ascending, the ``shape`` keys descending and the
+            4th aggregation *-whatever that is-* descending.
+
+        :param default:
+            If not None any None-value will be replaced by this value
+
+        :param include: ``str | seq[str]``
+            One or more wildcard patterns that include matching keys.
+            All other keys are removed from the output.
+
+        :param exclude: ``str | seq[str]``
+            One or more wildcard patterns that exclude matching keys.
+
+        :param colors: ``bool``
+            Enable console colors.
+
+        :param ascii: ``bool``
+            If ``True`` fall back to ascii characters.
+
+        :param max_width: ``int``
+            Will limit the expansion of the table when bars are enabled.
+            If left None, the terminal width is used.
+
+        :param file:
+            Optional text stream to print to.
+
+        :param kwargs: TODO list all Heatmap parameters
+        """
         from elastipy.dump import Heatmap
         names, keys, matrix = self._agg.to_matrix(
             sort=sort,
@@ -104,7 +184,7 @@ class PrintWrapper:
         )
         if len(keys) != 2:
             raise ValueError(
-                f"Can not display matrix of dimension {len(keys)} to heatmap, need 2 dimensions"
+                f"Can not display matrix of dimension {len(keys)} with heatmap, 2 dimensions required"
             )
 
         hm = Heatmap(
@@ -124,6 +204,28 @@ class PrintWrapper:
             colors: bool = True,
             file: TextIO = None
     ):
+        """
+        Print a horizontal bar graphic based on
+        ``Aggregation.keys()`` and ``values()`` to console.
+
+        :param width: ``int``
+            Maximum width to use. Will be auto-detected if ``None``.
+
+        :param zero_based: ``bool``
+            If ``True`` start at bars at tero, instead of global minimum
+
+        :param digits: ``int``
+            Optional number of digits for rounding.
+
+        :param colors: ``bool``
+            Enable console colors.
+
+        :param ascii: ``bool``
+            If ``True`` fall back to ascii characters.
+
+        :param file:
+            Optional text stream to print to.
+        """
         from elastipy.dump import TextPlotter
         keys = list(self._agg.keys(key_separator="|"))
         values = list(self._agg.values())

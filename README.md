@@ -76,6 +76,16 @@ usual stack of jupyter, scipy, matplotlib, ..
 
 
 
+
+
+
+
+
+
+
+
+
+
 ### configuration 
 
 By default an [elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/elasticsearch-intro.html) host is expected at `localhost:9200`. There are currently two ways 

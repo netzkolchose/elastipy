@@ -4,7 +4,7 @@ from typing import Optional, List, Iterable, Union, Tuple, TextIO, Sequence, Map
 from .search import Search
 
 
-class SearchPrintWrapper:
+class SearchDump:
 
     def __init__(self, search: Search):
         self._search = search
@@ -13,24 +13,27 @@ class SearchPrintWrapper:
         """
         Print the complete request parameters as would be accepted
         by ``elasticsearch.Elasticsearch.search()``.
-        :param indent: the json indentation, defaults to 2
-        :param file: optional output stream
+
+        :param indent: The json indentation, defaults to 2.
+        :param file: Optional output stream.
         """
         self.request(indent=indent, file=file)
 
     def query(self, indent: Union[int, str, None] = 2, file: TextIO = None):
         """
         Print the query json.
-        :param indent: the json indentation, defaults to 2
-        :param file: optional output stream
+
+        :param indent: The json indentation, defaults to 2.
+        :param file: Optional output stream.
         """
         print(json.dumps(self._search.get_query().to_dict(), indent=indent), file=file)
 
     def body(self, indent: Union[int, str, None] = 2, file: TextIO = None):
         """
         Print the complete request body.
-        :param indent: the json indentation, defaults to 2
-        :param file: optional output stream
+
+        :param indent: The json indentation, defaults to 2.
+        :param file: Optional output stream.
         """
         print(json.dumps(self._search.to_body(), indent=indent), file=file)
 
@@ -38,19 +41,21 @@ class SearchPrintWrapper:
         """
         Print the complete request parameters as would be accepted
         by ``elasticsearch.Elasticsearch.search()``.
-        :param indent: the json indentation, defaults to 2
-        :param file: optional output stream
+
+        :param indent: The json indentation, defaults to 2.
+        :param file: Optional output stream.
         """
         print(json.dumps(self._search.to_request(), indent=indent), file=file)
 
     def response(self, indent: Union[int, str, None] = 2, file: TextIO = None):
         """
         Print the response of the search.
+
         .. WARNING::
 
             Search must be executed, otherwise ``ValueError`` is thrown.
 
-        :param indent: the json indentation, defaults to 2
-        :param file: optional output stream
+        :param indent: The json indentation, defaults to 2.
+        :param file: Optional output stream.
         """
         print(json.dumps(self._search.response, indent=indent), file=file)

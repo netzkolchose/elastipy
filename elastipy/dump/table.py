@@ -31,28 +31,43 @@ class Table:
             file=None
     ):
         """
-        :param sort: str
-            optional sort column name which must match a 'header' key
-            can be prefixed with '-' to reverse order
-        :param digits: int, optional number of digits for rounding
-        :param header: bool, if True, include the names in the first row
-        :param bars: bool
+        :param sort: ``str``
+            Optional sort column name which must match a 'header' key.
+            Can be prefixed with ``-`` (minus) to reverse order
+
+        :param digits: ``int``
+            Optional number of digits for rounding.
+
+        :param header: ``bool``
+            if True, include the names in the first row.
+
+        :param bars: ``bool``
             Enable display of horizontal bars in each number column.
             The table width will stretch out in size while limited
             to 'max_width' and 'max_bar_width'
+
         :param zero:
-            If True: the bar axis starts at zero (or at a negative value if appropriate)
-            If False: the bar starts at the minimum of all values in the column
-            If a number is provides, the bar starts there, regardless of the minimum of all values
-        :param colors: bool, enable console colors
-        :param ascii: bool, if True fall back to ascii characters
-        :param max_width: int
+            - If ``True``: the bar axis starts at zero
+              (or at a negative value if appropriate).
+            - If ``False``: the bar starts at the minimum of all values in the column.
+            - If a **number** is provided, the bar starts there,
+              regardless of the minimum of all values.
+
+        :param colors: ``bool``
+            Enable console colors.
+
+        :param ascii: ``bool``
+            If ``True`` fall back to ascii characters.
+
+        :param max_width: ``int``
             Will limit the expansion of the table when bars are enabled.
             If left None, the terminal width is used.
-        :param max_bar_width: int
+
+        :param max_bar_width: ``int``
             The maximum size a bar should have
-        :param file: optional text stream to print to
-        :return:
+
+        :param file:
+            Optional text stream to print to.
         """
         def _to_str(v):
             if v is None:

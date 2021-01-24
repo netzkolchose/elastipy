@@ -12,7 +12,7 @@ from ._json import make_json_compatible
 
 class Search(QueryInterface, AggregationInterface):
     """
-    Interface to elasticsearch /search.
+    Interface to elasticsearch ``/search``.
 
     All changes to a search object create and return a copy.
     Except for aggregations, which are attached to the search instance.
@@ -62,8 +62,8 @@ class Search(QueryInterface, AggregationInterface):
     @property
     def dump(self):
         """Access the print interface"""
-        from .search_print import SearchPrintWrapper
-        return SearchPrintWrapper(self)
+        from .search_dump import SearchDump
+        return SearchDump(self)
 
     def get_index(self) -> str:
         """Return current index"""
@@ -87,7 +87,8 @@ class Search(QueryInterface, AggregationInterface):
         """
         Make a copy of this instance and it's queries.
 
-        Warning: Copying of Aggregations is currently not supported so
+        .. WARNING::
+            Copying of Aggregations is currently not supported so
             aggregations must be added at the last step, after all queries are applied.
 
         :return: a new Search instance
@@ -107,6 +108,7 @@ class Search(QueryInterface, AggregationInterface):
     def to_body(self) -> dict:
         """
         Returns the complete body of the search request
+
         :return: dict
         """
         body = copy(self._body)
@@ -126,6 +128,7 @@ class Search(QueryInterface, AggregationInterface):
         """
         Returns the complete request parameters as would be accepted
         by ``elasticsearch.Elasticsearch.search()``.
+
         :return: dict
         """
         return {
@@ -138,6 +141,7 @@ class Search(QueryInterface, AggregationInterface):
         """
         Sends the search against the current client and returns the response.
         If no client is specified, elastipy.connections.get("default") will be used.
+
         :return: Response, a dict wrapper with some convenience methods
         """
         client = self.get_client()
@@ -160,6 +164,7 @@ class Search(QueryInterface, AggregationInterface):
         """
         Access to the response of the search.
         Raises exception if accessed before search
+
         :return: Response, a dict wrapper with some convenience methods
         """
         if self._response is None:
@@ -171,6 +176,7 @@ class Search(QueryInterface, AggregationInterface):
     def index(self, index: str):
         """
         Replace the index.
+
         :param index: str
         :return: new Search instance
         """
@@ -181,6 +187,7 @@ class Search(QueryInterface, AggregationInterface):
     def client(self, client):
         """
         Replace the client that will be used for request.
+
         :param client: an elasticsearch.Elasticsearch client or compatible
         :return: new Search instance
         """
@@ -190,18 +197,18 @@ class Search(QueryInterface, AggregationInterface):
 
     def sort(self, *sort) -> 'Search':
         """
-            Change the order of the returned documents. See `sort search results
-            <https://www.elastic.co/guide/en/elasticsearch/reference/current/sort-search-results.html>`__.
+        Change the order of the returned documents. See `sort search results
+        <https://www.elastic.co/guide/en/elasticsearch/reference/current/sort-search-results.html>`__.
 
-            The parameter can be:
+        The parameter can be:
 
-                - ``"field"`` or ``"-field"`` to sort a field ascending or
-                  descending
-                - ``{"field": "asc"}`` or ``{"field": "desc"}`` to sort a field
-                  ascending or descending
-                - a ``list`` of strings or objects as above to sort by a couple of
-                  fields
-                - ``None`` to turn off sorting
+            - ``"field"`` or ``"-field"`` to sort a field ascending or
+              descending
+            - ``{"field": "asc"}`` or ``{"field": "desc"}`` to sort a field
+              ascending or descending
+            - a ``list`` of strings or objects as above to sort by a couple of
+              fields
+            - ``None`` to turn off sorting
 
         :returns: ``Search``
             A new Search instance is created
@@ -210,7 +217,8 @@ class Search(QueryInterface, AggregationInterface):
 
     def size(self, size):
         """
-        Replace the maximum document count
+        Replace the maximum document count.
+
         :param size: int. number of document hits to return
         :return: new Search instance
         """
@@ -218,7 +226,8 @@ class Search(QueryInterface, AggregationInterface):
 
     def query(self, query: QueryInterface):
         """
-        Replace the query
+        Replace the query.
+
         :param query: a QueryInterface sub-class
         :return: new Search instance
         """
@@ -273,6 +282,7 @@ class Search(QueryInterface, AggregationInterface):
         Sets the elasticsearch API response.
 
         Use this if you need other means of passing the API response to the Search instance.
+
         :param response: Mapping, the complete response from /search/ endpoint
         :return: self
         """
@@ -343,8 +353,8 @@ class Response(dict):
 
     @property
     def dump(self):
-        from .response_print import ResponsePrintWrapper
-        return ResponsePrintWrapper(self)
+        from .response_dump import ResponseDump
+        return ResponseDump(self)
 
 
 def _to_query(query):

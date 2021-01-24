@@ -10,8 +10,12 @@ supported queries
 .. include:: ./query_index.rst
 
 
-reference
----------
+search interface
+----------------
+
+The ``Search`` class combines the ``query`` and the ``aggregation``
+interface.
+
 
 .. autoclass:: elastipy.Search
    :members:
@@ -23,5 +27,17 @@ search parameters
 -----------------
 
 .. autoclass:: elastipy.generated_search_param.SearchParameters
+   :members:
+   :inherited-members:
+
+
+printing utilities
+------------------
+
+.. autoclass:: elastipy.search_dump.SearchDump
+   :members:
+   :inherited-members:
+
+.. autoclass:: elastipy.response_dump.ResponseDump
    :members:
    :inherited-members:
