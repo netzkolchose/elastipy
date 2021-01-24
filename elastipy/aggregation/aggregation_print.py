@@ -1,5 +1,5 @@
 import json
-from typing import Optional, List, Iterable, Union, Tuple, TextIO, Sequence, Mapping
+from typing import Optional, List, Iterable, Union, Tuple, TextIO, Sequence, Mapping, Any
 
 from .aggregation import Aggregation
 from .visitor import Visitor
@@ -10,7 +10,13 @@ class PrintWrapper:
     def __init__(self, agg: Aggregation):
         self._agg = agg
 
-    def dict(self, key_separator="|", default=None, indent=2, file=None):
+    def dict(
+            self,
+            key_separator: str = "|",
+            default: Any = None,
+            indent: int = 2,
+            file: Optional[TextIO] = None
+    ):
         print(json.dumps(self._agg.to_dict(key_separator=key_separator, default=default), indent=indent), file=file)
 
     def table(
@@ -24,7 +30,7 @@ class PrintWrapper:
             ascii: bool = False,
             max_width: int = None,
             max_bar_width: int = 40,
-            file=None
+            file: Optional[TextIO] = None
     ):
         """
         Print the result of the dict_rows() function as table to console.
@@ -63,3 +69,21 @@ class PrintWrapper:
             max_bar_width=max_bar_width,
             file=file,
         )
+
+    def heatmap(
+            self,
+            colors: bool = True,
+            ascii: bool = False,
+            sort: Optional[Union[bool, str, int, Sequence[Union[str, int]]]] = None,
+            default: Optional[Any] = None,
+            **kwargs
+    ):
+        from ..plot.text import Heatmap
+        names, keys, values = self._agg.to_matrix(sort=sort, default=default)
+        hm = Heatmap(
+            keys=keys,
+            values=values,
+            colors=colors,
+            ascii=ascii
+        )
+        hm.print(**kwargs)

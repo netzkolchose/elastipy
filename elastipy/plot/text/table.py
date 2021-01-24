@@ -5,7 +5,8 @@ from io import StringIO
 from collections import deque
 from decimal import Decimal, InvalidOperation
 
-from .console import Characters, Colors, ColorCodes, get_terminal_size
+from .console import Characters, Colors, get_terminal_size, clip_line
+from .helper import get_number
 
 
 class Table:
@@ -288,37 +289,6 @@ def all_dict_row_keys(rows):
             if key not in keys:
                 keys.append(key)
     return keys
-
-
-def get_number(value):
-    """Convert any number format-able thing to int or float"""
-    try:
-        v = int(value)
-        if v == float(value):
-            return v
-    except (TypeError, ValueError):
-        pass
-
-    try:
-        return float(value)
-    except (TypeError, ValueError):
-        pass
-
-
-def clip_line(line, max_width=None):
-    if max_width is None:
-        return line
-
-    return line
-
-    # TODO: this is currently not working when colors are involved
-    if len(line) > max_width > 2:
-        line, rest = line[:max_width-2], line[max(0, max_width - 2 - len(ColorCodes.END)):]
-        if ColorCodes.END in rest:
-            line += ColorCodes.END
-        line += ".."
-
-    return line
 
 
 def sorted_rows(rows, key: str, reverse: bool):

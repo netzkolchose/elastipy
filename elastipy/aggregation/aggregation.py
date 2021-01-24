@@ -46,7 +46,7 @@ class Aggregation(ConverterMixin, AggregationInterface):
         Access to printing interface
         :return: PrintWrapper instance
         """
-        from .print_wrapper import PrintWrapper
+        from .aggregation_print import PrintWrapper
         return PrintWrapper(self)
 
     @property
