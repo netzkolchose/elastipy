@@ -1,11 +1,9 @@
 import unittest
-import datetime
-from decimal import Decimal
 from io import StringIO
 from copy import deepcopy
 
-from elastipy.plot.text import Heatmap
-from elastipy.aggregation.helper import create_matrix, remove_matrix_axis
+from elastipy.dump import Heatmap
+from elastipy.aggregation.helper import remove_matrix_axis
 from definition.renderer import change_text_indent
 
 

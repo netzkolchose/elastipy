@@ -1,8 +1,7 @@
 import json
-from typing import Optional, List, Iterable, Union, Tuple, TextIO, Sequence, Mapping, Any
+from typing import Optional, Union, TextIO, Sequence, Any
 
 from .aggregation import Aggregation
-from .visitor import Visitor
 
 
 class PrintWrapper:
@@ -56,7 +55,7 @@ class PrintWrapper:
             The maximum size a bar should have
         :param file: optional text stream to print to
         """
-        from ..plot.text import Table
+        from elastipy.dump import Table
         Table(self._agg).print(
             sort=sort,
             digits=digits,
@@ -92,11 +91,17 @@ class PrintWrapper:
             ascii: bool = False,
             sort: Optional[Union[bool, str, int, Sequence[Union[str, int]]]] = None,
             default: Optional[Any] = None,
-            drop: Optional[Union[str, Sequence[str]]] = None,
+            include: Optional[Union[str, Sequence[str]]] = None,
+            exclude: Optional[Union[str, Sequence[str]]] = None,
             **kwargs
     ):
-        from ..plot.text import Heatmap
-        names, keys, matrix = self._agg.to_matrix(sort=sort, default=default, drop=drop)
+        from elastipy.dump import Heatmap
+        names, keys, matrix = self._agg.to_matrix(
+            sort=sort,
+            default=default,
+            include=include,
+            exclude=exclude
+        )
         if len(keys) != 2:
             raise ValueError(
                 f"Can not display matrix of dimension {len(keys)} to heatmap, need 2 dimensions"
@@ -109,3 +114,24 @@ class PrintWrapper:
             ascii=ascii
         )
         hm.print(**kwargs)
+
+    def hbar(
+            self,
+            width: int = None,
+            zero_based: bool = True,
+            digits: int = 3,
+            ascii: bool = False,
+            colors: bool = True,
+            file: TextIO = None
+    ):
+        from elastipy.dump import TextPlotter
+        keys = list(self._agg.keys(key_separator="|"))
+        values = list(self._agg.values())
+        TextPlotter(ascii=ascii, colors=colors).hbar(
+            keys=keys,
+            values=values,
+            width=width,
+            zero_based=zero_based,
+            digits=digits,
+            file=file,
+        )

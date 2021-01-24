@@ -2,7 +2,7 @@ import unittest
 import datetime
 from decimal import Decimal
 
-from elastipy.plot.text import Table
+from elastipy.dump import Table
 
 
 class TestTable(unittest.TestCase):

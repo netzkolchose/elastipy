@@ -1,5 +1,5 @@
 import json
-from typing import Optional, List, Iterable, Union, Tuple, TextIO, Sequence, Mapping
+from typing import Union, TextIO
 
 from .search import Response
 
@@ -74,7 +74,7 @@ class ResponsePrintWrapper:
             The maximum size a bar should have
         :param file: optional text stream to print to
         """
-        from .plot.text import Table
+        from elastipy.dump import Table
 
         docs = self._response.documents
         if score:
