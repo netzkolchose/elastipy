@@ -73,6 +73,31 @@ class Characters:
         return ret + " " * (width - len(ret))
 
 
+class ColorScale:
+
+    def __init__(self, ascii=False, colors=True):
+        self.characters = []
+        if colors and not ascii:
+            colors = [4, 6, 2, 7]
+
+            intensity = 0
+            back_color = 0
+            shades = ("░", "▒", "▓", "█")
+            for i, color in enumerate(colors):
+                for ch in shades:
+                    ansi = f"\033[{intensity};{30+color};{40+back_color}m{ch}\033[0m"
+                    self.characters.append(ansi)
+                back_color = color
+                if i == 0:
+                    shades = shades[1:]
+        else:
+            raise NotImplementedError
+
+    def __call__(self, v: float):
+        i = max(0, min(len(self.characters) - 1, int(v * len(self.characters))))
+        return self.characters[i]
+
+
 class UnicodePixels:
 
     def __init__(self, width, height):

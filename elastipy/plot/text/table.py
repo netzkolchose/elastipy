@@ -16,27 +16,6 @@ class Table:
         self.headers = []
         self._extract_source()
 
-    def to_str(
-            self,
-            sort: str = None,
-            digits: int = None,
-            header: bool = True,
-            bars: bool = True,
-            zero: Union[bool, float] = True,
-            colors: bool = True,
-            ascii: bool = False,
-            max_width: int = None,
-            max_bar_width: int = 40,
-    ):
-        file = StringIO()
-        self.print(
-            sort=sort, digits=digits, header=header, bars=bars, colors=colors, ascii=ascii, max_width=max_width,
-            zero=zero, max_bar_width=max_bar_width,
-            file=file,
-        )
-        file.seek(0)
-        return file.read()
-
     def print(
             self,
             sort: str = None,
@@ -213,6 +192,27 @@ class Table:
                 line = clip_line(line, max_width)
 
                 print(line, file=file)
+
+    def to_str(
+            self,
+            sort: str = None,
+            digits: int = None,
+            header: bool = True,
+            bars: bool = True,
+            zero: Union[bool, float] = True,
+            colors: bool = True,
+            ascii: bool = False,
+            max_width: int = None,
+            max_bar_width: int = 40,
+    ):
+        file = StringIO()
+        self.print(
+            sort=sort, digits=digits, header=header, bars=bars, colors=colors, ascii=ascii, max_width=max_width,
+            zero=zero, max_bar_width=max_bar_width,
+            file=file,
+        )
+        file.seek(0)
+        return file.read()
 
     def _extract_source(self):
         self.headers = None
