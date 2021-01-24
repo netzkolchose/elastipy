@@ -163,6 +163,58 @@ class TestOrdersAggregationsMatrix(TestCase):
             matrix
         )
 
+    def test_matrix_2d_drop(self):
+        s = self.search()
+        agg = s \
+            .agg_terms("channel", field="channel", order="_key") \
+            .agg_terms("sku", field="sku", order="_key", min_doc_count=0) \
+            # note, we use min_doc_count=0 to have sku-2 already included
+        #   in the first channel bucket, so the keys are sorted properly
+
+        s.execute()
+
+        names, keys, matrix = agg.to_matrix(exclude="sku-1")
+        self.assertEqual(
+            ["channel", "sku"],
+            names
+        )
+        self.assertEqual(
+            [
+                ["the-end", "the-sale", "the-shop"],
+                ["sku-2", "sku-3"],
+            ],
+            keys
+        )
+        self.assertEqual(
+            [
+                [0, 1],  # the end
+                [1, 0],  # the sale
+                [1, 0],  # the shop
+            ],
+            matrix
+        )
+
+        names, keys, matrix = agg.to_matrix(exclude=("sku-2", "the-shop",))
+        self.assertEqual(
+            ["channel", "sku"],
+            names
+        )
+        self.assertEqual(
+            [
+                ["the-end", "the-sale"],
+                ["sku-1", "sku-3"],
+            ],
+            keys
+        )
+        self.assertEqual(
+            [
+                [1, 1],  # the end
+                [1, 0],  # the sale
+            ],
+            matrix
+        )
+
+
     def test_matrix_2d_metric(self):
         s = self.search()
         agg = s \

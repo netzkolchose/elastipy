@@ -52,6 +52,7 @@ class Heatmap:
             cell_height: int = None,
             max_width: int = None,
             max_cell_width: int = 10,
+            max_axis_lines: int = 3,
             file: TextIO = None,
             digits: int = 3,
             annotate: bool = True,
@@ -123,7 +124,7 @@ class Heatmap:
 
         _xbar(self.chars.line_corners[0], self.chars.line_corners[3])
 
-        x_labels = self._xlabels(left_width, cell_width, bottom_key_width)
+        x_labels = self._xlabels(left_width, cell_width, bottom_key_width, max_axis_lines)
         if x_labels:
             for row in x_labels:
                 print(clip_line("".join(row), max_width), file=file)
@@ -139,8 +140,8 @@ class Heatmap:
 
                 print(clip_line(line, max_width), file=file)
 
-    def _xlabels(self, left_width: int, cell_width: int, max_key_width: int):
-        for num_rows in range(1, len(self.keys_str[0]) + 1):
+    def _xlabels(self, left_width: int, cell_width: int, max_key_width: int, max_axis_lines: int):
+        for num_rows in range(1, max_axis_lines + 1):
             rows = self._xlabels_rows(num_rows, left_width, cell_width, max_key_width)
             if rows:
                 return rows
@@ -179,8 +180,6 @@ class Heatmap:
 
             line = f"{ch}{ch} {value}"
             lines.append(line)
-        for l in lines:
-            print(l)
         return lines
 
 """

@@ -16,7 +16,7 @@ def get_number(value):
         pass
 
 
-def get_min_max(seq):
+def get_min_max(seq: Iterable):
     mi, ma = None, None
     for x in seq:
         n = get_number(x)

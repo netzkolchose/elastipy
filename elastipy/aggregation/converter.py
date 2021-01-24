@@ -1,8 +1,9 @@
 from copy import copy, deepcopy
 from itertools import chain
+import fnmatch
 from typing import Sequence, Union, Optional, Iterable, Tuple, TextIO, Any, Mapping, List
 
-from .helper import dict_rows_to_list_rows, wildcard_match, create_matrix
+from .helper import dict_rows_to_list_rows, wildcard_match, create_matrix, remove_matrix_axis
 
 
 class ConverterMixin:
@@ -182,6 +183,8 @@ class ConverterMixin:
             self,
             sort: Optional[Union[bool, str, int, Sequence[Union[str, int]]]] = None,
             default: Optional[Any] = None,
+            include: Optional[Union[str, Sequence[str]]] = None,
+            exclude: Optional[Union[str, Sequence[str]]] = None,
     ) -> Tuple[List[str], List, List]:
         """
         Generate a N-dimensional matrix from the values of this aggregation.
@@ -230,6 +233,11 @@ class ConverterMixin:
         """
         from .visitor import Visitor
         names = Visitor(self).key_names()
+
+        if isinstance(include, str):
+            include = [include]
+        if isinstance(exclude, str):
+            exclude = [exclude]
 
         data_items = list(self.items(tuple_key=True, default=default))
         if not data_items:
@@ -283,6 +291,20 @@ class ConverterMixin:
                 else:
                     m = m[idx]
 
+        if include or exclude:
+            repeat = True
+            while repeat:
+                repeat = False
+                for dim, dim_keys in enumerate(keys):
+                    for i, key in enumerate(dim_keys):
+                        if not is_key_match(key, include, exclude):
+                            dim_keys.pop(i)
+                            remove_matrix_axis(matrix, dim, i)
+                            repeat = True
+                            break
+                    if repeat:
+                        break
+
         return names, keys, matrix
 
     def df_matrix(
@@ -314,3 +336,21 @@ class ConverterMixin:
             )
 
         return df
+
+
+def is_key_match(key: str, include: Optional[Sequence], exclude: Optional[Sequence]):
+    if not include and not exclude:
+        return True
+
+    if exclude:
+        for pattern in exclude:
+            if fnmatch.fnmatch(key, pattern):
+                return False
+
+    if include:
+        for pattern in include:
+            if fnmatch.fnmatch(key, pattern):
+                return True
+        return False
+
+    return True

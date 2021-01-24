@@ -2,8 +2,10 @@ import unittest
 import datetime
 from decimal import Decimal
 from io import StringIO
+from copy import deepcopy
 
 from elastipy.plot.text import Heatmap
+from elastipy.aggregation.helper import create_matrix, remove_matrix_axis
 from definition.renderer import change_text_indent
 
 
@@ -27,6 +29,55 @@ class TestHeatmap(unittest.TestCase):
             raise AssertionError(
                 f"Heatmap did not match.\n\n# Expected:\n{expected_str}\n\n# Got:\n{real_str}"
             )
+
+    def assertRemoveMatrix(self, matrix, dim, index, expected_result):
+        result = deepcopy(matrix)
+        remove_matrix_axis(result, dim, index)
+        self.assertEqual(expected_result, result)
+
+    def test_remove_matrix(self):
+        self.assertRemoveMatrix(
+            [
+                [1, 2],
+                [3, 4],
+            ],
+            0, 0,
+            [
+                [3, 4],
+            ],
+        )
+        self.assertRemoveMatrix(
+            [
+                [1, 2],
+                [3, 4],
+            ],
+            0, 1,
+            [
+                [1, 2],
+            ],
+        )
+        self.assertRemoveMatrix(
+            [
+                [1, 2],
+                [3, 4],
+            ],
+            1, 0,
+            [
+                [2],
+                [4],
+            ],
+        )
+        self.assertRemoveMatrix(
+            [
+                [1, 2],
+                [3, 4],
+            ],
+            1, 1,
+            [
+                [1],
+                [3],
+            ],
+        )
 
     def test_heatmap(self):
         self.assertHeatmapStr(

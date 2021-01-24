@@ -1,5 +1,5 @@
 import fnmatch
-from typing import Sequence, Iterable, Mapping
+from typing import Sequence, Iterable, Mapping, List
 
 
 def wildcard_match(name, pattern):
@@ -51,4 +51,14 @@ def create_matrix(*sizes, scalar=None):
         create_matrix(*sizes[1:], scalar=scalar)
         for _ in range(sizes[0])
     ]
+    return matrix
+
+
+def remove_matrix_axis(matrix: List, dim: int, index: int):
+    if dim > 0:
+        for vec in matrix:
+            remove_matrix_axis(vec, dim - 1, index)
+    else:
+        matrix.pop(index)
+
     return matrix

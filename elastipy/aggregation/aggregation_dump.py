@@ -70,19 +70,41 @@ class PrintWrapper:
             file=file,
         )
 
+    def matrix(self, indent: int = 2, file: TextIO = None, **kwargs):
+        indent = " " * indent
+        names, keys, matrix = self._agg.to_matrix(**kwargs)
+        print("names =", names, file=file)
+
+        print("keys = [", file=file)
+        for k in keys:
+            print(indent, k, file=file)
+        print("]", file=file)
+
+        print("matrix = [", file=file)
+        for m in matrix:
+            print(indent, m, file=file)
+
+        print("]", file=file)
+
     def heatmap(
             self,
             colors: bool = True,
             ascii: bool = False,
             sort: Optional[Union[bool, str, int, Sequence[Union[str, int]]]] = None,
             default: Optional[Any] = None,
+            drop: Optional[Union[str, Sequence[str]]] = None,
             **kwargs
     ):
         from ..plot.text import Heatmap
-        names, keys, values = self._agg.to_matrix(sort=sort, default=default)
+        names, keys, matrix = self._agg.to_matrix(sort=sort, default=default, drop=drop)
+        if len(keys) != 2:
+            raise ValueError(
+                f"Can not display matrix of dimension {len(keys)} to heatmap, need 2 dimensions"
+            )
+
         hm = Heatmap(
             keys=keys,
-            values=values,
+            values=matrix,
             colors=colors,
             ascii=ascii
         )
