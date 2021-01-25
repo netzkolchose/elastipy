@@ -1,9 +1,13 @@
-import os
+import math
 from itertools import chain
 from typing import Mapping, Sequence, Union
 from io import StringIO
 from collections import deque
-from decimal import Decimal, InvalidOperation
+
+try:
+    import pandas as pd
+except ImportError:
+    pd = None
 
 from .console import Characters, Colors, get_terminal_size, clip_line
 from .helper import get_number
@@ -72,6 +76,13 @@ class Table:
         def _to_str(v):
             if v is None:
                 return "-"
+
+            try:
+                if math.isnan(v):
+                    return "-"
+            except TypeError:
+                pass
+
             if digits is not None:
                 try:
                     v = round(v, digits)
@@ -185,7 +196,7 @@ class Table:
 
                 if y != 0 and bar_width.get(key, 0) > 1:
                     try:
-                        value = row[key]["value"]
+                        value = get_number(row[key]["value"])
                         mi, ma = value_bounds[key]["min"], value_bounds[key]["max"]
                         t = bar_offset + (1. - bar_offset) * (value - mi) / (ma - mi)
                         cell += " " + co.LIGHT_BLUE + ch.hbar(t, bar_width[key] - 1) + co.END
@@ -232,8 +243,15 @@ class Table:
 
     def _extract_source(self):
         self.headers = None
+
+        source = self.source
+
+        if pd is not None and isinstance(self.source, pd.DataFrame):
+            source = self.source.values.tolist()
+            source.insert(0, list(self.source.columns))
+
         try:
-            row = self.source[0]
+            row = source[0]
             if isinstance(row, Sequence):
                 self.headers = row
                 self.rows = [
@@ -241,7 +259,7 @@ class Table:
                         key: value
                         for key, value in zip(self.headers, row)
                     }
-                    for row in self.source[1:]
+                    for row in source[1:]
                 ]
             elif isinstance(row, Mapping):
                 self.rows = self.source

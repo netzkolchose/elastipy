@@ -1,3 +1,4 @@
+import math
 from typing import Iterable
 
 
@@ -11,7 +12,9 @@ def get_number(value):
         pass
 
     try:
-        return float(value)
+        v = float(value)
+        if not math.isnan(value):
+            return v
     except (TypeError, ValueError):
         pass
 

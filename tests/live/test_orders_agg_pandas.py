@@ -36,7 +36,7 @@ class TestOrdersAggregationsPandas(TestCase):
 
         s.execute()
 
-        df: pd.DataFrame = agg.to_pandas()
+        df: pd.DataFrame = agg.to_pandas(index=True)
         #print(df)
         self.assertEqual(pd.Timestamp, type(df.index[0]))
 

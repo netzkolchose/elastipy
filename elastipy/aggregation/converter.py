@@ -145,7 +145,7 @@ class ConverterMixin:
 
     def to_pandas(
             self,
-            index: str = None,
+            index: Union[bool, str] = False,
             include: Union[str, Sequence[str]] = None,
             exclude: Union[str, Sequence[str]] = None,
     ):
@@ -159,17 +159,20 @@ class ConverterMixin:
 
         This method has a synonym: ``df``
 
-        :param index: str
-            Can explicitly set a certain column as the DataFrame index.
-            If omitted, the root aggregation's keys will be set to the index.
-        :param include: str or list of str
+        :param index: ``str``
+            - If ``False`` no explicit index is set.
+            - If ``True`` the root aggregation's keys will be the index.
+            - if ``str`` explicitly set a certain column as the DataFrame index.
+
+        :param include: ``str or list of str``
             Can be one or more (OR-combined) wildcard patterns.
             If used, any column that does not fit a pattern is removed
-        :param exclude: str or list of str
+
+        :param exclude: ``str or list of str``
             Can be one or more (OR-combined) wildcard patterns.
             If used, any column that fits a pattern is removed
 
-        :return: DataFrame instance
+        :return: pandas ``DataFrame`` instance
         """
         import pandas as pd
         from pandas._libs.tslibs import OutOfBoundsDatetime
@@ -183,9 +186,12 @@ class ConverterMixin:
                     df[key] = pd.to_datetime(df[key])
                 except (TypeError, ParserError, OutOfBoundsDatetime):
                     pass
-        if index is None:
-            index = self.root.name
-        df.index = df.pop(index)
+
+        if index and len(df):
+            if index is True:
+                index = self.root.name
+            df.index = df[index]
+
         return df
 
     # synonym
@@ -199,7 +205,7 @@ class ConverterMixin:
             exclude: Optional[Union[str, Sequence[str]]] = None,
     ) -> Tuple[List[str], List, List]:
         """
-        Generate a N-dimensional matrix from the values of this aggregation.
+        Generate an N-dimensional matrix from the values of this aggregation.
 
         Each dimension corresponds to one of the parent bucket keys that lead
         to this aggregation.
