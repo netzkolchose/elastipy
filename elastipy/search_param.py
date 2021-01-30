@@ -6,10 +6,12 @@ class SearchParametersBase:
     Access to this class is through `Search.param`.
 
     Each method returns a new Search instance.
-    ```
-    s = Search()
-    s = s.param.explain(True).param.size(100)
-    ```
+
+    ... CODE::
+
+        s = Search()
+        s = s.param.explain(True).param.size(100)
+
     """
 
     # will be replaced by the yaml-generated class
