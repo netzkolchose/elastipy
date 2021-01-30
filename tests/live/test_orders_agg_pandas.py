@@ -36,10 +36,16 @@ class TestOrdersAggregationsPandas(TestCase):
 
         s.execute()
 
-        df: pd.DataFrame = agg.to_pandas(index=True)
-        #print(df)
+        df = agg.to_pandas(index=True)
         self.assertEqual(pd.Timestamp, type(df.index[0]))
+        self.assertIn("date", df)
 
+        df = agg.to_pandas(to_index=True)
+        self.assertEqual(pd.Timestamp, type(df.index[0]))
+        self.assertNotIn("date", df)
+
+        with self.assertRaises(ValueError):
+            agg.to_pandas(index=True, to_index=True)
 
 
 if __name__ == "__main__":

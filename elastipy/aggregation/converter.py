@@ -146,6 +146,7 @@ class ConverterMixin:
     def to_pandas(
             self,
             index: Union[bool, str] = False,
+            to_index: Union[bool, str] = False,
             include: Union[str, Sequence[str]] = None,
             exclude: Union[str, Sequence[str]] = None,
     ):
@@ -159,10 +160,24 @@ class ConverterMixin:
 
         This method has a synonym: ``df``
 
-        :param index: ``str``
-            - If ``False`` no explicit index is set.
-            - If ``True`` the root aggregation's keys will be the index.
-            - if ``str`` explicitly set a certain column as the DataFrame index.
+        :param index: ``bool`` or ``str``
+            Sets a specific column as the index of the DataFrame.
+
+                - If ``False`` no explicit index is set.
+                - If ``True`` the root aggregation's keys will be the index.
+                - if ``str`` explicitly set a certain column as the DataFrame index.
+
+            .. NOTE::
+
+                The column is kept in the DataFrame. If you wan't to set a
+                column as index and remove it from the columns, use ``to_index``.
+
+        :param to_index: ``bool`` or ``str``
+            Same as ``index`` but the column is removed from DataFrame.
+
+                - If ``False`` no explicit index is set.
+                - If ``True`` the root aggregation's keys will be the index.
+                - if ``str`` explicitly set a certain column as the DataFrame index.
 
         :param include: ``str or list of str``
             Can be one or more (OR-combined) wildcard patterns.
@@ -179,6 +194,11 @@ class ConverterMixin:
         import numpy as np
         from dateutil.parser import ParserError
 
+        if index and to_index:
+            raise ValueError(
+                "Can not use 'index' and 'to_index' together, settle for one please."
+            )
+
         df = pd.DataFrame(self.dict_rows(include=include, exclude=exclude))
         for key in df:
             if df[key].dtype == np.dtype("O"):
@@ -187,10 +207,16 @@ class ConverterMixin:
                 except (TypeError, ParserError, OutOfBoundsDatetime):
                     pass
 
+        index = index or to_index
+
         if index and len(df):
             if index is True:
                 index = self.root.name
+
             df.index = df[index]
+
+            if to_index:
+                df.pop(index)
 
         return df
 
