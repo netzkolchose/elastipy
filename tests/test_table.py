@@ -104,58 +104,65 @@ class TestTable(unittest.TestCase):
             ["b", None, datetime.date(2000, 1, 3)],
             [None, 2, datetime.date(2000, 1, 1)],
         ]
-        self.assertTableStr(
-            table,
-            """
-            string | number | date
-            -------+--------+-----------
-            -      | 2      | 2000-01-01
-            a      | 3      | 2000-01-02 
-            b      | -      | 2000-01-03
-            c      | 1      | -
-            """,
-            bars=False,
-            sort="string",
-        )
-        self.assertTableStr(
-            table,
-            """
-            string | number | date
-            -------+--------+-----------
-            b      | -      | 2000-01-03
-            c      | 1      | -
-            -      | 2      | 2000-01-01
-            a      | 3      | 2000-01-02 
-            """,
-            bars=False,
-            sort="number",
-        )
-        self.assertTableStr(
-            table,
-            """
-            string | number | date
-            -------+--------+-----------
-            c      | 1      | -
-            -      | 2      | 2000-01-01
-            a      | 3      | 2000-01-02 
-            b      | -      | 2000-01-03
-            """,
-            bars=False,
-            sort="date",
-        )
-        self.assertTableStr(
-            table,
-            """
-            string | number | date
-            -------+--------+-----------
-            b      | -      | 2000-01-03
-            a      | 3      | 2000-01-02 
-            -      | 2      | 2000-01-01
-            c      | 1      | -
-            """,
-            bars=False,
-            sort="-date",
-        )
+        for sort_key in ("string", 0):
+            self.assertTableStr(
+                table,
+                """
+                string | number | date
+                -------+--------+-----------
+                -      | 2      | 2000-01-01
+                a      | 3      | 2000-01-02 
+                b      | -      | 2000-01-03
+                c      | 1      | -
+                """,
+                bars=False,
+                sort=sort_key,
+            )
+
+        for sort_key in ("number", 1):
+            self.assertTableStr(
+                table,
+                """
+                string | number | date
+                -------+--------+-----------
+                b      | -      | 2000-01-03
+                c      | 1      | -
+                -      | 2      | 2000-01-01
+                a      | 3      | 2000-01-02 
+                """,
+                bars=False,
+                sort=sort_key,
+            )
+
+        for sort_key in ("date", 2):
+            self.assertTableStr(
+                table,
+                """
+                string | number | date
+                -------+--------+-----------
+                c      | 1      | -
+                -      | 2      | 2000-01-01
+                a      | 3      | 2000-01-02 
+                b      | -      | 2000-01-03
+                """,
+                bars=False,
+                sort=sort_key,
+            )
+
+        for sort_key in ("-date", -2):
+            self.assertTableStr(
+                table,
+                """
+                string | number | date
+                -------+--------+-----------
+                b      | -      | 2000-01-03
+                a      | 3      | 2000-01-02 
+                -      | 2      | 2000-01-01
+                c      | 1      | -
+                """,
+                bars=False,
+                sort=sort_key,
+            )
 
     def test_bars(self):
         self.assertTableStr(

@@ -23,7 +23,7 @@ class Table:
 
     def print(
             self,
-            sort: str = None,
+            sort: Union[str, int] = None,
             digits: int = None,
             header: bool = True,
             bars: bool = True,
@@ -35,9 +35,12 @@ class Table:
             file=None
     ):
         """
-        :param sort: ``str``
+        :param sort: ``str`` or ``int``
             Optional sort column name which must match a 'header' key.
-            Can be prefixed with ``-`` (minus) to reverse order
+            Can be prefixed with ``-`` (minus) to reverse order.
+
+            Numbers are also accepted, which sort the ``x``th header.
+            Negative to reverse the order.
 
         :param digits: ``int``
             Optional number of digits for rounding.
@@ -125,8 +128,19 @@ class Table:
 
             table_rows.append(table_row)
 
-        if sort:
-            table_rows = sorted_rows(table_rows, key=sort.lstrip("-"), reverse=sort.startswith("-"))
+        if sort is not None:
+            if isinstance(sort, int):
+                if not 0 <= abs(sort) < len(self.headers):
+                    raise ValueError(
+                        f"Sort column {abs(sort)} is out of range, use [0-{len(self.headers)-1}]"
+                    )
+                reverse = sort < 0
+                sort_key = self.headers[abs(sort)]
+            else:
+                reverse = sort.startswith("-")
+                sort_key = sort.lstrip("-")
+
+            table_rows = sorted_rows(table_rows, key=sort_key, reverse=reverse)
 
         for key, bound in list(value_bounds.items()):
             if bound["min"] != bound["max"]:
