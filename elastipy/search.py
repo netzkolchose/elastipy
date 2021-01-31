@@ -242,6 +242,21 @@ class Search(QueryInterface, AggregationInterface):
         es._query = es._query.add_query(name, **params)
         return es
 
+    def __and__(self, other):
+        es = self.copy()
+        es._query &= _to_query(other)
+        return es
+
+    def __or__(self, other):
+        es = self.copy()
+        es._query |= _to_query(other)
+        return es
+
+    def __invert__(self):
+        es = self.copy()
+        es._query = ~es._query
+        return es
+
     # -- attach the AggregationInterface --
 
     def aggregation(self, *aggregation_name_type, **params) -> Aggregation:
@@ -259,21 +274,6 @@ class Search(QueryInterface, AggregationInterface):
         self._aggregations.append(agg)
         self._add_body(f"aggregations.{name}.{aggregation_type}", agg.to_body())
         return agg
-
-    def __and__(self, other):
-        es = self.copy()
-        es._query &= _to_query(other)
-        return es
-
-    def __or__(self, other):
-        es = self.copy()
-        es._query |= _to_query(other)
-        return es
-
-    def __invert__(self):
-        es = self.copy()
-        es._query = ~es._query
-        return es
 
     # -- debugging stuff --
 
