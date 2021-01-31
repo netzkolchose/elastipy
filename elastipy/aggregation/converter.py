@@ -80,10 +80,11 @@ class ConverterMixin:
 
     def rows(
             self,
-            header=True,
+            header: bool = True,
             include: Union[str, Sequence[str]] = None,
             exclude: Union[str, Sequence[str]] = None,
             flat: Union[bool, str, Sequence[str]] = False,
+            default = None,
     ) -> Iterable[list]:
         """
         Iterates through all result values from this aggregation branch.
@@ -115,9 +116,16 @@ class ConverterMixin:
             .. NOTE::
                 Currently not supported for the root aggregation!
 
+        :param default:
+            This value will be used wherever a value is undefined.
+
         :return: generator of list
         """
-        yield from dict_rows_to_list_rows(self.dict_rows(include=include, exclude=exclude), header=header)
+        yield from dict_rows_to_list_rows(
+            self.dict_rows(include=include, exclude=exclude, flat=flat),
+            header=header,
+            default=default,
+        )
 
     def dict_rows(
             self,
@@ -175,6 +183,8 @@ class ConverterMixin:
             include: Union[str, Sequence[str]] = None,
             exclude: Union[str, Sequence[str]] = None,
             flat: Union[bool, str, Sequence[str]] = False,
+            dtype=None,
+            default=None,
     ):
         """
         Converts the results of ``dict_rows()`` to a pandas DataFrame.
@@ -224,6 +234,12 @@ class ConverterMixin:
             .. NOTE::
                 Currently not supported for the root aggregation!
 
+        :param dtype:
+            Numpy data type to force. Only a single dtype is allowed. If None, infer.
+
+        :param default:
+            This value will be used wherever a value is undefined.
+
         :return: pandas ``DataFrame`` instance
         """
         import pandas as pd
@@ -236,7 +252,14 @@ class ConverterMixin:
                 "Can not use 'index' and 'to_index' together, settle for one please."
             )
 
-        df = pd.DataFrame(self.dict_rows(include=include, exclude=exclude, flat=flat))
+        rows = list(dict_rows_to_list_rows(
+            self.dict_rows(include=include, exclude=exclude, flat=flat),
+            default=default,
+            header=True,
+        ))
+
+        df = pd.DataFrame(rows[1:], columns=rows[0], dtype=dtype)
+
         for key in df:
             if df[key].dtype == np.dtype("O"):
                 try:
