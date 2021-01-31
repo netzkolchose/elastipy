@@ -31,6 +31,9 @@ class AggregationDump:
 
     def table(
             self,
+            include: Union[str, Sequence[str]] = None,
+            exclude: Union[str, Sequence[str]] = None,
+            flat: Union[bool, str, Sequence[str]] = False,
             sort: str = None,
             digits: int = None,
             header: bool = True,
@@ -44,6 +47,24 @@ class AggregationDump:
     ):
         """
         Print the result of the ``Aggregation.dict_rows()`` function as table to console.
+
+        :param include: ``str`` or ``sequence of str``
+            Can be one or more (OR-combined) wildcard patterns.
+            If used, any column that does not fit a pattern is removed.
+
+            ``include`` supersedes ``exclude``
+
+        :param exclude: ``str`` or ``sequence of str``
+            Can be one or more (OR-combined) wildcard patterns.
+            If used, any column that fits a pattern is removed.
+
+        :param flat: ``bool``, ``str`` or ``sequence of str``
+            Can be one or more aggregation names that should be *flattened out*,
+            meaning that each key of the aggregation creates a new column
+            instead of a new row.
+
+            .. NOTE::
+                Currently not supported for the root aggregation!
 
         :param sort: ``str``
             Optional sort column name which must match a 'header' key.
@@ -85,7 +106,14 @@ class AggregationDump:
 
         """
         from elastipy.dump import Table
-        Table(self._agg).print(
+
+        rows = self._agg.dict_rows(
+            include=include,
+            exclude=exclude,
+            flat=flat,
+        )
+
+        Table(list(rows)).print(
             sort=sort,
             digits=digits,
             header=header,

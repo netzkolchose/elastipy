@@ -265,9 +265,9 @@ class Table:
             source.insert(0, list(self.source.columns))
 
         try:
-            row = source[0]
-            if isinstance(row, Sequence):
-                self.headers = row
+            first_row = source[0]
+            if isinstance(first_row, Sequence):
+                self.headers = first_row
                 self.rows = [
                     {
                         key: value
@@ -275,7 +275,7 @@ class Table:
                     }
                     for row in source[1:]
                 ]
-            elif isinstance(row, Mapping):
+            elif isinstance(first_row, Mapping):
                 self.rows = self.source
                 self.headers = all_dict_row_keys(self.rows)
             return
@@ -287,7 +287,7 @@ class Table:
             self.headers = all_dict_row_keys(self.rows)
             return
 
-        raise TypeError(f"Invalid source {type(self.source).__name__}")
+        raise TypeError(f"Invalid source '{type(self.source).__name__}' for Table")
 
     def _spend_extra_width(self, width: dict, extra_width: int, max_width: int = None, recursive=True):
         if not width:

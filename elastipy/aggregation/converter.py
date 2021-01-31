@@ -111,24 +111,36 @@ class ConverterMixin:
             self,
             include: Union[str, Sequence[str]] = None,
             exclude: Union[str, Sequence[str]] = None,
+            flat: Union[bool, str, Sequence[str]] = False,
     ) -> Iterable[dict]:
         """
         Iterates through all result values from this aggregation branch.
 
         This will include all parent aggregations (up to the root) and all children
-        aggregations (including metrics).
+        aggregations (including metrics and pipelines).
 
-        :param include: str or list of str
+        :param include: ``str`` or ``sequence of str``
             Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that does not fit a pattern is removed
-        :param exclude: str or list of str
+            If used, any column that does not fit a pattern is removed.
+
+            ``include`` supersedes ``exclude``
+
+        :param exclude: ``str`` or ``sequence of str``
             Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that fits a pattern is removed
+            If used, any column that fits a pattern is removed.
+
+        :param flat: ``bool``, ``str`` or ``sequence of str``
+            Can be one or more aggregation names that should be *flattened out*,
+            meaning that each key of the aggregation creates a new column
+            instead of a new row.
+
+            .. NOTE::
+                Currently not supported for the root aggregation!
 
         :return: generator of dict
         """
         from .visitor import Visitor
-        return Visitor(self).dict_rows(include=include, exclude=exclude)
+        return Visitor(self).dict_rows(include=include, exclude=exclude, flat=flat)
 
     def to_dict(self, key_separator=None, default=None) -> dict:
         """
