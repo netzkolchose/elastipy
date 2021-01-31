@@ -10,3 +10,4 @@ from .test_response import *
 from .test_search import *
 from .test_search_request import *
 from .test_table import *
+from .test_wildcard import *

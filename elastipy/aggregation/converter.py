@@ -3,7 +3,7 @@ from itertools import chain
 import fnmatch
 from typing import Sequence, Union, Optional, Iterable, Tuple, TextIO, Any, Mapping, List
 
-from .helper import dict_rows_to_list_rows, wildcard_match, create_matrix, remove_matrix_axis
+from .helper import dict_rows_to_list_rows, create_matrix, remove_matrix_axis
 
 
 class ConverterMixin:

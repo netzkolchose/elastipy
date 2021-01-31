@@ -25,7 +25,19 @@ class TestOrdersAggregationsPandas(TestCase):
     def search(self):
         return Search(index=data.orders.OrderExporter.INDEX_NAME)
 
-    def test_named_nested_aggregations_to_rows(self):
+    def test_df_date_conversion(self):
+        s = self.search()
+        agg = s \
+            .agg_date_histogram("date", calendar_interval="1d") \
+            .agg_terms("sku", field="sku") \
+            .metric_sum("quantity", field="quantity")
+
+        s.execute()
+
+        df = agg.to_pandas()
+        self.assertEqual(pd.Timestamp, type(df["date"][0]))
+
+    def test_df_index(self):
         s = self.search()
         agg = s\
             .agg_date_histogram("date", calendar_interval="1d") \
@@ -46,6 +58,22 @@ class TestOrdersAggregationsPandas(TestCase):
 
         with self.assertRaises(ValueError):
             agg.to_pandas(index=True, to_index=True)
+
+    def test_df_exclude(self):
+        s = self.search()
+        agg = s \
+            .agg_date_histogram("date", calendar_interval="1d") \
+            .agg_terms("sku", field="sku") \
+            .agg_terms("country", field="country") \
+            .metric_sum("quantity", field="quantity")
+
+        s.execute()
+
+        df = agg.to_pandas(exclude="*y")
+        self.assertEqual(
+            ["date", "date.doc_count", "sku", "sku.doc_count", "country.doc_count"],
+            list(df.keys())
+        )
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ from itertools import chain
 from typing import Sequence, Union, Optional, Iterable, Tuple, TextIO, Any, Mapping
 
 from elastipy.aggregation import Aggregation
-from .helper import wildcard_match
+from .helper import wildcard_filter
 
 
 class Visitor:
@@ -106,17 +106,11 @@ class Visitor:
             flat = []
 
         for row in self._dict_rows(root, root.search.response.aggregations[root.name], flat):
-            if include:
+            if include or exclude:
                 row = {
                     key: value
                     for key, value in row.items()
-                    if wildcard_match(key, include)
-                }
-            if exclude:
-                row = {
-                    key: value
-                    for key, value in row.items()
-                    if not wildcard_match(key, exclude) or wildcard_match(key, include)
+                    if wildcard_filter(key, include, exclude)
                 }
             yield row
 
