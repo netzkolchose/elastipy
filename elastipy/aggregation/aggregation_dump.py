@@ -52,8 +52,6 @@ class AggregationDump:
             Can be one or more (OR-combined) wildcard patterns.
             If used, any column that does not fit a pattern is removed.
 
-            ``include`` supersedes ``exclude``
-
         :param exclude: ``str`` or ``sequence of str``
             Can be one or more (OR-combined) wildcard patterns.
             If used, any column that fits a pattern is removed.
@@ -61,7 +59,10 @@ class AggregationDump:
         :param flat: ``bool``, ``str`` or ``sequence of str``
             Can be one or more aggregation names that should be *flattened out*,
             meaning that each key of the aggregation creates a new column
-            instead of a new row.
+            instead of a new row. If ``True``, all bucket aggregations are
+            *flattened*.
+
+            Only supported for bucket aggregations!
 
             .. NOTE::
                 Currently not supported for the root aggregation!

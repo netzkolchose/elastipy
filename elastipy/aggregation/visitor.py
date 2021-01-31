@@ -82,8 +82,6 @@ class Visitor:
             Can be one or more (OR-combined) wildcard patterns.
             If used, any column that does not fit a pattern is removed.
 
-            ``include`` supersedes ``exclude``
-
         :param exclude: ``str`` or ``sequence of str``
             Can be one or more (OR-combined) wildcard patterns.
             If used, any column that fits a pattern is removed.

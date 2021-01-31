@@ -83,6 +83,7 @@ class ConverterMixin:
             header=True,
             include: Union[str, Sequence[str]] = None,
             exclude: Union[str, Sequence[str]] = None,
+            flat: Union[bool, str, Sequence[str]] = False,
     ) -> Iterable[list]:
         """
         Iterates through all result values from this aggregation branch.
@@ -92,16 +93,27 @@ class ConverterMixin:
         This will include all parent aggregations (up to the root) and all children
         aggregations (including metrics).
 
-        :param header: bool
+        :param header: ``bool``
             If True, the first row contains the names of the columns
 
-        :param include: str or list of str
+        :param include: ``str`` or ``sequence of str``
             Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that does not fit a pattern is removed
+            If used, any column that does not fit a pattern is removed.
 
-        :param exclude: str or list of str
+        :param exclude: ``str`` or ``sequence of str``
             Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that fits a pattern is removed
+            If used, any column that fits a pattern is removed.
+
+        :param flat: ``bool``, ``str`` or ``sequence of str``
+            Can be one or more aggregation names that should be *flattened out*,
+            meaning that each key of the aggregation creates a new column
+            instead of a new row. If ``True``, all bucket aggregations are
+            *flattened*.
+
+            Only supported for bucket aggregations!
+
+            .. NOTE::
+                Currently not supported for the root aggregation!
 
         :return: generator of list
         """
@@ -123,8 +135,6 @@ class ConverterMixin:
             Can be one or more (OR-combined) wildcard patterns.
             If used, any column that does not fit a pattern is removed.
 
-            ``include`` supersedes ``exclude``
-
         :param exclude: ``str`` or ``sequence of str``
             Can be one or more (OR-combined) wildcard patterns.
             If used, any column that fits a pattern is removed.
@@ -132,7 +142,10 @@ class ConverterMixin:
         :param flat: ``bool``, ``str`` or ``sequence of str``
             Can be one or more aggregation names that should be *flattened out*,
             meaning that each key of the aggregation creates a new column
-            instead of a new row.
+            instead of a new row. If ``True``, all bucket aggregations are
+            *flattened*.
+
+            Only supported for bucket aggregations!
 
             .. NOTE::
                 Currently not supported for the root aggregation!
@@ -161,6 +174,7 @@ class ConverterMixin:
             to_index: Union[bool, str] = False,
             include: Union[str, Sequence[str]] = None,
             exclude: Union[str, Sequence[str]] = None,
+            flat: Union[bool, str, Sequence[str]] = False,
     ):
         """
         Converts the results of ``dict_rows()`` to a pandas DataFrame.
@@ -199,6 +213,17 @@ class ConverterMixin:
             Can be one or more (OR-combined) wildcard patterns.
             If used, any column that fits a pattern is removed
 
+        :param flat: ``bool``, ``str`` or ``sequence of str``
+            Can be one or more aggregation names that should be *flattened out*,
+            meaning that each key of the aggregation creates a new column
+            instead of a new row. If ``True``, all bucket aggregations are
+            *flattened*.
+
+            Only supported for bucket aggregations!
+
+            .. NOTE::
+                Currently not supported for the root aggregation!
+
         :return: pandas ``DataFrame`` instance
         """
         import pandas as pd
@@ -211,7 +236,7 @@ class ConverterMixin:
                 "Can not use 'index' and 'to_index' together, settle for one please."
             )
 
-        df = pd.DataFrame(self.dict_rows(include=include, exclude=exclude))
+        df = pd.DataFrame(self.dict_rows(include=include, exclude=exclude, flat=flat))
         for key in df:
             if df[key].dtype == np.dtype("O"):
                 try:
