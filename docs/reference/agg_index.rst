@@ -19,6 +19,7 @@
   - `range <#elastipy.aggregation.Aggregation.agg_range>`__
   - `rare_terms <#elastipy.aggregation.Aggregation.agg_rare_terms>`__
   - `sampler <#elastipy.aggregation.Aggregation.agg_sampler>`__
+  - `significant_terms <#elastipy.aggregation.Aggregation.agg_significant_terms>`__
   - `terms <#elastipy.aggregation.Aggregation.agg_terms>`__
 
 - metric
