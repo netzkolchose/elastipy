@@ -139,7 +139,7 @@ def render_quickref():
     export_notebook("docs/quickref.ipynb", "markdown", ".")
 
     with open("quickref.md") as fp:
-        quickref = fp.read()
+        quickref = fp.read().strip()
 
     README_START = "### configuration"
     README_END = "**More examples can be found [here](examples).**"
