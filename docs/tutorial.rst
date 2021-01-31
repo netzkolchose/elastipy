@@ -234,7 +234,7 @@ Better execute the search now before the body get's too complicated:
 .. parsed-literal::
 
     {
-      "took": 1,
+      "took": 0,
       "timed_out": false,
       "_shards": {
         "total": 1,
@@ -252,7 +252,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "vHBVNncBlYGgD6s6r-Uk",
+            "_id": "O3HaWncBlYGgD6s6_gXx",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -263,7 +263,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "_HBVNncBlYGgD6s6r-Uk",
+            "_id": "e3HaWncBlYGgD6s6_gXx",
             "_score": 2.1868048,
             "_source": {
               "shape": "triangle",
@@ -274,7 +274,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "IHBVNncBlYGgD6s6r-Yk",
+            "_id": "n3HaWncBlYGgD6s6_gXx",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -437,7 +437,7 @@ Let's look at the result from elasticsearch:
 .. parsed-literal::
 
     {
-      "took": 1,
+      "took": 0,
       "timed_out": false,
       "_shards": {
         "total": 1,
@@ -589,6 +589,120 @@ built in:
       <thead>
         <tr style="text-align: right;">
           <th></th>
+          <th>shapes</th>
+          <th>shapes.doc_count</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>square</td>
+          <td>513</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>triangle</td>
+          <td>487</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+
+
+The **columns** are assigned automatically.
+
+Columns containing ISO-formatted date strings will be converted to
+``pandas.Timestamp``.
+
+The DataFrame
+`index <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Index.html#pandas.Index>`__
+column can be assigned with the ``index`` and ``to_index`` parameters.
+
+``index`` simply copies the column:
+
+.. code:: python3
+
+    agg.to_pandas(index="shapes")
+
+
+
+
+.. raw:: html
+
+    <div>
+    <style scoped>
+        .dataframe tbody tr th:only-of-type {
+            vertical-align: middle;
+        }
+    
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+    
+        .dataframe thead th {
+            text-align: right;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>shapes</th>
+          <th>shapes.doc_count</th>
+        </tr>
+        <tr>
+          <th>shapes</th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>square</th>
+          <td>square</td>
+          <td>513</td>
+        </tr>
+        <tr>
+          <th>triangle</th>
+          <td>triangle</td>
+          <td>487</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+
+
+``to_index`` will **move** the column:
+
+.. code:: python3
+
+    agg.to_pandas(to_index="shapes")
+
+
+
+
+.. raw:: html
+
+    <div>
+    <style scoped>
+        .dataframe tbody tr th:only-of-type {
+            vertical-align: middle;
+        }
+    
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+    
+        .dataframe thead th {
+            text-align: right;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
           <th>shapes.doc_count</th>
         </tr>
         <tr>
@@ -611,16 +725,12 @@ built in:
 
 
 
-The **index** and **columns** are assigned automatically. Also columns
-containing ISO-formatted date strings will be converted to
-``pandas.Timestamp``.
-
 With ``matplotlib`` installed we can access the `pandas plotting
 interface <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.plot.html>`__:
 
 .. code:: python3
 
-    agg.df().plot.bar()
+    agg.df(to_index="shapes").plot.bar()
 
 
 
@@ -632,7 +742,7 @@ interface <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Dat
 
 
 
-.. image:: tutorial_files/tutorial_57_1.png
+.. image:: tutorial_files/tutorial_61_1.png
 
 
 Satisfied with a little graphic we feel more confident and look into the
@@ -735,6 +845,47 @@ column contains the same value multiple times. This is because each
 ``colors`` aggregation bucket splits the ``shapes`` bucket into multiple
 results, without changing the overall count of the shapes, of course.
 
+It's possible to move the keys of sub-aggregations into new columns with
+the ``flat`` parameter. Below we basically say: Drop the ``colors`` and
+``colors.doc_count`` columns and instead create a column for each
+encountered color key. The names of following sub-aggregations and
+metrics are appended to each key. (Also the resulting ``area-avg``
+columns are excluded to not hurt our eyes too much)
+
+.. code:: python3
+
+    agg.dump.table(flat="colors", exclude="*avg", digits=3, colors=False)
+
+
+.. parsed-literal::
+
+    shapes   │ shapes.doc_count │ blue       │ blue.area      │ green │ green.area      │ red      │ red.area     
+    ─────────┼──────────────────┼────────────┼────────────────┼───────┼─────────────────┼──────────┼──────────────
+    square   │ 513 ████████████ │ 178 ██████ │ 920.602 ██████ │ 170   │ 882.643 ███████ │ 165 ████ │ 848.229 █████
+    triangle │ 487 ███████████▌ │ 177 █████▉ │ 891.198 █████▊ │ 170   │ 834.699 ██████▋ │ 140 ███▌ │ 704.332 ████▎
+
+
+This can be useful for stacking bars in a plot:
+
+.. code:: python3
+
+    agg.df(flat="colors", exclude=("*doc_count", "*area*")).plot.bar(stacked=True)
+
+
+
+
+.. parsed-literal::
+
+    <AxesSubplot:>
+
+
+
+
+.. image:: tutorial_files/tutorial_74_1.png
+
+
+--------------
+
 Now what is this method with the awesome name ``to_matrix``?
 
 .. code:: python3
@@ -828,6 +979,6 @@ installed we can easily plot it:
 
 
 
-.. image:: tutorial_files/tutorial_73_1.png
+.. image:: tutorial_files/tutorial_80_1.png
 
 
