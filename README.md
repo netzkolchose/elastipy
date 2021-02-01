@@ -376,7 +376,9 @@ MyExporter().delete_index()
 
 
 
-This will actually delete all sub-indices because there's this wildcard `*` in the `INDEX_NAME`.**More examples can be found [here](examples).**
+This will actually delete all sub-indices because there's this wildcard `*` in the `INDEX_NAME`.
+
+**More examples can be found [here](examples).**
 
 
 ### testing
