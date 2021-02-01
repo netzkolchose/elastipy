@@ -23,6 +23,7 @@ class IrcExporter(Exporter):
 
             "text": {
                 "type": "text",
+                "analyzer": "stop",
                 "term_vector": "with_positions_offsets_payloads",
                 "store": True,
                 "fielddata": True,
