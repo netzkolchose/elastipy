@@ -22,17 +22,17 @@ class TestOrdersAggregationsTable(TestCase):
     def tearDownClass(cls):
         data.orders.OrderExporter().delete_index()
 
-    def query(self):
+    def search(self):
         return Search(index=data.orders.OrderExporter.INDEX_NAME)
 
     def test_named_nested_aggregations_to_rows(self):
-        query = self.query()
-        agg_sku = query.agg_terms("sku", field="sku")
+        s = self.search()
+        agg_sku = s.agg_terms("sku", field="sku")
         agg_channel = agg_sku.aggregation("channel", "terms", field="channel")
         agg_country = agg_channel.aggregation("country", "terms", field="country")
         agg_qty = agg_country.metric("quantity", "sum", field="quantity")
 
-        query.execute()
+        s.execute()
 
         #agg_qty.dump_table()
         self.assertEqual(
@@ -73,12 +73,12 @@ class TestOrdersAggregationsTable(TestCase):
         )
 
     def test_named_nested_aggregations_multival_to_rows(self):
-        query = self.query()
-        agg_sku = query.agg_terms("sku", field="sku")
+        s = self.search()
+        agg_sku = s.agg_terms("sku", field="sku")
         agg_channel = agg_sku.aggregation("channel", "terms", field="channel")
         agg_stats = agg_channel.metric("stats", "stats", field="quantity")
 
-        query.execute()
+        s.execute()
 
         #agg_stats.dump_table()
         self.assertEqual(
@@ -93,6 +93,19 @@ class TestOrdersAggregationsTable(TestCase):
             ],
             list(agg_stats.rows())
         )
+
+    def test_empty_table(self):
+        s = self.search().term("sku", "not-existing")
+        agg = s.agg_terms("sku", field="sku")
+
+        s.execute()
+
+        self.assertEqual(
+            [], list(agg.rows())
+        )
+
+        # also make sure that Table(source) is not crashing
+        agg.dump.table()
 
 
 if __name__ == "__main__":
