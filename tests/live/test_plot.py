@@ -57,7 +57,7 @@ class TestPlot(TestCase):
     def test_orders_terms_sku(self):
         query = self.search()
         agg_sku_count = query.agg_terms(field="sku")
-        agg_sku_qty = agg_sku_count.metric("sum", field="quantity")
+        agg_sku_qty = agg_sku_count.metric("sum", field="quantity", return_self=True)
         query.execute()
 
         self.assertEqual(

@@ -87,7 +87,7 @@ class TestOrdersAggregations(TestCase):
         agg_sku = q.agg_terms(field="sku")
         agg_channel = agg_sku.aggregation("terms", field="channel")
         agg_country = agg_channel.aggregation("terms", field="country")
-        agg_qty = agg_country.metric("sum", field="quantity")
+        agg_qty = agg_country.metric("sum", field="quantity", return_self=True)
 
         q.execute()#.dump()
 
@@ -103,7 +103,6 @@ class TestOrdersAggregations(TestCase):
             },
             agg_qty.to_dict()
         )
-        #agg_qty.dump_table()
 
     def test_orders_filter(self):
         # The filter agg has a special request format and it's response is single-bucket style
@@ -118,7 +117,6 @@ class TestOrdersAggregations(TestCase):
             #q.dump.body()
             agg.execute()#.dump()
 
-            #agg.dump_table()
             self.assertEqual(
                 [
                     ["a0", "a0.doc_count", "qty"],

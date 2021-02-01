@@ -41,12 +41,12 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("adjacency_matrix", )),
             filters=filters,
             separator=separator,
         )
-        return agg
+        return a
 
     def agg_auto_date_histogram(
             self,
@@ -135,7 +135,7 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("auto_date_histogram", )),
             field=field,
             buckets=buckets,
@@ -146,7 +146,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return a
 
     def metric_avg(
             self,
@@ -183,13 +183,14 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("avg", )),
             field=field,
             missing=missing,
             script=script,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def pipeline_avg_bucket(
             self,
@@ -234,13 +235,14 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.pipeline(
+        a = self.pipeline(
             *(aggregation_name + ("avg_bucket", )),
             buckets_path=buckets_path,
             gap_policy=gap_policy,
             format=format,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def metric_boxplot(
             self,
@@ -272,13 +274,14 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("boxplot", )),
             field=field,
             compression=compression,
             missing=missing,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def pipeline_bucket_script(
             self,
@@ -331,14 +334,15 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.pipeline(
+        a = self.pipeline(
             *(aggregation_name + ("bucket_script", )),
             script=script,
             buckets_path=buckets_path,
             gap_policy=gap_policy,
             format=format,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def metric_cardinality(
             self,
@@ -373,14 +377,15 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("cardinality", )),
             field=field,
             precision_threshold=precision_threshold,
             missing=missing,
             script=script,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def agg_children(
             self,
@@ -404,11 +409,11 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("children", )),
             type=type,
         )
-        return agg
+        return a
 
     def agg_composite(
             self,
@@ -508,13 +513,13 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("composite", )),
             sources=sources,
             size=size,
             after=after,
         )
-        return agg
+        return a
 
     def agg_date_histogram(
             self,
@@ -639,7 +644,7 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("date_histogram", )),
             field=field,
             calendar_interval=calendar_interval,
@@ -652,7 +657,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return a
 
     def agg_date_range(
             self,
@@ -747,7 +752,7 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("date_range", )),
             ranges=ranges,
             field=field,
@@ -757,7 +762,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return a
 
     def pipeline_derivative(
             self,
@@ -810,14 +815,15 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.pipeline(
+        a = self.pipeline(
             *(aggregation_name + ("derivative", )),
             buckets_path=buckets_path,
             gap_policy=gap_policy,
             format=format,
             units=units,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def agg_diversified_sampler(
             self,
@@ -908,14 +914,14 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("diversified_sampler", )),
             field=field,
             script=script,
             shard_size=shard_size,
             max_docs_per_value=max_docs_per_value,
         )
-        return agg
+        return a
 
     def metric_extended_stats(
             self,
@@ -950,14 +956,15 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("extended_stats", )),
             field=field,
             sigma=sigma,
             missing=missing,
             script=script,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def agg_filter(
             self,
@@ -980,11 +987,11 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("filter", )),
             filter=filter,
         )
-        return agg
+        return a
 
     def agg_filters(
             self,
@@ -1007,11 +1014,11 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("filters", )),
             filters=filters,
         )
-        return agg
+        return a
 
     def metric_geo_bounds(
             self,
@@ -1061,12 +1068,13 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("geo_bounds", )),
             field=field,
             wrap_longitude=wrap_longitude,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def metric_geo_centroid(
             self,
@@ -1120,11 +1128,12 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("geo_centroid", )),
             field=field,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def agg_geo_distance(
             self,
@@ -1201,7 +1210,7 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("geo_distance", )),
             field=field,
             ranges=ranges,
@@ -1210,7 +1219,7 @@ class AggregationInterface(AggregationInterfaceBase):
             distance_type=distance_type,
             keyed=keyed,
         )
-        return agg
+        return a
 
     def agg_geohash_grid(
             self,
@@ -1304,7 +1313,7 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("geohash_grid", )),
             field=field,
             precision=precision,
@@ -1312,7 +1321,7 @@ class AggregationInterface(AggregationInterfaceBase):
             size=size,
             shard_size=shard_size,
         )
-        return agg
+        return a
 
     def agg_geotile_grid(
             self,
@@ -1397,7 +1406,7 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("geotile_grid", )),
             field=field,
             precision=precision,
@@ -1405,7 +1414,7 @@ class AggregationInterface(AggregationInterfaceBase):
             size=size,
             shard_size=shard_size,
         )
-        return agg
+        return a
 
     def agg_global(
             self,
@@ -1431,10 +1440,10 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("global", )),
         )
-        return agg
+        return a
 
     def agg_histogram(
             self,
@@ -1583,7 +1592,7 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("histogram", )),
             field=field,
             interval=interval,
@@ -1596,7 +1605,7 @@ class AggregationInterface(AggregationInterfaceBase):
             keyed=keyed,
             missing=missing,
         )
-        return agg
+        return a
 
     def agg_ip_range(
             self,
@@ -1644,13 +1653,13 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("ip_range", )),
             field=field,
             ranges=ranges,
             keyed=keyed,
         )
-        return agg
+        return a
 
     def metric_matrix_stats(
             self,
@@ -1682,13 +1691,14 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("matrix_stats", )),
             fields=fields,
             mode=mode,
             missing=missing,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def metric_max(
             self,
@@ -1720,13 +1730,14 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("max", )),
             field=field,
             missing=missing,
             script=script,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def metric_median_absolute_deviation(
             self,
@@ -1761,14 +1772,15 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("median_absolute_deviation", )),
             field=field,
             compression=compression,
             missing=missing,
             script=script,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def metric_min(
             self,
@@ -1800,13 +1812,14 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("min", )),
             field=field,
             missing=missing,
             script=script,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def agg_missing(
             self,
@@ -1834,11 +1847,11 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("missing", )),
             field=field,
         )
-        return agg
+        return a
 
     def metric_percentile_ranks(
             self,
@@ -1879,7 +1892,7 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("percentile_ranks", )),
             field=field,
             values=values,
@@ -1887,8 +1900,9 @@ class AggregationInterface(AggregationInterfaceBase):
             hdr__number_of_significant_value_digits=hdr__number_of_significant_value_digits,
             missing=missing,
             script=script,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def metric_percentiles(
             self,
@@ -1932,7 +1946,7 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("percentiles", )),
             field=field,
             percents=percents,
@@ -1941,8 +1955,9 @@ class AggregationInterface(AggregationInterfaceBase):
             hdr__number_of_significant_value_digits=hdr__number_of_significant_value_digits,
             missing=missing,
             script=script,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def agg_range(
             self,
@@ -2003,14 +2018,14 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("range", )),
             ranges=ranges,
             field=field,
             keyed=keyed,
             script=script,
         )
-        return agg
+        return a
 
     def agg_rare_terms(
             self,
@@ -2079,7 +2094,7 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("rare_terms", )),
             field=field,
             max_doc_count=max_doc_count,
@@ -2087,7 +2102,7 @@ class AggregationInterface(AggregationInterfaceBase):
             exclude=exclude,
             missing=missing,
         )
-        return agg
+        return a
 
     def metric_rate(
             self,
@@ -2119,13 +2134,14 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("rate", )),
             unit=unit,
             field=field,
             script=script,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def agg_sampler(
             self,
@@ -2158,11 +2174,11 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("sampler", )),
             shard_size=shard_size,
         )
-        return agg
+        return a
 
     def metric_scripted_metric(
             self,
@@ -2200,15 +2216,16 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("scripted_metric", )),
             map_script=map_script,
             combine_script=combine_script,
             reduce_script=reduce_script,
             init_script=init_script,
             params=params,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def agg_significant_terms(
             self,
@@ -2382,7 +2399,7 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("significant_terms", )),
             field=field,
             size=size,
@@ -2394,7 +2411,7 @@ class AggregationInterface(AggregationInterfaceBase):
             exclude=exclude,
             script=script,
         )
-        return agg
+        return a
 
     def metric_stats(
             self,
@@ -2423,12 +2440,13 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("stats", )),
             field=field,
             missing=missing,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def metric_string_stats(
             self,
@@ -2460,13 +2478,14 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("string_stats", )),
             field=field,
             show_distribution=show_distribution,
             missing=missing,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def metric_sum(
             self,
@@ -2498,13 +2517,14 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("sum", )),
             field=field,
             missing=missing,
             script=script,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def metric_t_test(
             self,
@@ -2545,7 +2565,7 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("t_test", )),
             a__field=a__field,
             b__field=b__field,
@@ -2553,8 +2573,9 @@ class AggregationInterface(AggregationInterfaceBase):
             a__filter=a__filter,
             b__filter=b__filter,
             script=script,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def agg_terms(
             self,
@@ -2720,7 +2741,7 @@ class AggregationInterface(AggregationInterfaceBase):
         :returns: ``'AggregationInterface'``
             A new instance is created and returned
         """
-        agg = self.agg(
+        a = self.agg(
             *(aggregation_name + ("terms", )),
             field=field,
             size=size,
@@ -2734,7 +2755,7 @@ class AggregationInterface(AggregationInterfaceBase):
             missing=missing,
             script=script,
         )
-        return agg
+        return a
 
     def metric_top_hits(
             self,
@@ -2766,13 +2787,14 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("top_hits", )),
             size=size,
             sort=sort,
             _source=_source,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def metric_top_metrics(
             self,
@@ -2801,12 +2823,13 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("top_metrics", )),
             metrics=metrics,
             sort=sort,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def metric_value_count(
             self,
@@ -2856,12 +2879,13 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("value_count", )),
             field=field,
             script=script,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
 
     def metric_weighted_avg(
             self,
@@ -2925,7 +2949,7 @@ class AggregationInterface(AggregationInterfaceBase):
             returned, unless 'return_self' is True, in which case the new instance
             is returned.
         """
-        agg = self.metric(
+        a = self.metric(
             *(aggregation_name + ("weighted_avg", )),
             value__field=value__field,
             weight__field=weight__field,
@@ -2934,5 +2958,6 @@ class AggregationInterface(AggregationInterfaceBase):
             format=format,
             value_type=value_type,
             script=script,
+            return_self=return_self,
         )
-        return agg if return_self else self
+        return a
