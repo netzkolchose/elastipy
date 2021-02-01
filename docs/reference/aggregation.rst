@@ -31,3 +31,12 @@ printing utilities
    :members:
    :inherited-members:
    :show-inheritance:
+
+
+plotting
+--------
+
+.. autoclass:: elastipy.aggregation.aggregation_plot_pd.PandasPlotWrapper
+   :members:
+   :inherited-members:
+   :show-inheritance:

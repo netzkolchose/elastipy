@@ -423,6 +423,8 @@ class ConverterMixin:
             self,
             sort: Optional[Union[bool, str, int, Sequence[Union[str, int]]]] = None,
             default: Optional[Any] = None,
+            include: Optional[Union[str, Sequence[str]]] = None,
+            exclude: Optional[Union[str, Sequence[str]]] = None,
     ):
         """
         Returns a pandas DataFrame containing the matrix.
@@ -437,7 +439,12 @@ class ConverterMixin:
         """
         import pandas as pd
 
-        names, keys, matrix = self.to_matrix(sort=sort, default=default)
+        names, keys, matrix = self.to_matrix(
+            sort=sort,
+            default=default,
+            include=include,
+            exclude=exclude,
+        )
         if len(keys) == 1:
             df = pd.DataFrame(matrix, index=keys[0])
         elif len(keys) == 2:

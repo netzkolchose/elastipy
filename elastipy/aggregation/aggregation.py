@@ -24,7 +24,6 @@ class Aggregation(ConverterMixin, AggregationInterface):
 
     def __init__(self, search, name, type, params):
         from ..search import Response
-        from ..plot import PlotWrapper
         AggregationInterface.__init__(self, timestamp_field=search.timestamp_field)
         self.search = search
         self.name = name
@@ -35,7 +34,6 @@ class Aggregation(ConverterMixin, AggregationInterface):
         self.parent: Optional[Aggregation] = None
         self.root: Aggregation = self
         self.children: List[Aggregation] = []
-        self._plot: Optional[PlotWrapper] = None
 
     def __repr__(self):
         return f"{self.__class__.__name__}('{self.name}', '{self.type}')"
@@ -52,10 +50,13 @@ class Aggregation(ConverterMixin, AggregationInterface):
 
     @property
     def plot(self):
-        from ..plot import PlotWrapper
-        if self._plot is None:
-            self._plot = PlotWrapper(self)
-        return self._plot
+        """
+        Access to pandas plotting interface.
+
+        :return: PandasPlotWrapper instance
+        """
+        from .aggregation_plot_pd import PandasPlotWrapper
+        return PandasPlotWrapper(self)
 
     @property
     def group(self) -> str:
