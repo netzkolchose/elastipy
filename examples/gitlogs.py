@@ -20,6 +20,11 @@ def parse_arguments():
         help="Name of a directory that contains a github repository"
     )
 
+    parser.add_argument(
+        "-d", "--delete", type=bool, nargs="?", default=False, const=True,
+        help="Delete the elasticsearch index before sending documents"
+    )
+
     return parser.parse_args()
 
 
@@ -36,12 +41,18 @@ class CommitExporter(Exporter):
             "hash": {"type": "keyword"},
             "author": {"type": "keyword"},
             "author_email": {"type": "keyword"},
-            "message": {"type": "text"},
+            "message": {
+                "type": "text",
+                "analyzer": "stop",
+                "term_vector": "with_positions_offsets_payloads",
+                "store": True,
+                "fielddata": True,
+            },
 
-            "file": {"type": "keyword"},
-            "filepath": {"type": "keyword"},
-            "additions": {"type": "integer"},
-            "deletions": {"type": "integer"},
+            "changes.file": {"type": "keyword"},
+            "changes.filepath": {"type": "keyword"},
+            "changes.additions": {"type": "integer"},
+            "changes.deletions": {"type": "integer"},
         }
     }
 
@@ -52,6 +63,7 @@ class CommitExporter(Exporter):
         data = data.copy()
         data["timestamp_hour"] = data["timestamp"].hour
         data["timestamp_weekday"] = data["timestamp"].strftime("%w %A")
+        data["project"] = self.index_postfix
         return data
 
 
@@ -67,45 +79,80 @@ def iter_git_commits(path: str):
     """
     changes_re = re.compile(r"^(\d+)\s(\d+)\s(.*)$")
     delimiter1 = "$$$1-elastipy-data-delimiter-$$$"
-    delimiter2 = "$$$2-elastipy-data-delimiter-$$$"
+    delimiter2 = "\n$$$2-elastipy-data-delimiter-$$$"
     git_cmd = f"git log --branches --numstat --pretty='{delimiter1}%n%H%n%an%n%ae%n%cI%n%B{delimiter2}'"
 
-    output = subprocess.check_output(
-        ["bash", "-c", f"cd {path} && {git_cmd}"]
-    ).decode("utf-8")
+    process = subprocess.Popen(
+        ["bash", "-c", f"cd {path} && {git_cmd}"],
+        stdout=subprocess.PIPE,
+    )
 
-    for entry in output.split(delimiter1):
-        if entry:
-            entry1, entry2 = entry.split(delimiter2)
+    commit = dict()
+    current_line = 0
+    while True:
+        line = process.stdout.readline()
+        if not line:
+            break
 
-            entry1 = entry1.strip().splitlines()
+        line = line.decode("utf-8").rstrip()
 
-            commit = {
-                "hash": entry1[0],
-                "author": entry1[1],
-                "author_email": entry1[2],
-                "timestamp": date_parser().parse(entry1[3]),
-                "message": "\n".join(entry1[4:]),
-                "changes": [],
-            }
-            for line in entry2.splitlines():
+        # a new commit starts
+        if line == delimiter1:
+            if commit:
+                yield commit
+            commit = dict()
+            current_line = 0
+
+        # commit message ended and changes (numstats) follow
+        elif line == delimiter2[1:]:
+            current_line = -1
+
+        # digest each line
+        else:
+            if current_line == 1:
+                commit["hash"] = line
+            elif current_line == 2:
+                commit["author"] = line
+            elif current_line == 3:
+                commit["author_email"] = line
+            elif current_line == 4:
+                commit["timestamp"] = date_parser().parse(line)
+            elif current_line == 5:
+                commit["message"] = line
+            elif current_line > 5:
+                commit["message"] += "\n" + line
+
+            elif current_line == -1:
                 change_match = changes_re.match(line)
                 if change_match:
+                    if "changes" not in commit:
+                        commit["changes"] = []
+
                     groups = change_match.groups()
-                    commit.update({
+                    commit["changes"].append({
                         "filepath": groups[2],
                         "file": groups[2].split(os.path.sep)[-1],
                         "additions": int(groups[0]),
                         "deletions": int(groups[1]),
                     })
 
-            yield commit
+        if current_line >= 0:
+            current_line += 1
+
+    if commit:
+        yield commit
+
+    process.kill()
+    process.wait()
 
 
 if __name__ == "__main__":
     args = parse_arguments()
 
     exporter = CommitExporter(index_postfix=args.index)
+
+    if args.delete:
+        exporter.delete_index()
 
     exporter.export_list(
         iter_git_commits(args.repo),
