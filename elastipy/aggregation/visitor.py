@@ -4,7 +4,7 @@ from itertools import chain
 from typing import Sequence, Union, Optional, Iterable, Tuple, TextIO, Any, Mapping
 
 from elastipy.aggregation import Aggregation
-from .helper import wildcard_match
+from .helper import wildcard_filter
 
 
 class Visitor:
@@ -20,27 +20,41 @@ class Visitor:
         self.key_separator = key_separator
         self.tuple_key = tuple_key
 
-    def aggregations(self, filter: Optional[Union[str, Sequence[str]]] = None, depth_first: bool = True):
-        if filter is None or self.agg.group in filter:
-            yield self.agg
-        yield from self._child_aggregations(self.agg, filter=filter, depth_first=depth_first)
+    def iter_tree(
+            self,
+            root: Aggregation = None,
+            group: Optional[Union[str, Sequence[str]]] = None,
+            depth_first: bool = True
+    ):
+        """
+        Iterate through all aggregations starting at self
+        :param root: optional root aggregation to start at
+        :param group: filter for specific group or groups
+        :param depth_first: True: depth-first, False: breadth-first
+        :return: generator
+        """
+        if isinstance(group, str):
+            group = [group]
 
-    def children(self, depth_first: bool = True):
-        yield from self._child_aggregations(self.agg, depth_first=depth_first)
+        agg = self.agg if root is None else root
 
-    def _child_aggregations(self, agg: Aggregation, filter=None, depth_first: bool = True):
+        if group is None or self.agg.group in group:
+            yield agg
+
+        yield from self._iter_tree(agg, group=group, depth_first=depth_first)
+
+    def _iter_tree(self, agg: Aggregation, group=None, depth_first: bool = True):
         if depth_first:
             for c in agg.children:
-                if filter is None or c.group in filter:
+                if group is None or c.group in group:
                     yield c
-                    yield from self._child_aggregations(c, depth_first=depth_first)
+                yield from self._iter_tree(c, depth_first=depth_first)
         else:
             for c in agg.children:
-                if filter is None or c.group in filter:
+                if group is None or c.group in group:
                     yield c
             for c in agg.children:
-                if filter is None or c.group in filter:
-                    yield from self._child_aggregations(c, depth_first=depth_first)
+                yield from self._iter_tree(c, depth_first=depth_first)
 
     def items(self) -> Iterable[Tuple]:
         """
@@ -56,35 +70,47 @@ class Visitor:
             self,
             include: Union[str, Sequence[str]] = None,
             exclude: Union[str, Sequence[str]] = None,
+            flat: Union[bool, str, Sequence[str]] = False,
     ) -> Iterable[dict]:
         """
         Iterates through all result values from this aggregation branch.
 
         This will include all parent aggregations (up to the root) and all children
-        aggregations (including metrics).
+        aggregations (including metrics and pipelines).
 
-        :param include: str or list of str
+        :param include: ``str`` or ``sequence of str``
             Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that does not fit a pattern is removed
-        :param exclude: str or list of str
+            If used, any column that does not fit a pattern is removed.
+
+        :param exclude: ``str`` or ``sequence of str``
             Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that fits a pattern is removed
+            If used, any column that fits a pattern is removed.
+
+        :param flat: ``bool``, ``str`` or ``sequence of str``
+            Can be one or more aggregation names that should be *flattened out*,
+            meaning that each key of the aggregation creates a new column
+            instead of a new row.
+
+            .. NOTE::
+                Currently not supported for the root aggregation!
 
         :return: generator of dict
         """
         root = self.agg.root
-        for row in self._dict_rows(root, root.search.response.aggregations[root.name]):
-            if include:
+
+        if flat is True:
+            flat = [a.name for a in self.iter_tree(root=root, group="bucket")]
+        elif isinstance(flat, str):
+            flat = [flat]
+        elif not flat:
+            flat = []
+
+        for row in self._dict_rows(root, root.search.response.aggregations[root.name], flat):
+            if include or exclude:
                 row = {
                     key: value
                     for key, value in row.items()
-                    if wildcard_match(key, include)
-                }
-            if exclude:
-                row = {
-                    key: value
-                    for key, value in row.items()
-                    if not wildcard_match(key, exclude)
+                    if wildcard_filter(key, include, exclude)
                 }
             yield row
 
@@ -123,7 +149,7 @@ class Visitor:
             value = self.default_value
         return value
 
-    def _dict_rows(self, agg: Aggregation, response: dict):
+    def _dict_rows(self, agg: Aggregation, response: dict, flat):
         if not agg.is_bucket():
             raise ValueError(f"Can not call dict_rows() on non-bucket aggregation {agg}")
 
@@ -151,10 +177,29 @@ class Visitor:
             for bucket_agg in agg.children:
                 if bucket_agg.is_bucket():
                     has_sub_bucket = True
-                    for sub_rows in self._dict_rows(bucket_agg, bucket[bucket_agg.name]):
-                        sub_row = copy(row)
-                        sub_row.update(sub_rows)
-                        yield sub_row
+
+                    if bucket_agg.name not in flat:
+                        for sub_row in self._dict_rows(bucket_agg, bucket[bucket_agg.name], flat):
+                            # copy the row until here
+                            full_row = copy(row)
+                            # and add each sub-aggregation's values
+                            full_row.update(sub_row)
+                            yield full_row
+
+                    else:
+                        # drop the "agg_name" and "agg_name.doc_count" columns
+                        # and instead use the value in "agg_name" column as column key
+                        # and the "agg_name.doc_count" value as value in that column
+                        agg_value_key = f"{bucket_agg.name}.doc_count"
+                        for sub_row in self._dict_rows(bucket_agg, bucket[bucket_agg.name], flat):
+                            # the value in "agg_name" a.k.a the key
+                            sub_agg_key = sub_row[bucket_agg.name]
+                            row[sub_agg_key] = sub_row[agg_value_key]
+                            for key, value in sub_row.items():
+                                if key != bucket_agg.name and key != agg_value_key:
+                                    # sub-aggregations get their key attached
+                                    row[f"{sub_agg_key}.{key}"] = value
+                        yield row
 
             if not has_sub_bucket:
                 yield row

@@ -1,8 +1,9 @@
 from copy import copy, deepcopy
 from itertools import chain
+import fnmatch
 from typing import Sequence, Union, Optional, Iterable, Tuple, TextIO, Any, Mapping, List
 
-from .helper import dict_rows_to_list_rows, wildcard_match, create_matrix
+from .helper import dict_rows_to_list_rows, create_matrix, remove_matrix_axis
 
 
 class ConverterMixin:
@@ -29,9 +30,10 @@ class ConverterMixin:
 
         For a nested bucket aggregation each key is a tuple of all parent keys as well.
 
-        :param key_separator: str
+        :param key_separator: ``str``
             Optional separator to concat multiple keys into one string
-        :param tuple_key: bool
+
+        :param tuple_key: ``bool``
             If True, the key is always a tuple
             If False, the key is a string if there is only one key
 
@@ -43,7 +45,8 @@ class ConverterMixin:
     def values(self, default=None):
         """
         Iterates through all values of this aggregation.
-        :param default: if not None any None-value will be replaced by this
+
+        :param default: If not None any None-value will be replaced by this.
         :return: generator
         """
         for key, value in self.items(default=default):
@@ -57,11 +60,18 @@ class ConverterMixin:
     ) -> Iterable[Tuple]:
         """
         Iterates through all key, value tuples.
-        :param key_separator: str, optional separator to concat multiple keys into one string
-        :param tuple_key: bool
-            If True, the key is always a tuple
-            If False, the key is a string if there is only one key
-        :param default: if not None any None-value will be replaced by this
+
+        :param key_separator: ``str``
+            Optional separator to concat multiple keys into one string.
+
+        :param tuple_key: ``bool``
+            If True, the key is always a tuple.
+
+            If False, the key is a string if there is only one key.
+
+        :param default:
+            If not None any None-value will be replaced by this.
+
         :return: generator
         """
         from .visitor import Visitor
@@ -70,9 +80,11 @@ class ConverterMixin:
 
     def rows(
             self,
-            header=True,
+            header: bool = True,
             include: Union[str, Sequence[str]] = None,
             exclude: Union[str, Sequence[str]] = None,
+            flat: Union[bool, str, Sequence[str]] = False,
+            default = None,
     ) -> Iterable[list]:
         """
         Iterates through all result values from this aggregation branch.
@@ -82,47 +94,81 @@ class ConverterMixin:
         This will include all parent aggregations (up to the root) and all children
         aggregations (including metrics).
 
-        :param header: bool
+        :param header: ``bool``
             If True, the first row contains the names of the columns
-        :param include: str or list of str
+
+        :param include: ``str`` or ``sequence of str``
             Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that does not fit a pattern is removed
-        :param exclude: str or list of str
+            If used, any column that does not fit a pattern is removed.
+
+        :param exclude: ``str`` or ``sequence of str``
             Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that fits a pattern is removed
+            If used, any column that fits a pattern is removed.
+
+        :param flat: ``bool``, ``str`` or ``sequence of str``
+            Can be one or more aggregation names that should be *flattened out*,
+            meaning that each key of the aggregation creates a new column
+            instead of a new row. If ``True``, all bucket aggregations are
+            *flattened*.
+
+            Only supported for bucket aggregations!
+
+            .. NOTE::
+                Currently not supported for the root aggregation!
+
+        :param default:
+            This value will be used wherever a value is undefined.
 
         :return: generator of list
         """
-        yield from dict_rows_to_list_rows(self.dict_rows(include=include, exclude=exclude), header=header)
+        yield from dict_rows_to_list_rows(
+            self.dict_rows(include=include, exclude=exclude, flat=flat),
+            header=header,
+            default=default,
+        )
 
     def dict_rows(
             self,
             include: Union[str, Sequence[str]] = None,
             exclude: Union[str, Sequence[str]] = None,
+            flat: Union[bool, str, Sequence[str]] = False,
     ) -> Iterable[dict]:
         """
         Iterates through all result values from this aggregation branch.
 
         This will include all parent aggregations (up to the root) and all children
-        aggregations (including metrics).
+        aggregations (including metrics and pipelines).
 
-        :param include: str or list of str
+        :param include: ``str`` or ``sequence of str``
             Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that does not fit a pattern is removed
-        :param exclude: str or list of str
+            If used, any column that does not fit a pattern is removed.
+
+        :param exclude: ``str`` or ``sequence of str``
             Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that fits a pattern is removed
+            If used, any column that fits a pattern is removed.
+
+        :param flat: ``bool``, ``str`` or ``sequence of str``
+            Can be one or more aggregation names that should be *flattened out*,
+            meaning that each key of the aggregation creates a new column
+            instead of a new row. If ``True``, all bucket aggregations are
+            *flattened*.
+
+            Only supported for bucket aggregations!
+
+            .. NOTE::
+                Currently not supported for the root aggregation!
 
         :return: generator of dict
         """
         from .visitor import Visitor
-        return Visitor(self).dict_rows(include=include, exclude=exclude)
+        return Visitor(self).dict_rows(include=include, exclude=exclude, flat=flat)
 
     def to_dict(self, key_separator=None, default=None) -> dict:
         """
         Create a dictionary from all key/value pairs.
+
         :param key_separator: str, optional separator to concat multiple keys into one string
-        :param default: if not None any None-value will be replaced by this
+        :param default: If not None any None-value will be replaced by this.
         :return: dict
         """
         return {
@@ -132,47 +178,106 @@ class ConverterMixin:
 
     def to_pandas(
             self,
-            index: str = None,
+            index: Union[bool, str] = False,
+            to_index: Union[bool, str] = False,
             include: Union[str, Sequence[str]] = None,
             exclude: Union[str, Sequence[str]] = None,
+            flat: Union[bool, str, Sequence[str]] = False,
+            dtype=None,
+            default=None,
     ):
         """
-        Converts the results of 'dict_rows()' to a pandas DataFrame.
+        Converts the results of ``dict_rows()`` to a pandas DataFrame.
 
         This will include all parent aggregations (up to the root) and all children
         aggregations (including metrics).
 
         Any columns containing dates will be automatically converted to pandas.Timestamp.
 
-        This method has a synonym: 'df'
+        This method has a synonym: ``df``
 
-        :param index: str
-            Can explicitly set a certain column as the DataFrame index.
-            If omitted, the root aggregation's keys will be set to the index.
-        :param include: str or list of str
+        :param index: ``bool`` or ``str``
+            Sets a specific column as the index of the DataFrame.
+
+                - If ``False`` no explicit index is set.
+                - If ``True`` the root aggregation's keys will be the index.
+                - if ``str`` explicitly set a certain column as the DataFrame index.
+
+            .. NOTE::
+
+                The column is kept in the DataFrame. If you wan't to set a
+                column as index and remove it from the columns, use ``to_index``.
+
+        :param to_index: ``bool`` or ``str``
+            Same as ``index`` but the column is removed from DataFrame.
+
+                - If ``False`` no explicit index is set.
+                - If ``True`` the root aggregation's keys will be the index.
+                - if ``str`` explicitly set a certain column as the DataFrame index.
+
+        :param include: ``str or list of str``
             Can be one or more (OR-combined) wildcard patterns.
             If used, any column that does not fit a pattern is removed
-        :param exclude: str or list of str
+
+        :param exclude: ``str or list of str``
             Can be one or more (OR-combined) wildcard patterns.
             If used, any column that fits a pattern is removed
 
-        :return: DataFrame instance
+        :param flat: ``bool``, ``str`` or ``sequence of str``
+            Can be one or more aggregation names that should be *flattened out*,
+            meaning that each key of the aggregation creates a new column
+            instead of a new row. If ``True``, all bucket aggregations are
+            *flattened*.
+
+            Only supported for bucket aggregations!
+
+            .. NOTE::
+                Currently not supported for the root aggregation!
+
+        :param dtype:
+            Numpy data type to force. Only a single dtype is allowed. If None, infer.
+
+        :param default:
+            This value will be used wherever a value is undefined.
+
+        :return: pandas ``DataFrame`` instance
         """
         import pandas as pd
         from pandas._libs.tslibs import OutOfBoundsDatetime
         import numpy as np
         from dateutil.parser import ParserError
 
-        df = pd.DataFrame(self.dict_rows(include=include, exclude=exclude))
+        if index and to_index:
+            raise ValueError(
+                "Can not use 'index' and 'to_index' together, settle for one please."
+            )
+
+        rows = list(dict_rows_to_list_rows(
+            self.dict_rows(include=include, exclude=exclude, flat=flat),
+            default=default,
+            header=True,
+        ))
+
+        df = pd.DataFrame(rows[1:], columns=rows[0], dtype=dtype)
+
         for key in df:
             if df[key].dtype == np.dtype("O"):
                 try:
                     df[key] = pd.to_datetime(df[key])
                 except (TypeError, ParserError, OutOfBoundsDatetime):
                     pass
-        if index is None:
-            index = self.root.name
-        df.index = df.pop(index)
+
+        index = index or to_index
+
+        if index and len(df):
+            if index is True:
+                index = self.root.name
+
+            df.index = df[index]
+
+            if to_index:
+                df.pop(index)
+
         return df
 
     # synonym
@@ -182,38 +287,48 @@ class ConverterMixin:
             self,
             sort: Optional[Union[bool, str, int, Sequence[Union[str, int]]]] = None,
             default: Optional[Any] = None,
+            include: Optional[Union[str, Sequence[str]]] = None,
+            exclude: Optional[Union[str, Sequence[str]]] = None,
     ) -> Tuple[List[str], List, List]:
         """
-        Generate a N-dimensional matrix from the values of this aggregation.
+        Generate an N-dimensional matrix from the values of this aggregation.
 
         Each dimension corresponds to one of the parent bucket keys that lead
         to this aggregation.
 
-        ```
-        a = Search().agg_terms("color", field="color").agg_terms("shape", field="shape")
-        ...
-        names, keys, matrix = a.to_matrix()
-        names == ["color", "shape"]
-        keys == [["red", "green", "blue"], ["circle", "triangle"]]
-        matrix == [[23, 42], [84, 69], [4, 10]]
-        ```
+        .. CODE::
+
+            a = Search().agg_terms("color", field="color").agg_terms("shape", field="shape")
+            ...
+            names, keys, matrix = a.to_matrix()
+            names == ["color", "shape"]
+            keys == [["red", "green", "blue"], ["circle", "triangle"]]
+            matrix == [[23, 42], [84, 69], [4, 10]]
 
         :param sort:
             Can sort one or several keys/axises.
-                - `True` sorts all keys ascending
-                - `"-"` sorts all keys descending
-                - the name of an aggregation sorts it's keys ascending
-                    - a "-" prefix sorts descending
-                - an integer defines the aggregation by index
-                    - negative integers sort descending
-                - a sequence of strings or integers can sort multiple keys
+
+                - ``True`` sorts all keys ascending
+                - ``"-"`` sorts all keys descending
+                - The **name of an aggregation** sorts it's keys ascending.
+                  A "-" prefix sorts descending.
+                - An **integer** defines the aggregation by index.
+                  Negative integers sort descending.
+                - A **sequence** of strings or integers can sort multiple keys
 
             For example, `agg.to_matrix(sort=("color", "-shape", -4))` would
-            sort the color keys ascending, the shape keys descending and the
-            4th aggregation -whatever that is- descending.
+            sort the ``color`` keys ascending, the ``shape`` keys descending and the
+            4th aggregation *-whatever that is-* descending.
 
         :param default:
             If not None any None-value will be replaced by this value
+
+        :param include: ``str | seq[str]``
+            One or more wildcard patterns that include matching keys.
+            All other keys are removed from the output.
+
+        :param exclude: ``str | seq[str]``
+            One or more wildcard patterns that exclude matching keys.
 
         :return:
             A tuple of names, keys and matrix data, each as list.
@@ -230,6 +345,11 @@ class ConverterMixin:
         """
         from .visitor import Visitor
         names = Visitor(self).key_names()
+
+        if isinstance(include, str):
+            include = [include]
+        if isinstance(exclude, str):
+            exclude = [exclude]
 
         data_items = list(self.items(tuple_key=True, default=default))
         if not data_items:
@@ -283,6 +403,20 @@ class ConverterMixin:
                 else:
                     m = m[idx]
 
+        if include or exclude:
+            repeat = True
+            while repeat:
+                repeat = False
+                for dim, dim_keys in enumerate(keys):
+                    for i, key in enumerate(dim_keys):
+                        if not is_key_match(key, include, exclude):
+                            dim_keys.pop(i)
+                            remove_matrix_axis(matrix, dim, i)
+                            repeat = True
+                            break
+                    if repeat:
+                        break
+
         return names, keys, matrix
 
     def df_matrix(
@@ -314,3 +448,23 @@ class ConverterMixin:
             )
 
         return df
+
+
+def is_key_match(key: str, include: Optional[Sequence], exclude: Optional[Sequence]):
+    if not include and not exclude:
+        return True
+
+    key = str(key)
+
+    if exclude:
+        for pattern in exclude:
+            if fnmatch.fnmatch(key, pattern):
+                return False
+
+    if include:
+        for pattern in include:
+            if fnmatch.fnmatch(key, pattern):
+                return True
+        return False
+
+    return True

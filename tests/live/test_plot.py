@@ -2,7 +2,7 @@ import time
 import unittest
 
 from elastipy import Search
-from elastipy.plot.text.console import Characters
+from elastipy.dump.console import Characters
 
 from tests import data
 from tests.live.base import TestCase
@@ -68,7 +68,7 @@ class TestPlot(TestCase):
             },
             agg_sku_qty.to_dict()
         )
-        agg_sku_qty.plot.text.hbar()
+        agg_sku_qty.dump.hbar()
 
     def test_orders_documents_table(self):
         s = self.search()

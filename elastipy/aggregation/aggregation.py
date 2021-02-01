@@ -13,7 +13,7 @@ class Aggregation(ConverterMixin, AggregationInterface):
     Aggregation definition and response parser.
 
     Do not create instances yourself,
-    use the Query.aggregation() and Aggregation.aggregation() variants
+    use the ``Search.aggregation()`` and ``Aggregation.aggregation()`` variants.
     """
 
     _factory_class_map = dict()
@@ -44,10 +44,11 @@ class Aggregation(ConverterMixin, AggregationInterface):
     def dump(self):
         """
         Access to printing interface
+
         :return: PrintWrapper instance
         """
-        from .print_wrapper import PrintWrapper
-        return PrintWrapper(self)
+        from .aggregation_dump import AggregationDump
+        return AggregationDump(self)
 
     @property
     def plot(self):
@@ -60,6 +61,7 @@ class Aggregation(ConverterMixin, AggregationInterface):
     def group(self) -> str:
         """
         Returns the name of the aggregation group.
+
         :return: str, either "bucket", "metric" or "pipeline"
         """
         if "group" not in self.definition:  # pragma: no cover
@@ -84,6 +86,7 @@ class Aggregation(ConverterMixin, AggregationInterface):
     def metrics(self):
         """
         Iterate through all contained metric aggregations
+
         :return: generator of Aggregation
         """
         for c in self.children:
@@ -93,6 +96,7 @@ class Aggregation(ConverterMixin, AggregationInterface):
     def pipelines(self):
         """
         Iterate through all contained pipeline aggregations
+
         :return: generator of Aggregation
         """
         for c in self.children:
@@ -102,6 +106,7 @@ class Aggregation(ConverterMixin, AggregationInterface):
     def to_body(self):
         """
         Returns the part of the elasticsearch request body
+
         :return: dict
         """
         params = make_json_compatible(self.params)
@@ -144,6 +149,7 @@ class Aggregation(ConverterMixin, AggregationInterface):
     def execute(self):
         """
         Executes the whole query with all aggregations
+
         :return: self
         """
         self.search.execute()
@@ -155,6 +161,7 @@ class Aggregation(ConverterMixin, AggregationInterface):
         Returns the response object of the aggregation
 
         Only available for root aggregations!
+
         :return: dict
         """
         if self.parent:
@@ -170,6 +177,7 @@ class Aggregation(ConverterMixin, AggregationInterface):
         Returns the buckets of the aggregation response
 
         Only available for bucket root aggregations!
+
         :return: dict or list
         """
         if self.parent:
@@ -182,6 +190,7 @@ class Aggregation(ConverterMixin, AggregationInterface):
         Return default name of the bucket key field.
 
         Metrics return their parent's key
+
         :return: str
         """
         if self.is_metric() and self.parent:
@@ -195,6 +204,7 @@ class Aggregation(ConverterMixin, AggregationInterface):
     def body_path(self) -> str:
         """
         Return the dotted path of this aggregation in the request body
+
         :return: str
         """
         if not self.parent:
@@ -206,6 +216,7 @@ class Aggregation(ConverterMixin, AggregationInterface):
         """
         Convert the constructor parameters to aggregation parameters.
         It basically just removes the default parameters that are not changed.
+
         :return: dict
         """
         ret_params = dict()
