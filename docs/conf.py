@@ -26,7 +26,7 @@ author = 'netzkolchose.de'
 
 # -- globbed together --
 
-autodata_content = 'both'
+# autodata_content = 'both'
 
 
 # -- General configuration ---------------------------------------------------
@@ -39,7 +39,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx_rtd_theme',
-    'autodocsumm',
+#    'autodocsumm',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
