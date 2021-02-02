@@ -162,5 +162,5 @@ def render_quickref():
 
 
 if __name__ == "__main__":
-    #render_tutorial()
+    render_tutorial()
     render_quickref()
