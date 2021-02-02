@@ -296,14 +296,32 @@ class ConverterMixin:
         Each dimension corresponds to one of the parent bucket keys that lead
         to this aggregation.
 
+        The values are gathered through the :meth:`Aggregation.items` method.
+        So the matrix values are either the ``doc_count``s of the bucket
+        aggregation or the result of a ``metric`` or ``pipeline`` aggregation
+        that is inside one of the bucket aggregations.
+
         .. CODE::
 
-            a = Search().agg_terms("color", field="color").agg_terms("shape", field="shape")
+            a = Search() \
+                .agg_terms("color", field="color") \
+                .agg_terms("shape", field="shape")
             ...
             names, keys, matrix = a.to_matrix()
             names == ["color", "shape"]
             keys == [["red", "green", "blue"], ["circle", "triangle"]]
             matrix == [[23, 42], [84, 69], [4, 10]]
+
+        To access a metric:
+
+        .. CODE::
+
+            a = Search() \
+                .agg_terms("color", field="color") \
+                .agg_terms("shape", field="shape") \
+                .metric_avg("avg-area", field="area")
+
+
 
         :param sort:
             Can sort one or several keys/axises.
@@ -331,14 +349,14 @@ class ConverterMixin:
             One or more wildcard patterns that exclude matching keys.
 
         :return:
-            A tuple of names, keys and matrix data, each as list.
+            A tuple of **names**, **keys** and **matrix data**, each as list.
 
-            The `names` are the names of each aggregation that generates keys.
+            The **names** are the names of each aggregation that generates keys.
 
-            The `keys` are a list of lists, each corresponding to all the keys
+            The **keys** are a list of lists, each corresponding to all the keys
             of each parent aggregation.
 
-            `Data` is a list, with other nested lists for each further dimension,
+            **Data** is a list, with other nested lists for each further dimension,
             containing the values of this aggregation.
 
             Returns three empty lists if no data is available.

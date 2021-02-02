@@ -234,7 +234,7 @@ Better execute the search now before the body get's too complicated:
 .. parsed-literal::
 
     {
-      "took": 0,
+      "took": 1,
       "timed_out": false,
       "_shards": {
         "total": 1,
@@ -252,7 +252,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "O3HaWncBlYGgD6s6_gXx",
+            "_id": "QgAQYHcBRaPeo2d7ybpQ",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -263,7 +263,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "e3HaWncBlYGgD6s6_gXx",
+            "_id": "ggAQYHcBRaPeo2d7ybpQ",
             "_score": 2.1868048,
             "_source": {
               "shape": "triangle",
@@ -274,7 +274,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "n3HaWncBlYGgD6s6_gXx",
+            "_id": "pgAQYHcBRaPeo2d7ybpQ",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -960,7 +960,65 @@ dimensions, but if it's one or two, we can also convert it to a
 
 
 
-And having something like `seaborn <https://seaborn.pydata.org/>`__
+To access the values of metrics we have to call ``to_matrix`` on a
+metric aggregation. Our ``agg`` parameter contains the ``area`` and
+``area-avg`` metrics and we can reach it with the ``children`` property.
+Below is the heatmap of the average area. Except for the values nothing
+changed because metrics (and pipelines) do not contribute to the
+``key``\ s.
+
+.. code:: python3
+
+    agg.children[1].df_matrix()
+
+
+
+
+.. raw:: html
+
+    <div>
+    <style scoped>
+        .dataframe tbody tr th:only-of-type {
+            vertical-align: middle;
+        }
+    
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+    
+        .dataframe thead th {
+            text-align: right;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>blue</th>
+          <th>green</th>
+          <th>red</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>square</th>
+          <td>5.171923</td>
+          <td>5.192018</td>
+          <td>5.140783</td>
+        </tr>
+        <tr>
+          <th>triangle</th>
+          <td>5.035015</td>
+          <td>4.909992</td>
+          <td>5.030943</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+
+
+Having something like `seaborn <https://seaborn.pydata.org/>`__
 installed we can easily plot it:
 
 .. code:: python3
@@ -979,6 +1037,6 @@ installed we can easily plot it:
 
 
 
-.. image:: tutorial_files/tutorial_80_1.png
+.. image:: tutorial_files/tutorial_82_1.png
 
 
