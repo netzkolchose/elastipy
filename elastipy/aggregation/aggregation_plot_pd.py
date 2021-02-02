@@ -266,7 +266,7 @@ class PandasPlotWrapper:
         )
 
         if figsize is not None:
-            matplotlib.pyplot.subplots(figsize=(14, 7))
+            matplotlib.pyplot.subplots(figsize=figsize)
 
         kwargs.setdefault("cmap", "cividis")
         return seaborn.heatmap(df, **kwargs)
