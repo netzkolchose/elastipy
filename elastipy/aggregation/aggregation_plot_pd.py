@@ -232,6 +232,7 @@ class PandasPlotWrapper:
             default: Optional[Any] = None,
             include: Optional[Union[str, Sequence[str]]] = None,
             exclude: Optional[Union[str, Sequence[str]]] = None,
+            transpose: bool = False,
             figsize: Tuple[int, int] = None,
             **kwargs,
     ):
@@ -251,8 +252,14 @@ class PandasPlotWrapper:
         :param default:
         :param include:
         :param exclude:
-        :param figsize:
-        :param kwargs:
+
+        :param transpose ``bool``
+            Transposes the matrix, e.g. exchanges X and Y axis.
+
+        :param figsize: ``(int, int)``
+            Optional tuple of int to change the size of the plot.
+
+        :param kwargs: Passed to :meth:`seaborn.heatmap`
         :return: :class:`matplotlib.axes.Axes` Axis object with the heatmap.
         """
         import matplotlib.pyplot
@@ -264,6 +271,8 @@ class PandasPlotWrapper:
             include=include,
             exclude=exclude,
         )
+        if transpose:
+            df = df.transpose()
 
         if figsize is not None:
             matplotlib.pyplot.subplots(figsize=figsize)
