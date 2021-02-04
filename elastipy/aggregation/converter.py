@@ -296,32 +296,20 @@ class ConverterMixin:
         Each dimension corresponds to one of the parent bucket keys that lead
         to this aggregation.
 
-        The values are gathered through the :meth:`Aggregation.items` method.
-        So the matrix values are either the ``doc_count``s of the bucket
+        The values are gathered through the :link:`Aggregation.items` method.
+        So the matrix values are either the ``doc_count`` of the bucket
         aggregation or the result of a ``metric`` or ``pipeline`` aggregation
         that is inside one of the bucket aggregations.
 
         .. CODE::
 
-            a = Search() \
-                .agg_terms("color", field="color") \
-                .agg_terms("shape", field="shape")
+            a = Search().agg_terms("color", field="color")
+            a = a.agg_terms("shape", field="shape")
             ...
             names, keys, matrix = a.to_matrix()
             names == ["color", "shape"]
             keys == [["red", "green", "blue"], ["circle", "triangle"]]
             matrix == [[23, 42], [84, 69], [4, 10]]
-
-        To access a metric:
-
-        .. CODE::
-
-            a = Search() \
-                .agg_terms("color", field="color") \
-                .agg_terms("shape", field="shape") \
-                .metric_avg("avg-area", field="area")
-
-
 
         :param sort:
             Can sort one or several keys/axises.

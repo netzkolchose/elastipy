@@ -8,24 +8,21 @@ from sphinx.roles import XRefRole
 def get_external_link(target: str) -> Optional[str]:
     if target.startswith("pandas."):
         return f"https://pandas.pydata.org/pandas-docs/stable/reference/api/{target}.html"
+    if target.endswith("matplotlib.axes.Axes"):
+        return "https://matplotlib.org/3.3.3/api/axes_api.html#the-axes-class"
 
 
-INTERNAL_LINKS = [
+INTERNAL_CLASS_LINKS = [
+    ("elastipy.aggregation.aggregation_dump.AggregationDump", "reference/aggregation"),
     ("elastipy.aggregation.Aggregation", "reference/aggregation"),
     ("elastipy.Search", "reference/search"),
     ("elastipy.Exporter", "reference/exporter"),
-]
-
-
-INTERNAL_LINK_RE = [
-    (re.compile(r".*Aggregation\.(.*)"), "reference/aggregation", "elastipy.aggregation.Aggregation"),
-    (re.compile(r".*Search\.(.*)"), "reference/search"),
-    (re.compile(r".*Exporter\.(.*)"), "reference/exporter"),
+    ("elastipy.aggregation.aggregation_plot_pd.PandasPlotWrapper", "reference/aggregation"),
 ]
 
 
 def get_internal_link(target: str) -> Tuple[str, str]:
-    for class_path, doc_path in INTERNAL_LINKS:
+    for class_path, doc_path in INTERNAL_CLASS_LINKS:
         class_name = class_path.split(".")[-1]
         if target.startswith(class_name):
             return doc_path, class_path + target[len(class_name):]

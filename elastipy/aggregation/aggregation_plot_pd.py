@@ -66,7 +66,7 @@ class PandasPlotWrapper:
     :param default:
         This value will be used wherever a value is undefined.
 
-    :return: :class:`matplotlib.axes.Axes` or numpy.ndarray of them
+    :return: :link:`matplotlib.axes.Axes` or numpy.ndarray of them
         If the backend is not the default matplotlib one, the return value
         will be the object returned by the backend.
     """
@@ -130,7 +130,7 @@ class PandasPlotWrapper:
         """
         Plot Series or DataFrame as lines.
 
-        See `pandas.DataFrame.plot.line <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.plot.line.html>`__
+        See :link:`pandas.DataFrame.plot.line`
         """
         return self._pd_plot(
             "line", x=x, y=y, **kwargs,
@@ -140,7 +140,7 @@ class PandasPlotWrapper:
         """
         Vertical bar plot.
 
-        See `pandas.DataFrame.plot.bar <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.plot.bar.html>`__
+        See :link:`pandas.DataFrame.plot.bar`
         """
         return self._pd_plot(
             "bar", x=x, y=y, **kwargs,
@@ -150,7 +150,7 @@ class PandasPlotWrapper:
         """
         Horizontal bar plot.
 
-        See `pandas.DataFrame.plot.barh <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.plot.barh.html>`__
+        See :link:`pandas.DataFrame.plot.barh`
         """
         return self._pd_plot(
             "barh", x=x, y=y, **kwargs,
@@ -160,7 +160,7 @@ class PandasPlotWrapper:
         r"""
         Make a box plot of the DataFrame columns.
 
-        See `pandas.DataFrame.plot.box <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.plot.box.html>`__
+        See :link:`pandas.DataFrame.plot.box`
         """
         return self._pd_plot(
             "box", by=by, **kwargs,
@@ -170,7 +170,7 @@ class PandasPlotWrapper:
         """
         Draw one histogram of the DataFrame's columns.
 
-        See `pandas.DataFrame.plot.hist <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.plot.hist.html>`__
+        See :link:`pandas.DataFrame.plot.hist`
         """
         return self._pd_plot(
             "hist", by=by, bins=bins, **kwargs,
@@ -180,7 +180,7 @@ class PandasPlotWrapper:
         """
         Generate Kernel Density Estimate plot using Gaussian kernels.
 
-        See `pandas.DataFrame.plot.kde <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.plot.kde.html>`__
+        See :link:`pandas.DataFrame.plot.kde`
         """
         return self._pd_plot(
             "kde", bw_method=bw_method, ind=ind, **kwargs,
@@ -190,7 +190,7 @@ class PandasPlotWrapper:
         """
         Draw a stacked area plot.
 
-        See `pandas.DataFrame.plot.area <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.plot.area.html>`__
+        See :link:`pandas.DataFrame.plot.area`
         """
         return self._pd_plot(
             "area", x=x, y=y, **kwargs,
@@ -200,7 +200,7 @@ class PandasPlotWrapper:
         """
         Generate a pie plot.
 
-        See `pandas.DataFrame.plot.pie <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.plot.pie.html>`__
+        See :link:`pandas.DataFrame.plot.pie`
         """
         return self._pd_plot(
             "pie", **kwargs,
@@ -210,7 +210,7 @@ class PandasPlotWrapper:
         """
         Create a scatter plot with varying marker point size and color.
 
-        See `pandas.DataFrame.plot.scatter <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.plot.scatter.html>`__
+        See :link:`pandas.DataFrame.plot.scatter`
         """
         return self._pd_plot(
             "scatter", x=x, y=y, s=s, c=c, **kwargs,
@@ -220,7 +220,7 @@ class PandasPlotWrapper:
         """
         Generate a hexagonal binning plot.
 
-        See `pandas.DataFrame.plot.hexbin <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.plot.hexbin.html>`__
+        See :link:`pandas.DataFrame.plot.hexbin`
         """
         return self._pd_plot(
             "hexbin", x=x, y=y, C=C, reduce_C_function=reduce_C_function, gridsize=gridsize, **kwargs,
