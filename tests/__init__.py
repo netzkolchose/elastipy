@@ -1,5 +1,6 @@
 from .test_agg_housing import *
 from .test_bool import *
+from .test_doc_ext import *
 from .test_exporter import *
 from .test_generator import *
 from .test_heatmap import *
