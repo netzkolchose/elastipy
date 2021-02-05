@@ -18,17 +18,24 @@ HIDDEN_CELLS = [
     r"^# hidden.*",
 ]
 RUN_BUT_HIDDEN_CELLS = [
-    "# run-but-hidden"
+    "# run-but-hidden",
+    "# run-but-hide"
 ]
 
 
-def export_notebook(filename, format, directory, do_rename_lexer=True):
+def export_notebook(
+        filename: str,
+        format: str,
+        directory: str,
+        do_rename_lexer: bool = True
+):
     env = os.environ.copy()
     env["PYTHONPATH"] = ".."
     result = subprocess.call(
         [
             "jupyter", "nbconvert",
-            "--execute", f"--to={format}", f"--output-dir={directory}",
+            #"--execute",
+            f"--to={format}", f"--output-dir={directory}",
             f"--RegexRemovePreprocessor.patterns={repr(HIDDEN_CELLS)}",
             filename,
         ],
@@ -52,7 +59,7 @@ def export_notebook(filename, format, directory, do_rename_lexer=True):
         )
 
     if format == "markdown":
-        remove_hidden_cells_in_markdown(out_filename)
+        remove_hidden_cells(os.path.join(directory, out_filename))
 
 
 def rename_lexer(filename, old, new):
@@ -68,23 +75,39 @@ def rename_lexer(filename, old, new):
             fp.write(replaced_text)
 
 
-def remove_hidden_cells_in_markdown(filename: str):
+def remove_hidden_cells_in_file(filename: str):
     """
     Loads a markdown file and removes all ``` blocks that
     have the line "# run-but-hidden" in them.
 
+    :param filename: str
+    :return: None
+    """
+    with open(filename) as fp:
+        text = fp.read()
+
+    out_text = remove_hidden_cells(text)
+
+    if text != out_text:
+        print(f"removing hidden cells from {filename}")
+        with open(filename, "w") as fp:
+            fp.write(out_text)
+
+
+def remove_hidden_cells(text: str):
+    """
     Unfortunately the jupyter nbconvert RegexRemovePreprocessor removes
     all hidden cells before execution, so if we need to run them but hide
     the output this crappy patching is required.
-    """
-    with open(filename) as fp:
-        lines = fp.read().splitlines()
 
+    :param text: str, The rst or markdown text
+    :returns: str, The stripped version
+    """
     out_lines = []
     block_lines = []
     inside_block = False
     block_hidden = False
-    for line in lines:
+    for line in text.splitlines():
         if line.startswith("```"):
             if not inside_block:
                 inside_block = True
@@ -104,15 +127,10 @@ def remove_hidden_cells_in_markdown(filename: str):
                 if line.startswith(tag):
                     block_hidden = True
                     break
-
         else:
             out_lines.append(line)
 
-    if lines != out_lines:
-        print(f"removing hidden cells from {filename}")
-        text = "\n".join(out_lines)
-        with open(filename, "w") as fp:
-            fp.write(text)
+    return "\n".join(out_lines)
 
 
 def render_tutorial():
@@ -161,6 +179,14 @@ def render_quickref():
     os.remove("quickref.md")
 
 
+def render_gitlogs_example():
+    """
+    Renders the examples/gitlogs.ipynb notebook
+    """
+    export_notebook("examples/gitlogs.ipynb", "rst", os.path.join(DOCS_DIR, "examples"))
+
+
 if __name__ == "__main__":
-    render_tutorial()
-    render_quickref()
+    #render_tutorial()
+    #render_quickref()
+    render_gitlogs_example()
