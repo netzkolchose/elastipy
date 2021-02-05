@@ -230,10 +230,11 @@ class PandasPlotWrapper:
             self,
             sort: Optional[Union[bool, str, int, Sequence[Union[str, int]]]] = None,
             default: Optional[Any] = None,
+            replace=None,
             include: Optional[Union[str, Sequence[str]]] = None,
             exclude: Optional[Union[str, Sequence[str]]] = None,
             transpose: bool = False,
-            figsize: Tuple[int, int] = None,
+            figsize: Tuple[Union[int, float], Union[int, float]] = None,
             **kwargs,
     ):
         """
@@ -249,15 +250,44 @@ class PandasPlotWrapper:
         create a new axis before calling :meth:`seaborn.heatmap`.
 
         :param sort:
+            Can sort one or several keys/axises.
+
+                - ``True`` sorts all keys ascending
+                - ``"-"`` sorts all keys descending
+                - The **name of an aggregation** sorts it's keys ascending.
+                  A "-" prefix sorts descending.
+                - An **integer** defines the aggregation by index.
+                  Negative integers sort descending.
+                - A **sequence** of strings or integers can sort multiple keys
+
+            For example, `agg.to_matrix(sort=("color", "-shape", -4))` would
+            sort the ``color`` keys ascending, the ``shape`` keys descending and the
+            4th aggregation *-whatever that is-* descending.
+
         :param default:
-        :param include:
-        :param exclude:
+            If not None any None-value will be replaced by this value
+
+        :param include: ``str | seq[str]``
+            One or more wildcard patterns that include matching keys.
+            All other keys are removed from the output.
+
+        :param exclude: ``str | seq[str]``
+            One or more wildcard patterns that exclude matching keys.
+
+        :param replace:
+            ``str, regex, list, dict, Series, int, float, or None``
+
+            If not None, the :link:`pandas.DataFrame.replace` function will be
+            called with this parameter as the ``to_replace`` parameter.
 
         :param transpose ``bool``
             Transposes the matrix, e.g. exchanges X and Y axis.
 
-        :param figsize: ``(int, int)``
-            Optional tuple of int to change the size of the plot.
+        :param figsize: ``tuple of ints or floats``
+            Optional tuple to change the size of the plot.
+            ``int`` values will be passes to :link:`matplotlib.axes.Axes` unchanged.
+            A ``float`` value defines the size in terms of the number of
+            keys per axis and isconverted to int with ``int(len(keys) * value)``
 
         :param kwargs: Passed to :meth:`seaborn.heatmap`
         :return: :class:`matplotlib.axes.Axes` Axis object with the heatmap.
@@ -271,10 +301,16 @@ class PandasPlotWrapper:
             include=include,
             exclude=exclude,
         )
+        if replace is not None:
+            df.replace(to_replace=replace, inplace=True)
         if transpose:
             df = df.transpose()
 
         if figsize is not None:
+            figsize = tuple(
+                v if isinstance(v, int) else int(df.shape[i] * v)
+                for i, v in enumerate(figsize)
+            )
             matplotlib.pyplot.subplots(figsize=figsize)
 
         kwargs.setdefault("cmap", "cividis")
