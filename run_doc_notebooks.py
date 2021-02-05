@@ -9,10 +9,27 @@ import time
 import os
 import shutil
 import shutil
+import argparse
 
 from elasticsearch import NotFoundError
 from elastipy import connections
 from docs.helper import remove_hidden_cells_in_file, fix_links_in_rst_file
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "-e", "--execute", type=bool, default=False, nargs="?", const=True,
+        help="Execute the notebooks before conversion. "
+             "This is required for proper documentations!"
+             " Only skip execution for development purposes."
+    )
+
+    return parser.parse_args()
+
+
+EXECUTE_NOTEBOOKS = True
 
 
 DOCS_DIR = "docs"
@@ -32,16 +49,18 @@ def export_notebook(
         directory: str,
         do_rename_lexer: bool = True
 ):
+    args = [
+        "jupyter", "nbconvert",
+        f"--to={format}", f"--output-dir={directory}",
+        f"--RegexRemovePreprocessor.patterns={repr(HIDDEN_CELLS)}",
+    ]
+    if EXECUTE_NOTEBOOKS:
+        args += ["--execute"]
+
     env = os.environ.copy()
     env["PYTHONPATH"] = ".."
     result = subprocess.call(
-        [
-            "jupyter", "nbconvert",
-            "--execute",
-            f"--to={format}", f"--output-dir={directory}",
-            f"--RegexRemovePreprocessor.patterns={repr(HIDDEN_CELLS)}",
-            filename,
-        ],
+        args + [filename],
         env=env,
     )
     if result:
@@ -139,6 +158,9 @@ def render_gitlogs_example():
 
 
 if __name__ == "__main__":
+    args = parse_arguments()
+    EXECUTE_NOTEBOOKS = args.execute
+
     render_tutorial()
     render_quickref()
     render_gitlogs_example()
