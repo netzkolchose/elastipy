@@ -234,7 +234,7 @@ Better execute the search now before the body get's too complicated:
 .. parsed-literal::
 
     {
-      "took": 1,
+      "took": 0,
       "timed_out": false,
       "_shards": {
         "total": 1,
@@ -252,7 +252,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "QgAQYHcBRaPeo2d7ybpQ",
+            "_id": "OgDdcncBRaPeo2d7s-W4",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -263,7 +263,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "ggAQYHcBRaPeo2d7ybpQ",
+            "_id": "egDdcncBRaPeo2d7s-W4",
             "_score": 2.1868048,
             "_source": {
               "shape": "triangle",
@@ -274,7 +274,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "pgAQYHcBRaPeo2d7ybpQ",
+            "_id": "ngDdcncBRaPeo2d7s-W4",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -735,13 +735,6 @@ interface <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Dat
 
 
 
-.. parsed-literal::
-
-    <AxesSubplot:xlabel='shapes'>
-
-
-
-
 .. image:: tutorial_files/tutorial_61_1.png
 
 
@@ -870,13 +863,6 @@ This can be useful for stacking bars in a plot:
 .. code:: python3
 
     agg.df(flat="colors", exclude=("*doc_count", "*area*")).plot.bar(stacked=True)
-
-
-
-
-.. parsed-literal::
-
-    <AxesSubplot:>
 
 
 
@@ -1030,13 +1016,5 @@ installed we can easily plot it:
 
 
 
-.. parsed-literal::
-
-    <AxesSubplot:>
-
-
-
-
 .. image:: tutorial_files/tutorial_82_1.png
-
 

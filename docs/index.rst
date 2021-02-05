@@ -15,5 +15,6 @@ elastipy's documentation!
    reference/search
    reference/aggregation
    reference/exporter
+   Example: gitlogs <examples/gitlogs>
 
 

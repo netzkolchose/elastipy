@@ -6,7 +6,9 @@ from sphinx.roles import XRefRole
 
 
 def get_external_link(target: str) -> Optional[str]:
-    if target.startswith("pandas."):
+    if target == "pandas":
+        return "https://pandas.pydata.org/pandas-docs/stable/reference/index.html"
+    elif target.startswith("pandas."):
         return f"https://pandas.pydata.org/pandas-docs/stable/reference/api/{target}.html"
     if target.endswith("matplotlib.axes.Axes"):
         return "https://matplotlib.org/3.3.3/api/axes_api.html#the-axes-class"
@@ -82,6 +84,10 @@ class LinkRole(XRefRole):
         if target.endswith("()"):
             target = target[:-2]
 
+        uri = get_external_link(target)
+        if uri:
+            return uri
+
         doc_path, node_id = None, None
         for key, value in self.env.domaindata["py"]["objects"].items():
             if key.endswith(target):
@@ -93,14 +99,9 @@ class LinkRole(XRefRole):
             doc_path, node_id = get_internal_link(target)
 
         if not doc_path:
-            uri = get_external_link(target)
-            if uri:
-                return uri
-
-        if not doc_path:
             keys = self.env.domaindata["py"]["objects"].keys()
             raise ValueError(
-                f":link: not found '{target}', in {keys}"
+                f"Can not handle :link: '{target}', in {keys}"
             )
 
         own_path = self.env.docname.split("/")
