@@ -4,6 +4,7 @@ Run this file to create rst versions from doc-related notebooks.
 
 All notebooks are executed and require a running elasticsearch at localhost:9200
 """
+import tempfile
 import subprocess
 import time
 import os
@@ -38,8 +39,8 @@ HIDDEN_CELLS = [
     r"^<AxesSubplot.*>$",
 ]
 RUN_BUT_HIDDEN_CELLS = [
-    r"# run-but-hidden",
-    r"# run-but-hide"
+    r"^# run-but-hidden",
+    r"^# run-but-hide"
 ]
 
 
@@ -125,29 +126,29 @@ def render_quickref():
     Renders the docs/quickref.ipynb notebook, converts to markdown
     and inserts the stuff into the README.md
     """
-    export_notebook("docs/quickref.ipynb", "markdown", ".")
+    with tempfile.TemporaryDirectory() as TEMP_DIR:
+        export_notebook("docs/quickref.ipynb", "markdown", TEMP_DIR)
 
-    with open("quickref.md") as fp:
-        quickref = fp.read().strip() + "\n\n"
+        with open(os.path.join(TEMP_DIR, "quickref.md")) as fp:
+            quickref = fp.read().strip() + "\n\n"
 
-    README_START = "### configuration"
-    README_END = "**More examples can be found [here](examples).**"
+        # put between these two lines in README.md
+        README_START = "### configuration"
+        README_END = "**More examples can be found [here](examples).**"
 
-    with open("README.md") as fp:
-        readme = fp.read()
+        with open("README.md") as fp:
+            readme = fp.read()
 
-    index_start = readme.index(README_START)
-    index_end = readme.index(README_END)
+            index_start = readme.index(README_START)
+            index_end = readme.index(README_END)
 
-    old_readme = readme
-    readme = readme[:index_start] + quickref + readme[index_end:]
+            old_readme = readme
+            readme = readme[:index_start] + quickref + readme[index_end:]
 
-    if readme != old_readme:
-        print(f"Putting quickref into README.md")
-        with open("README.md", "w") as fp:
-            fp.write(readme)
-
-    os.remove("quickref.md")
+            if readme != old_readme:
+                print(f"Putting quickref into README.md")
+                with open("README.md", "w") as fp:
+                    fp.write(readme)
 
 
 def render_gitlogs_example():

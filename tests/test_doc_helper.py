@@ -9,6 +9,7 @@ from docs.helper import (
     fix_links_in_rst,
 )
 
+
 class TestDocHelper(unittest.TestCase):
 
     def assertEqualText(self, expected_text: str, text: str):
@@ -59,6 +60,8 @@ class TestDocHelper(unittest.TestCase):
                 
                 ```
                 # run-but-hide
+                
+                # this is not visible
                 hidden-stuff
                 ```
 
@@ -68,7 +71,7 @@ class TestDocHelper(unittest.TestCase):
                 
                 World
                 """
-            ), ["# run-but-hide"])
+            ), ["^# run-but-hide", "^# run-but-hidden"])
         )
 
     def test_remove_hidden_cells_rst(self):
