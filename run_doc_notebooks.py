@@ -12,14 +12,17 @@ import shutil
 
 from elasticsearch import NotFoundError
 from elastipy import connections
+from docs.helper import remove_hidden_cells_in_file, fix_links_in_rst_file
+
 
 DOCS_DIR = "docs"
 HIDDEN_CELLS = [
     r"^# hidden.*",
+    r"^<AxesSubplot.*>$",
 ]
 RUN_BUT_HIDDEN_CELLS = [
-    "# run-but-hidden",
-    "# run-but-hide"
+    r"# run-but-hidden",
+    r"# run-but-hide"
 ]
 
 
@@ -34,7 +37,7 @@ def export_notebook(
     result = subprocess.call(
         [
             "jupyter", "nbconvert",
-            #"--execute",
+            "--execute",
             f"--to={format}", f"--output-dir={directory}",
             f"--RegexRemovePreprocessor.patterns={repr(HIDDEN_CELLS)}",
             filename,
@@ -58,8 +61,15 @@ def export_notebook(
             "python3"
         )
 
-    if format == "markdown":
-        remove_hidden_cells(os.path.join(directory, out_filename))
+    remove_hidden_cells_in_file(
+        os.path.join(directory, out_filename),
+        HIDDEN_CELLS + RUN_BUT_HIDDEN_CELLS
+    )
+
+    if format == "rst":
+        fix_links_in_rst_file(
+            os.path.join(directory, out_filename)
+        )
 
 
 def rename_lexer(filename, old, new):
@@ -73,64 +83,6 @@ def rename_lexer(filename, old, new):
         print(f"renaming lexer {old} to {new} in {filename}")
         with open(filename, "w") as fp:
             fp.write(replaced_text)
-
-
-def remove_hidden_cells_in_file(filename: str):
-    """
-    Loads a markdown file and removes all ``` blocks that
-    have the line "# run-but-hidden" in them.
-
-    :param filename: str
-    :return: None
-    """
-    with open(filename) as fp:
-        text = fp.read()
-
-    out_text = remove_hidden_cells(text)
-
-    if text != out_text:
-        print(f"removing hidden cells from {filename}")
-        with open(filename, "w") as fp:
-            fp.write(out_text)
-
-
-def remove_hidden_cells(text: str):
-    """
-    Unfortunately the jupyter nbconvert RegexRemovePreprocessor removes
-    all hidden cells before execution, so if we need to run them but hide
-    the output this crappy patching is required.
-
-    :param text: str, The rst or markdown text
-    :returns: str, The stripped version
-    """
-    out_lines = []
-    block_lines = []
-    inside_block = False
-    block_hidden = False
-    for line in text.splitlines():
-        if line.startswith("```"):
-            if not inside_block:
-                inside_block = True
-            else:
-                if not block_hidden:
-                    out_lines += block_lines
-                    out_lines.append(line)
-                block_lines.clear()
-                inside_block = False
-                block_hidden = False
-                continue
-
-        if inside_block:
-            block_lines.append(line)
-
-            for tag in RUN_BUT_HIDDEN_CELLS:
-                if line.startswith(tag):
-                    block_hidden = True
-                    break
-        else:
-            out_lines.append(line)
-
-    return "\n".join(out_lines)
 
 
 def render_tutorial():
@@ -187,6 +139,6 @@ def render_gitlogs_example():
 
 
 if __name__ == "__main__":
-    #render_tutorial()
-    #render_quickref()
+    render_tutorial()
+    render_quickref()
     render_gitlogs_example()
