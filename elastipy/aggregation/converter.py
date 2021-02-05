@@ -296,9 +296,15 @@ class ConverterMixin:
         Each dimension corresponds to one of the parent bucket keys that lead
         to this aggregation.
 
+        The values are gathered through the :link:`Aggregation.items` method.
+        So the matrix values are either the ``doc_count`` of the bucket
+        aggregation or the result of a ``metric`` or ``pipeline`` aggregation
+        that is inside one of the bucket aggregations.
+
         .. CODE::
 
-            a = Search().agg_terms("color", field="color").agg_terms("shape", field="shape")
+            a = Search().agg_terms("color", field="color")
+            a = a.agg_terms("shape", field="shape")
             ...
             names, keys, matrix = a.to_matrix()
             names == ["color", "shape"]
@@ -331,14 +337,14 @@ class ConverterMixin:
             One or more wildcard patterns that exclude matching keys.
 
         :return:
-            A tuple of names, keys and matrix data, each as list.
+            A tuple of **names**, **keys** and **matrix data**, each as list.
 
-            The `names` are the names of each aggregation that generates keys.
+            The **names** are the names of each aggregation that generates keys.
 
-            The `keys` are a list of lists, each corresponding to all the keys
+            The **keys** are a list of lists, each corresponding to all the keys
             of each parent aggregation.
 
-            `Data` is a list, with other nested lists for each further dimension,
+            **Data** is a list, with other nested lists for each further dimension,
             containing the values of this aggregation.
 
             Returns three empty lists if no data is available.
@@ -423,6 +429,8 @@ class ConverterMixin:
             self,
             sort: Optional[Union[bool, str, int, Sequence[Union[str, int]]]] = None,
             default: Optional[Any] = None,
+            include: Optional[Union[str, Sequence[str]]] = None,
+            exclude: Optional[Union[str, Sequence[str]]] = None,
     ):
         """
         Returns a pandas DataFrame containing the matrix.
@@ -437,7 +445,12 @@ class ConverterMixin:
         """
         import pandas as pd
 
-        names, keys, matrix = self.to_matrix(sort=sort, default=default)
+        names, keys, matrix = self.to_matrix(
+            sort=sort,
+            default=default,
+            include=include,
+            exclude=exclude,
+        )
         if len(keys) == 1:
             df = pd.DataFrame(matrix, index=keys[0])
         elif len(keys) == 2:

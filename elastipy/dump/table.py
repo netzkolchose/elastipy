@@ -265,7 +265,13 @@ class Table:
             source.insert(0, list(self.source.columns))
 
         try:
-            first_row = source[0]
+            try:
+                first_row = source[0]
+            except IndexError:
+                self.rows = []
+                self.headers = []
+                return
+
             if isinstance(first_row, Sequence):
                 self.headers = first_row
                 self.rows = [

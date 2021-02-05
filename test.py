@@ -39,6 +39,10 @@ def parse_arguments():
         "-i", "--include", type=str, nargs="+",
         help="wildcard patterns to match specific tests"
     )
+    parser.add_argument(
+        "-e", "--exclude", type=str, nargs="+",
+        help="wildcard patterns to exclude specific tests"
+    )
 
     return parser.parse_args()
 
@@ -81,22 +85,30 @@ def run_test(package_names: Sequence[str], extra_args, extra_env: Mapping = None
     )
 
 
-def get_test_names(package_names: list, patterns: list) -> list:
+def get_test_names(package_names: list, include: list, exclude: list) -> list:
     """
     Return a list of strings passable as arguments to `python -m unittest`
     which contain all tests that match any one of the wildcard patterns
     :param package_names: `list[str]`
-    :param patterns: `list[str]`
+    :param include: `list[str]` or None
+    :param exclude: `list[str]` or None
     :return: `list[str]`
     """
     import unittest
     import inspect
     import importlib
 
-    patterns = [
-        f"*{p}*" if not "*" in p and not "?" in p else p
-        for p in patterns
-    ]
+    if include is not None:
+        include = [
+            f"*{p}*" if "*" not in p and "?" not in p else p
+            for p in include
+        ]
+
+    if exclude is not None:
+        exclude = [
+            f"*{p}*" if "*" not in p and "?" not in p else p
+            for p in exclude
+        ]
 
     classes = set()
     for package_name in package_names:
@@ -120,11 +132,26 @@ def get_test_names(package_names: list, patterns: list) -> list:
 
                 name = f"{path}.{name}"
 
-                for p in patterns:
-                    if fnmatch.fnmatch(name, p):
-                        names.append(name)
-                        break
-    
+                if include is not None:
+                    has_match = False
+                    for p in include:
+                        if fnmatch.fnmatchcase(name, p):
+                            has_match = True
+                            break
+                    if not has_match:
+                        continue
+
+                if exclude is not None:
+                    has_match = False
+                    for p in exclude:
+                        if fnmatch.fnmatchcase(name, p):
+                            has_match = True
+                            break
+                    if has_match:
+                        continue
+
+                names.append(name)
+
     return sorted(names)
 
 
@@ -146,8 +173,10 @@ if __name__ == "__main__":
     if options.elasticsearch:
         extra_env["ELASTIPY_UNITTEST_SERVER"] = options.elasticsearch
 
-    if options.include:
-        extra_args += get_test_names(package_names, options.include)
+    if options.include or options.exclude:
+        extra_args += get_test_names(
+            package_names, options.include, options.exclude
+        )
         package_names = []
         if not extra_args:
             print("No matches found")

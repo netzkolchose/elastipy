@@ -24,18 +24,21 @@ class Exporter:
 
     And optionally override methods:
 
-        - ``transform_document``
+        - :meth:`.transform_document`
           Convert a document to elasticsearch.
 
-        - ``get_document_id``
+        - :meth:`.get_document_id`
           Return a unique id for the elasticsearch document.
 
-        - ``get_document_index``
+        - :meth:`.get_document_index`
           Return an alternative index name for the document.
     """
 
+    # Name of the elasticsearch index where things are exported
     INDEX_NAME: str = None
-    MAPPINGS: Mapping = None
+
+    # dict with mapping parameters
+    MAPPINGS: dict = None
 
     def __init__(
             self,

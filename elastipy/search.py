@@ -275,6 +275,8 @@ class Search(QueryInterface, AggregationInterface):
         self._add_body(f"aggregations.{name}.{aggregation_type}", agg.to_body())
         return agg
 
+    agg = aggregation
+
     # -- debugging stuff --
 
     def set_response(self, response: Mapping):

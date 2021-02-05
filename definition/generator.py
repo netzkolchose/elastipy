@@ -175,15 +175,19 @@ def render_aggregation_class():
                     f"aggregation '{agg_name}'"
 
         # -- method body --
-        body = f"agg = self.{agg_type}(\n"
+        #body = "from .aggregation import Aggregation"
+        body = f"a = self.{agg_type}(\n"
         body += f"{INDENT}*(aggregation_name + (\"{agg_name}\", )),\n"
         for param_name, param in definition["parameters"].items():
             body += f"{INDENT}{param_name}={param_name},\n"
-        body += f")\n"
         if do_return_parent:
-            body += "return agg if return_self else self\n"
-        else:
-            body += "return agg\n"
+            body += f"{INDENT}return_self=return_self,\n"
+        body += f")\n"
+        body += f"return a\n"
+        #if do_return_parent:
+        #    body += "return agg if return_self else self\n"
+        #else:
+        #    body += "a\n"
 
         code += render_function(
             function_name=f"{agg_type}_{agg_name}",

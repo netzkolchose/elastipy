@@ -1,7 +1,7 @@
 Exporter
 ========
 
-A base class to help export documents to elasticsearch
+A base class to help export documents to elasticsearch.
 
 
 reference

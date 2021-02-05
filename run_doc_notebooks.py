@@ -4,34 +4,64 @@ Run this file to create rst versions from doc-related notebooks.
 
 All notebooks are executed and require a running elasticsearch at localhost:9200
 """
+import tempfile
 import subprocess
 import time
 import os
 import shutil
 import shutil
+import argparse
 
 from elasticsearch import NotFoundError
 from elastipy import connections
+from docs.helper import remove_hidden_cells_in_file, fix_links_in_rst_file
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "-e", "--execute", type=bool, default=False, nargs="?", const=True,
+        help="Execute the notebooks before conversion. "
+             "This is required for proper documentations!"
+             " Only skip execution for development purposes."
+    )
+
+    return parser.parse_args()
+
+
+EXECUTE_NOTEBOOKS = True
+
 
 DOCS_DIR = "docs"
 HIDDEN_CELLS = [
     r"^# hidden.*",
+    r"^<AxesSubplot.*>$",
 ]
 RUN_BUT_HIDDEN_CELLS = [
-    "# run-but-hidden"
+    r"^# run-but-hidden",
+    r"^# run-but-hide"
 ]
 
 
-def export_notebook(filename, format, directory, do_rename_lexer=True):
+def export_notebook(
+        filename: str,
+        format: str,
+        directory: str,
+        do_rename_lexer: bool = True
+):
+    args = [
+        "jupyter", "nbconvert",
+        f"--to={format}", f"--output-dir={directory}",
+        f"--RegexRemovePreprocessor.patterns={repr(HIDDEN_CELLS)}",
+    ]
+    if EXECUTE_NOTEBOOKS:
+        args += ["--execute"]
+
     env = os.environ.copy()
     env["PYTHONPATH"] = ".."
     result = subprocess.call(
-        [
-            "jupyter", "nbconvert",
-            "--execute", f"--to={format}", f"--output-dir={directory}",
-            f"--RegexRemovePreprocessor.patterns={repr(HIDDEN_CELLS)}",
-            filename,
-        ],
+        args + [filename],
         env=env,
     )
     if result:
@@ -51,8 +81,15 @@ def export_notebook(filename, format, directory, do_rename_lexer=True):
             "python3"
         )
 
-    if format == "markdown":
-        remove_hidden_cells_in_markdown(out_filename)
+    remove_hidden_cells_in_file(
+        os.path.join(directory, out_filename),
+        HIDDEN_CELLS + RUN_BUT_HIDDEN_CELLS
+    )
+
+    if format == "rst":
+        fix_links_in_rst_file(
+            os.path.join(directory, out_filename)
+        )
 
 
 def rename_lexer(filename, old, new):
@@ -66,53 +103,6 @@ def rename_lexer(filename, old, new):
         print(f"renaming lexer {old} to {new} in {filename}")
         with open(filename, "w") as fp:
             fp.write(replaced_text)
-
-
-def remove_hidden_cells_in_markdown(filename: str):
-    """
-    Loads a markdown file and removes all ``` blocks that
-    have the line "# run-but-hidden" in them.
-
-    Unfortunately the jupyter nbconvert RegexRemovePreprocessor removes
-    all hidden cells before execution, so if we need to run them but hide
-    the output this crappy patching is required.
-    """
-    with open(filename) as fp:
-        lines = fp.read().splitlines()
-
-    out_lines = []
-    block_lines = []
-    inside_block = False
-    block_hidden = False
-    for line in lines:
-        if line.startswith("```"):
-            if not inside_block:
-                inside_block = True
-            else:
-                if not block_hidden:
-                    out_lines += block_lines
-                    out_lines.append(line)
-                block_lines.clear()
-                inside_block = False
-                block_hidden = False
-                continue
-
-        if inside_block:
-            block_lines.append(line)
-
-            for tag in RUN_BUT_HIDDEN_CELLS:
-                if line.startswith(tag):
-                    block_hidden = True
-                    break
-
-        else:
-            out_lines.append(line)
-
-    if lines != out_lines:
-        print(f"removing hidden cells from {filename}")
-        text = "\n".join(out_lines)
-        with open(filename, "w") as fp:
-            fp.write(text)
 
 
 def render_tutorial():
@@ -136,31 +126,42 @@ def render_quickref():
     Renders the docs/quickref.ipynb notebook, converts to markdown
     and inserts the stuff into the README.md
     """
-    export_notebook("docs/quickref.ipynb", "markdown", ".")
+    with tempfile.TemporaryDirectory() as TEMP_DIR:
+        export_notebook("docs/quickref.ipynb", "markdown", TEMP_DIR)
 
-    with open("quickref.md") as fp:
-        quickref = fp.read().strip() + "\n\n"
+        with open(os.path.join(TEMP_DIR, "quickref.md")) as fp:
+            quickref = fp.read().strip() + "\n\n"
 
-    README_START = "### configuration"
-    README_END = "**More examples can be found [here](examples).**"
+        # put between these two lines in README.md
+        README_START = "### configuration"
+        README_END = "**More examples can be found [here](examples).**"
 
-    with open("README.md") as fp:
-        readme = fp.read()
+        with open("README.md") as fp:
+            readme = fp.read()
 
-    index_start = readme.index(README_START)
-    index_end = readme.index(README_END)
+            index_start = readme.index(README_START)
+            index_end = readme.index(README_END)
 
-    old_readme = readme
-    readme = readme[:index_start] + quickref + readme[index_end:]
+            old_readme = readme
+            readme = readme[:index_start] + quickref + readme[index_end:]
 
-    if readme != old_readme:
-        print(f"Putting quickref into README.md")
-        with open("README.md", "w") as fp:
-            fp.write(readme)
+            if readme != old_readme:
+                print(f"Putting quickref into README.md")
+                with open("README.md", "w") as fp:
+                    fp.write(readme)
 
-    os.remove("quickref.md")
+
+def render_gitlogs_example():
+    """
+    Renders the examples/gitlogs.ipynb notebook
+    """
+    export_notebook("examples/gitlogs.ipynb", "rst", os.path.join(DOCS_DIR, "examples"))
 
 
 if __name__ == "__main__":
-    #render_tutorial()
+    args = parse_arguments()
+    EXECUTE_NOTEBOOKS = args.execute
+
+    render_tutorial()
     render_quickref()
+    render_gitlogs_example()

@@ -5,10 +5,10 @@ import requests
 
 # make sure we find the package, even if it's not installed
 try:
-    from elastipy import Exporter, Search, query
+    from elastipy import Exporter, Search, query, connections
 except ImportError:
     sys.path.insert(0, "..")
-    from elastipy import Exporter, Search, query
+    from elastipy import Exporter, Search, query, connections
 
 
 CACHE_DIR = os.path.abspath(

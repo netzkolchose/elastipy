@@ -13,7 +13,12 @@ class Aggregation(ConverterMixin, AggregationInterface):
     Aggregation definition and response parser.
 
     Do not create instances yourself,
-    use the ``Search.aggregation()`` and ``Aggregation.aggregation()`` variants.
+    use the :link:`Search.aggregation()` and :link:`Aggregation.aggregation()`
+    variants.
+
+    Once the :link:`Search` has been :link:`executed <Search.execute>`,
+    the values of the aggregations can be accessed.
+
     """
 
     _factory_class_map = dict()
@@ -24,7 +29,6 @@ class Aggregation(ConverterMixin, AggregationInterface):
 
     def __init__(self, search, name, type, params):
         from ..search import Response
-        from ..plot import PlotWrapper
         AggregationInterface.__init__(self, timestamp_field=search.timestamp_field)
         self.search = search
         self.name = name
@@ -35,7 +39,6 @@ class Aggregation(ConverterMixin, AggregationInterface):
         self.parent: Optional[Aggregation] = None
         self.root: Aggregation = self
         self.children: List[Aggregation] = []
-        self._plot: Optional[PlotWrapper] = None
 
     def __repr__(self):
         return f"{self.__class__.__name__}('{self.name}', '{self.type}')"
@@ -43,19 +46,22 @@ class Aggregation(ConverterMixin, AggregationInterface):
     @property
     def dump(self):
         """
-        Access to printing interface
+        Access to :link:`printing <AggregationDump>` interface
 
-        :return: PrintWrapper instance
+        :return: :link:`AggregationDump` instance
         """
         from .aggregation_dump import AggregationDump
         return AggregationDump(self)
 
     @property
     def plot(self):
-        from ..plot import PlotWrapper
-        if self._plot is None:
-            self._plot = PlotWrapper(self)
-        return self._plot
+        """
+        Access to :link:`pandas plotting interface <PandasPlotWrapper>`.
+
+        :return: :link:`PandasPlotWrapper` instance
+        """
+        from .aggregation_plot_pd import PandasPlotWrapper
+        return PandasPlotWrapper(self)
 
     @property
     def group(self) -> str:
@@ -126,7 +132,7 @@ class Aggregation(ConverterMixin, AggregationInterface):
 
         :param aggregation_name_type: one or two strings, meaning either "type" or "name", "type"
         :param params: all parameters of the aggregation function
-        :return: Aggregation instance
+        :return: :link:`Aggregation` instance
         """
         if len(aggregation_name_type) == 1:
             name = f"a{len(self.search._aggregations)}"
@@ -148,7 +154,7 @@ class Aggregation(ConverterMixin, AggregationInterface):
 
     def execute(self):
         """
-        Executes the whole query with all aggregations
+        Executes the whole :link:`Search` with all contained aggregations.
 
         :return: self
         """

@@ -12,6 +12,7 @@
 #
 import os
 import sys
+sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('..'))
 
 import sphinx_rtd_theme
@@ -24,6 +25,11 @@ copyright = '2021, netzkolchose.de'
 author = 'netzkolchose.de'
 
 
+# -- globbed together --
+
+# autodata_content = 'both'
+
+
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -34,6 +40,8 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx_rtd_theme',
+    'sphinx_ext.link',
+#    'autodocsumm',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
