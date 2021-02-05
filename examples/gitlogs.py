@@ -4,6 +4,8 @@ import subprocess
 import os
 from dateutil.parser import parser as date_parser
 
+from tqdm import tqdm
+
 from helper import Exporter
 
 
@@ -23,6 +25,17 @@ def parse_arguments():
     parser.add_argument(
         "-d", "--delete", type=bool, nargs="?", default=False, const=True,
         help="Delete the elasticsearch index before sending documents"
+    )
+
+    parser.add_argument(
+        "-o", "--offset", type=int, nargs="?", default=0,
+        help="Start exporting at a specific position"
+             " (logs still need to be piped up to this point)"
+    )
+
+    parser.add_argument(
+        "-q", "--quiet", type=bool, nargs="?", default=False, const=True,
+        help="Do not display progress using <tqdm> (defaults to False)"
     )
 
     return parser.parse_args()
@@ -67,7 +80,7 @@ class CommitExporter(Exporter):
         return data
 
 
-def iter_git_commits(path: str):
+def iter_git_commits(path: str, skip: int = 0):
     """
     Yields a dictionary for every git log that is found
     in the given directoy.
@@ -75,12 +88,20 @@ def iter_git_commits(path: str):
     The ``git log`` command is used to get all the logs.
 
     :param path: str
+        Directory of git repository
+
+    :param skip: int
+        Skip these number of commits before yielding.
+        (via git log --skip parameter)
+
     :return: generator of dict
     """
     changes_re = re.compile(r"^(\d+)\s(\d+)\s(.*)$")
     delimiter1 = "$$$1-elastipy-data-delimiter-$$$"
     delimiter2 = "\n$$$2-elastipy-data-delimiter-$$$"
-    git_cmd = f"git log --branches --numstat --pretty='{delimiter1}%n%H%n%an%n%ae%n%cI%n%B{delimiter2}'"
+    git_cmd = f"git log --all --numstat --pretty='{delimiter1}%n%H%n%an%n%ae%n%cI%n%B{delimiter2}'"
+    if skip:
+        git_cmd += f" --skip {skip}"
 
     process = subprocess.Popen(
         ["bash", "-c", f"cd {path} && {git_cmd}"],
@@ -94,7 +115,9 @@ def iter_git_commits(path: str):
         if not line:
             break
 
-        line = line.decode("utf-8").rstrip()
+        line = line
+
+        line = safe_decode(line).rstrip()
 
         # a new commit starts
         if line == delimiter1:
@@ -146,6 +169,47 @@ def iter_git_commits(path: str):
     process.wait()
 
 
+def iter_git_commits_verbose(path: str, offset: int = 0, verbose: bool = True):
+    """
+    Yields a dictionary for every git log that is found
+    in the given directoy.
+
+    The ``git log`` command is used to get all the logs.
+
+    :param path: str
+        Directory of git repository
+
+    :param offset: int
+        Offset after which to yield commits
+
+    :param verbose: bool
+        If True, uses ``tqdm`` to display progress
+
+    :return: generator of dict
+    """
+    generator = iter_git_commits(path, skip=offset)
+
+    if verbose:
+        num_commits = subprocess.check_output(
+            ["bash", "-c", f"cd {path} && git rev-list --all --count"],
+        )
+        num_commits = int(num_commits)
+
+        generator = tqdm(generator, total=num_commits - offset)
+
+    for commit in generator:
+        yield commit
+
+
+def safe_decode(s: bytes):
+    for encoding in ("utf-8", "latin1"):
+        try:
+            return s.decode(encoding)
+        except UnicodeDecodeError:
+            pass
+    return s.decode("utf-8", errors="ignore")
+
+
 if __name__ == "__main__":
     args = parse_arguments()
 
@@ -155,6 +219,9 @@ if __name__ == "__main__":
         exporter.delete_index()
 
     exporter.export_list(
-        iter_git_commits(args.repo),
-        verbose=True,
+        iter_git_commits_verbose(
+            path=args.repo,
+            offset=args.offset,
+            verbose=not args.quiet,
+        )
     )
