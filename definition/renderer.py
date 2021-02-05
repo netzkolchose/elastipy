@@ -169,7 +169,7 @@ def change_text_indent(text: str, indent: Union[str, int] = 0, max_length=None) 
 
     if not lines:
         return ""
-    min_space = min(len(line) - len(line.lstrip()) for line in lines)
+    min_space = min(len(line) - len(line.lstrip()) for line in lines if line.strip())
 
     pre = " " * indent
     text = ""
