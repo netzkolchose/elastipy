@@ -66,28 +66,20 @@ class Bool(_Bool):
         return self & factory(name, **params)
 
     def __and__(self, other) -> 'Bool':
-        self_ = self
-        if not isinstance(self_, Bool):
-            self_, other = other, self_
-
         if not isinstance(other, Bool):
-            q = copy(self_)
+            q = copy(self)
             q.must += [other]
             return q
 
         else:
-            q = copy(self_)
+            q = copy(self)
             for key in ("must", "must_not", "should", "filter"):
                 for o in getattr(other, key):
-                    if o not in getattr(self_, key):
+                    if o not in getattr(self, key):
                         setattr(q, key, getattr(q, key) + [o])
             return q
 
     def __or__(self, other):
-        self_ = self
-        if not isinstance(self_, Bool):
-            self_, other = other, self_
-
         if not isinstance(other, Bool):
             q = copy(self)
             if q.should:

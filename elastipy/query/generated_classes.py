@@ -32,10 +32,10 @@ class _Bool(Query, factory=False):
 
     def __init__(
             self,
-            must: Optional[Union['QueryInterface', Sequence['QueryInterface']]] = None,
-            must_not: Optional[Union['QueryInterface', Sequence['QueryInterface']]] = None,
-            should: Optional[Union['QueryInterface', Sequence['QueryInterface']]] = None,
-            filter: Optional[Union['QueryInterface', Sequence['QueryInterface']]] = None,
+            must: Optional[Union['QueryInterface', Mapping, Sequence[Union['QueryInterface', Mapping]]]] = None,
+            must_not: Optional[Union['QueryInterface', Mapping, Sequence[Union['QueryInterface', Mapping]]]] = None,
+            should: Optional[Union['QueryInterface', Mapping, Sequence[Union['QueryInterface', Mapping]]]] = None,
+            filter: Optional[Union['QueryInterface', Mapping, Sequence[Union['QueryInterface', Mapping]]]] = None,
     ):
         """
         A query that matches documents matching boolean combinations of other
@@ -49,20 +49,20 @@ class _Bool(Query, factory=False):
         `elasticsearch documentation
         <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html>`__
 
-        :param must: ``Optional[Union['QueryInterface', Sequence['QueryInterface']]]``
+        :param must: ``Optional[Union['QueryInterface', Mapping, Sequence[Union['QueryInterface', Mapping]]]]``
             The clause (query) must appear in matching documents and will contribute
             to the score.
 
-        :param must_not: ``Optional[Union['QueryInterface', Sequence['QueryInterface']]]``
+        :param must_not: ``Optional[Union['QueryInterface', Mapping, Sequence[Union['QueryInterface', Mapping]]]]``
             The clause (query) must not appear in the matching documents. Clauses
             are executed in filter context meaning that scoring is ignored and
             clauses are considered for caching. Because scoring is ignored, a score
             of 0 for all documents is returned.
 
-        :param should: ``Optional[Union['QueryInterface', Sequence['QueryInterface']]]``
+        :param should: ``Optional[Union['QueryInterface', Mapping, Sequence[Union['QueryInterface', Mapping]]]]``
             The clause (query) should appear in the matching document.
 
-        :param filter: ``Optional[Union['QueryInterface', Sequence['QueryInterface']]]``
+        :param filter: ``Optional[Union['QueryInterface', Mapping, Sequence[Union['QueryInterface', Mapping]]]]``
             The clause (query) must appear in matching documents. However unlike
             must the score of the query will be ignored. Filter clauses are executed
             in filter context, meaning that scoring is ignored and clauses are
