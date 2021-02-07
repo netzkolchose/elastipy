@@ -43,6 +43,10 @@ def parse_arguments():
         "-e", "--exclude", type=str, nargs="+",
         help="wildcard patterns to exclude specific tests"
     )
+    parser.add_argument(
+        "-l", "--list", type=bool, nargs="?", default=False, const=True,
+        help="Simply list all tests, do not run."
+    )
 
     return parser.parse_args()
 
@@ -184,16 +188,28 @@ if __name__ == "__main__":
     if options.elasticsearch:
         extra_env["ELASTIPY_UNITTEST_SERVER"] = options.elasticsearch
 
-    if options.include or options.exclude:
-        extra_args += get_test_names(
+    if options.include or options.exclude or options.list:
+        all_test_names = get_test_names(
             package_names, options.include, options.exclude
         )
-        package_names = []
-        if not extra_args:
+        if not all_test_names:
             print("No matches found")
             exit(1)
 
-    code = run_test(package_names, extra_args=extra_args, extra_env=extra_env)
+        if options.list:
+            for n in sorted(all_test_names):
+                print(n)
+            exit(0)
+
+        extra_args += all_test_names
+        package_names = []
+
+    code = run_test(
+        package_names=package_names,
+        extra_args=extra_args,
+        extra_env=extra_env,
+        coverage=options.coverage or options.missing,
+    )
     if code:
         exit(code)
 
