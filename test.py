@@ -74,15 +74,26 @@ def check_cluster_ready(params: str = None, max_seconds: int = 60, interval: int
     exit(1)
 
 
-def run_test(package_names: Sequence[str], extra_args, extra_env: Mapping = None):
+def run_test(
+        package_names: Sequence[str],
+        extra_args,
+        extra_env: Mapping = None,
+        coverage: bool = False,
+):
     env = os.environ.copy()
     if extra_env:
         env.update(extra_env)
 
-    return subprocess.call(
-        ["coverage", "run", "-m", "unittest", *extra_args, *package_names],
-        env=env
-    )
+    if coverage:
+        return subprocess.call(
+            ["coverage", "run", "-m", "unittest", *extra_args, *package_names],
+            env=env
+        )
+    else:
+        return subprocess.call(
+            ["python", "-m", "unittest", *extra_args, *package_names],
+            env=env
+        )
 
 
 def get_test_names(package_names: list, include: list, exclude: list) -> list:
