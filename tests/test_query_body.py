@@ -35,7 +35,29 @@ class TestQueryBody(unittest.TestCase):
                 f"\nIn function {repr(name)}"
             )
 
+    def test_invert(self):
+        def test1(q: query.QueryInterface):
+            q = ~q.term("a", "b")
+            return q, {
+                'bool': {'must_not': [
+                    {'term': {'a': {'value': 'b'}}},
+                ]}
+            }
+
+        for name, func in locals().items():
+            if callable(func) and name != "self":
+                self.query_test(name, func)
+
     def test_AND(self):
+        def test1(q: query.QueryInterface):
+            q = q.term("a", "b") & q.term("c", "d")
+            return q, {
+                'bool': {'must': [
+                    {'term': {'a': {'value': 'b'}}},
+                    {'term': {'c': {'value': 'd'}}},
+                ]}
+            }
+
         def test2(q: query.QueryInterface):
             q = q.term("a", "b").term("c", "d")
             return q, {

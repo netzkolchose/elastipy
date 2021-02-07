@@ -80,6 +80,33 @@ class TestSearch(unittest.TestCase):
             s.response.total_hits
         )
 
+    def test_add_body(self):
+        s = Search()
+        s._add_body("here.there", 23)
+        self.assertEqual(
+            {
+                "query": {"match_all": {}},
+                "here": {"there": 23},
+            },
+            s.to_body(),
+        )
+
+        s = Search()
+        s._add_body(["here", "there"], 23)
+        self.assertEqual(
+            {
+                "query": {"match_all": {}},
+                "here": {"there": 23},
+            },
+            s.to_body(),
+        )
+
+        s = Search()
+        s._add_body("here.there", [])
+        with self.assertRaises(ValueError):
+            s._add_body("here.there.sub", 1)
+
+
 
 if __name__ == "__main__":
     unittest.main()

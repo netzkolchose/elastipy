@@ -114,9 +114,7 @@ class Search(QueryInterface, AggregationInterface):
         body = copy(self._body)
 
         query_dict = self._query.to_dict()
-        if "query" not in query_dict:
-            query_dict = {"query": query_dict}
-        body.update(query_dict)
+        body.update({"query": query_dict})
 
         param_dict = self._parameters.to_body()
         if param_dict:
@@ -295,11 +293,10 @@ class Search(QueryInterface, AggregationInterface):
 
     # -- private impl --
 
-    def _add_body(self, path: str, value, override=True):
-        # print("ADD BODY", path, value)
+    def _add_body(self, path: Union[str, list], value, override=True):
         if isinstance(path, str):
             ppath = path.split(".")
-        else:  # pragma: no cover
+        else:
             ppath = copy(path)
 
         body = self._body
