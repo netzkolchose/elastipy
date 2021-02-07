@@ -32,6 +32,20 @@ class TestOrdersQuery(TestCase):
         num_items = sum(len(o["items"]) for o in data.orders.orders)
         self.assertEqual(num_items, response.total_hits)
 
+        self.assertEqual(
+            num_items,
+            self.search().execute().total_hits,
+        )
+
+        self.assertEqual(
+            {"value": num_items, "relation": "eq"},
+            self.search().execute()["hits"]["total"],
+        )
+        self.assertEqual(
+            num_items,
+            self.search().param.rest_total_hits_as_int(True).execute()["hits"]["total"],
+        )
+
     def test_total_hits_term(self):
         search = self.search()
 

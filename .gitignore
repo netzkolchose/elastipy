@@ -1,6 +1,8 @@
+.ipynb_checkpoints/
 .coverage
 scratchpad/
 cache/
+docs/_*/
 .idea/
 
 env/

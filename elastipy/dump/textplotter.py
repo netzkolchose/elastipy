@@ -1,6 +1,6 @@
 import os
 
-from .console import Characters, Colors
+from .console import Characters, Colors, get_terminal_size
 
 
 class TextPlotter:
@@ -25,7 +25,7 @@ class TextPlotter:
                 value_fac = 1. / (values_max - values_min)
 
         if width is None:
-            width, _ = os.get_terminal_size()
+            width, _ = get_terminal_size()
 
         left_width = key_len + value_len + 6
         bar_width = max(1, width - left_width)
@@ -50,10 +50,6 @@ class TextPlotter:
 
         print((" " * (left_width - 2)) + self.ch.line_corners[0] + self.ch.line_hori + axis_ticks, file=file)
         print((" " * left_width) + axis_values, file=file)
-
-    def get_terminal_size(self):
-        size = os.get_terminal_size()
-        return size.columns, size.lines
 
     def _render_x_axis(self, min_value, max_value, width, digits=3):
         distance = max_value - min_value

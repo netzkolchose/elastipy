@@ -5,14 +5,20 @@ from warnings import warn
 
 from .. import make_json_compatible
 from .generated_interface import AggregationInterface
+from .converter import ConverterMixin
 
 
-class Aggregation(AggregationInterface):
+class Aggregation(ConverterMixin, AggregationInterface):
     """
     Aggregation definition and response parser.
 
     Do not create instances yourself,
-    use the Query.aggregation() and Aggregation.aggregation() variants
+    use the :link:`Search.aggregation()` and :link:`Aggregation.aggregation()`
+    variants.
+
+    Once the :link:`Search` has been :link:`executed <Search.execute>`,
+    the values of the aggregations can be accessed.
+
     """
 
     _factory_class_map = dict()
@@ -23,7 +29,6 @@ class Aggregation(AggregationInterface):
 
     def __init__(self, search, name, type, params):
         from ..search import Response
-        from ..plot import PlotWrapper
         AggregationInterface.__init__(self, timestamp_field=search.timestamp_field)
         self.search = search
         self.name = name
@@ -34,31 +39,35 @@ class Aggregation(AggregationInterface):
         self.parent: Optional[Aggregation] = None
         self.root: Aggregation = self
         self.children: List[Aggregation] = []
-        self._plot: Optional[PlotWrapper] = None
 
     def __repr__(self):
         return f"{self.__class__.__name__}('{self.name}', '{self.type}')"
 
     @property
-    def print(self):
+    def dump(self):
         """
-        Access to printing interface
-        :return: PrintWrapper instance
+        Access to :link:`printing <AggregationDump>` interface
+
+        :return: :link:`AggregationDump` instance
         """
-        from .print_wrapper import PrintWrapper
-        return PrintWrapper(self)
+        from .aggregation_dump import AggregationDump
+        return AggregationDump(self)
 
     @property
     def plot(self):
-        from ..plot import PlotWrapper
-        if self._plot is None:
-            self._plot = PlotWrapper(self)
-        return self._plot
+        """
+        Access to :link:`pandas plotting interface <PandasPlotWrapper>`.
+
+        :return: :link:`PandasPlotWrapper` instance
+        """
+        from .aggregation_plot_pd import PandasPlotWrapper
+        return PandasPlotWrapper(self)
 
     @property
     def group(self) -> str:
         """
         Returns the name of the aggregation group.
+
         :return: str, either "bucket", "metric" or "pipeline"
         """
         if "group" not in self.definition:  # pragma: no cover
@@ -83,6 +92,7 @@ class Aggregation(AggregationInterface):
     def metrics(self):
         """
         Iterate through all contained metric aggregations
+
         :return: generator of Aggregation
         """
         for c in self.children:
@@ -92,6 +102,7 @@ class Aggregation(AggregationInterface):
     def pipelines(self):
         """
         Iterate through all contained pipeline aggregations
+
         :return: generator of Aggregation
         """
         for c in self.children:
@@ -101,6 +112,7 @@ class Aggregation(AggregationInterface):
     def to_body(self):
         """
         Returns the part of the elasticsearch request body
+
         :return: dict
         """
         params = make_json_compatible(self.params)
@@ -120,7 +132,7 @@ class Aggregation(AggregationInterface):
 
         :param aggregation_name_type: one or two strings, meaning either "type" or "name", "type"
         :param params: all parameters of the aggregation function
-        :return: Aggregation instance
+        :return: :link:`Aggregation` instance
         """
         if len(aggregation_name_type) == 1:
             name = f"a{len(self.search._aggregations)}"
@@ -142,7 +154,8 @@ class Aggregation(AggregationInterface):
 
     def execute(self):
         """
-        Executes the whole query with all aggregations
+        Executes the whole :link:`Search` with all contained aggregations.
+
         :return: self
         """
         self.search.execute()
@@ -154,6 +167,7 @@ class Aggregation(AggregationInterface):
         Returns the response object of the aggregation
 
         Only available for root aggregations!
+
         :return: dict
         """
         if self.parent:
@@ -169,6 +183,7 @@ class Aggregation(AggregationInterface):
         Returns the buckets of the aggregation response
 
         Only available for bucket root aggregations!
+
         :return: dict or list
         """
         if self.parent:
@@ -176,153 +191,12 @@ class Aggregation(AggregationInterface):
                              f"directly, use keys() and values()")
         return self.response["buckets"]
 
-    def keys(self, key_separator=None):
-        """
-        Iterates through all keys of this aggregation.
-
-        For example, a top-level date_histogram would return all timestamps.
-
-        For a nested bucket aggregation each key is a tuple of all parent keys as well.
-
-        :param key_separator: str, optional separator to concat multiple keys into one string
-        :return: generator
-        """
-        from .visitor import Visitor
-        return Visitor(self).keys(key_separator=key_separator)
-
-    def values(self, default=None):
-        """
-        Iterates through all values of this aggregation.
-        :param default: if not None any None-value will be replaced by this
-        :return: generator
-        """
-        from .visitor import Visitor
-        return Visitor(self).values(default=default)
-
-    def items(self, key_separator=None, default=None) -> Iterable[Tuple]:
-        """
-        Iterates through all key, value tuples.
-        :param key_separator: str, optional separator to concat multiple keys into one string
-        :param default: if not None any None-value will be replaced by this
-        :return: generator
-        """
-        yield from zip(self.keys(key_separator=key_separator), self.values(default=default))
-
-    def dict_rows(
-            self,
-            include: Union[str, Sequence[str]] = None,
-            exclude: Union[str, Sequence[str]] = None,
-    ) -> Iterable[dict]:
-        """
-        Iterates through all result values from this aggregation branch.
-
-        This will include all parent aggregations (up to the root) and all children
-        aggregations (including metrics).
-
-        :param include: str or list of str
-            Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that does not fit a pattern is removed
-        :param exclude: str or list of str
-            Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that fits a pattern is removed
-
-        :return: generator of dict
-        """
-        from .visitor import Visitor
-        return Visitor(self).dict_rows(include=include, exclude=exclude)
-
-    def rows(
-            self,
-            header=True,
-            include: Union[str, Sequence[str]] = None,
-            exclude: Union[str, Sequence[str]] = None,
-    ) -> Iterable[list]:
-        """
-        Iterates through all result values from this aggregation branch.
-
-        Each row is a list. The first row contains the names if 'header' == True.
-
-        This will include all parent aggregations (up to the root) and all children
-        aggregations (including metrics).
-
-        :param header: bool
-            If True, the first row contains the names of the columns
-        :param include: str or list of str
-            Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that does not fit a pattern is removed
-        :param exclude: str or list of str
-            Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that fits a pattern is removed
-
-        :return: generator of list
-        """
-        from .visitor import Visitor
-        return Visitor(self).rows(header=header, include=include, exclude=exclude)
-
-    def to_dict(self, key_separator=None, default=None) -> dict:
-        """
-        Create a dictionary from all key/value pairs.
-        :param key_separator: str, optional separator to concat multiple keys into one string
-        :param default: if not None any None-value will be replaced by this
-        :return: dict
-        """
-        return {
-            key: value
-            for key, value in self.items(key_separator=key_separator, default=default)
-        }
-
-    def to_pandas(
-            self,
-            index: str = None,
-            include: Union[str, Sequence[str]] = None,
-            exclude: Union[str, Sequence[str]] = None,
-    ):
-        """
-        Converts the results of 'dict_rows()' to a pandas DataFrame.
-
-        This will include all parent aggregations (up to the root) and all children
-        aggregations (including metrics).
-
-        Any columns containing dates will be automatically converted to pandas.Timestamp.
-
-        This method has a synonym: 'df'
-
-        :param index: str
-            Can explicitly set a certain column as the DataFrame index.
-            If omitted, the root aggregation's keys will be set to the index.
-        :param include: str or list of str
-            Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that does not fit a pattern is removed
-        :param exclude: str or list of str
-            Can be one or more (OR-combined) wildcard patterns.
-            If used, any column that fits a pattern is removed
-
-        :return: DataFrame instance
-        """
-        import pandas as pd
-        import numpy as np
-        from dateutil.parser import ParserError
-
-        df = pd.DataFrame(self.dict_rows(include=include, exclude=exclude))
-        for key in df:
-            if df[key].dtype == np.dtype("O"):
-                try:
-                    df[key] = pd.to_datetime(df[key])
-                except (TypeError, ParserError):
-                    pass
-        if index is None:
-            index = self.root.name
-        df.index = df.pop(index)
-        return df
-
-    # synonym
-    df = to_pandas
-
     def key_name(self) -> str:
         """
         Return default name of the bucket key field.
 
         Metrics return their parent's key
+
         :return: str
         """
         if self.is_metric() and self.parent:
@@ -336,6 +210,7 @@ class Aggregation(AggregationInterface):
     def body_path(self) -> str:
         """
         Return the dotted path of this aggregation in the request body
+
         :return: str
         """
         if not self.parent:
@@ -347,6 +222,7 @@ class Aggregation(AggregationInterface):
         """
         Convert the constructor parameters to aggregation parameters.
         It basically just removes the default parameters that are not changed.
+
         :return: dict
         """
         ret_params = dict()

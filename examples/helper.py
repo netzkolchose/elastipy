@@ -5,10 +5,10 @@ import requests
 
 # make sure we find the package, even if it's not installed
 try:
-    from elastipy import Exporter, Search, query
+    from elastipy import Exporter, Search, query, connections
 except ImportError:
     sys.path.insert(0, "..")
-    from elastipy import Exporter, Search, query
+    from elastipy import Exporter, Search, query, connections
 
 
 CACHE_DIR = os.path.abspath(
@@ -22,10 +22,19 @@ CACHE_DIR = os.path.abspath(
 def get_web_file(url: str, filename: str):
     """
     Download from url, return absolute filename
+
     :param url: str, the place in the wab
-    :param filename: filename without path
+    :param filename: filename with optional additional path
     :return: str, filename with path
     """
+    full_path = CACHE_DIR
+    filename_path = os.path.dirname(filename)
+    if filename_path:
+        full_path = os.path.join(CACHE_DIR, filename_path)
+
+    if not os.path.exists(full_path):
+        os.makedirs(full_path)
+
     cache_filename = os.path.join(
         CACHE_DIR,
         filename,

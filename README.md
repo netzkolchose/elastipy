@@ -1,160 +1,298 @@
 ## elastipy
 
-[![Build Status](https://travis-ci.com/defgsus/elastipy.svg?branch=development)](https://travis-ci.com/defgsus/elastipy)
-[![Coverage Status](https://coveralls.io/repos/github/defgsus/elastipy/badge.svg?branch=feature/travis)](https://coveralls.io/github/defgsus/elastipy?branch=feature/travis)
-
+[![Build Status](https://travis-ci.com/netzkolchose/elastipy.svg?branch=development)](https://travis-ci.com/netzkolchose/elastipy)
+[![Coverage Status](https://coveralls.io/repos/github/netzkolchose/elastipy/badge.svg?branch=development)](https://coveralls.io/github/netzkolchose/elastipy?branch=development)
+[![Documentation Status](https://readthedocs.org/projects/elastipy/badge/?version=latest)](https://elastipy.readthedocs.io/en/latest/?badge=latest)
 
 A python wrapper to make elasticsearch queries and aggregations more fun.
+
+Lean more at [readthedocs.io](https://elastipy.readthedocs.io/en/latest/).
 
 Actually i'm just learning this stuff and have the following requests:
 - some generic convenient data access to nested bucketed aggregations and such
 - the IDE/auto-completion should help a bit/lot with all the elasticsearch parameters
 
-#### configuration
 
-By default all request go against **localhost:9200**. There are currently two ways 
+#### contents
+
+- [installation](#installation)
+- [requirements](#requirements)
+- quickref
+    - [aggregations](#aggregations)
+    - [metrics](#nested-aggregations-and-metrics)
+    - [query](#queries)
+    - [exporting](#exporting)
+- [testing](#testing)
+- [development](#development)
+
+---
+
+### installation
+
+Currently you can only use the github link, e.g.:
+
+```shell script
+pip install https://github.com/netzkolchose/elastipy/archive/v0.1.1.zip
+``` 
+
+#### requirements
+
+One thing is, of course, to [install elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html).
+
+- **elastipy** itself requires [elasticsearch-py](https://github.com/elastic/elasticsearch-py)
+- doc building is listed in [docs/requirements.txt](docs/requirements.txt) and mainly
+consists of sphinx with the readthedocs theme.
+- generating the interface and running the tests and notebooks is listed in 
+[requirements.txt](requirements.txt) and contains pyyaml and coverage as well as the 
+usual stack of jupyter, scipy, matplotlib, ..   
+
+
+### configuration 
+
+By default an [elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/elasticsearch-intro.html) host is expected at `localhost:9200`. There are currently two ways 
 to specify a different connection.
+
 
 ```python
 from elasticsearch import Elasticsearch
-from elastipy import Search, connections
-
-# Use an explicit Elasticsearch client (or compatible class)
-s = Search(index="bla", client=Elasticsearch(hosts=[...], http_auth=[...]))
-# can also be done later
-s = s.client(Elasticsearch(...))
-
-# Or override the "default" connection
-connections.set("default", Elasticsearch(...))
-# .. or as parameters
-connections.set("default", {"hosts": [...]})
-
-# then just say
-s = Search(index="bla")
-```
-
-#### aggregation example
-
-```python
 from elastipy import Search
 
+# Use an explicit Elasticsearch client (or compatible class)
+client = Elasticsearch(
+    hosts=[{"host": "localhost", "port": 9200}], 
+    http_auth=("user", "pwd")
+)
+
+# create a Search using the specified client
+s = Search(index="bla", client=client)
+
+# can also be done later
+s = s.client(client)
+```
+
+Check the Elasticsearch [API reference](https://elasticsearch-py.readthedocs.io/en/v7.10.1/api.html#elasticsearch) for all the parameters.
+
+We can also set a default client at the program start:  
+
+
+```python
+from elastipy import connections
+
+connections.set("default", client)
+
+# .. or as parameters, they get converted to an Elasticsearch client
+connections.set("default", {"hosts": [{"host": "localhost", "port": 9200}]})
+
+# get a client
+connections.get("default")
+```
+
+
+
+
+    <Elasticsearch([{'host': 'localhost', 'port': 9200}])>
+
+
+
+Different connections can be specified with the *alias* name:
+
+
+```python
+connections.set("special", {"hosts": [{"host": "special", "port": 1234}]})
+
+s = Search(client="special")
+s.get_client()
+```
+
+
+
+
+    <Elasticsearch([{'host': 'special', 'port': 1234}])>
+
+
+
+### aggregations
+
+More details can be found in the [tutorial](https://elastipy.readthedocs.io/en/latest/tutorial.html).
+
+
+```python
 # get a search object
-q = Search(index="world")
+s = Search(index="world")
 
 # create an Aggregation class connected to the Search
-agg = q.agg_date_histogram(calendar_interval="1w")
+agg = s.agg_date_histogram(calendar_interval="1w")
 # (for date-specific aggregations we can leave out the 'field' parameter 
-#  it fall's back to Search.timestamp_field which is "timestamp" by default)
+#  it falls back to Search.timestamp_field which is "timestamp" by default)
 
 # submit the whole request
-q.execute()
+s.execute()
 
 # access the response
 
 list(agg.keys())
-# ["2020-01-01T00:00:00Z", "2020-01-08T00:00:00Z", ...]
-list(agg.values())
-# [3437438, 4985459, 7343874, ...]  # without a metric these are the doc_counts
-
-# above example as a one-liner
-Search(index="world").agg_date_histogram(calendar_interval="1w").execute().to_dict()
-# {
-#   "2020-01-01T00:00:00Z": 3437438,
-#   "2020-01-08T00:00:00Z": 4985459,
-#   ...
-# } 
 ```
 
-Nested aggregations and metrics:
-```python
-from elastipy import Search
 
-q = Search(index="world")
+
+
+    ['1999-12-27T00:00:00.000Z',
+     '2000-01-03T00:00:00.000Z',
+     '2000-01-10T00:00:00.000Z',
+     '2000-01-17T00:00:00.000Z']
+
+
+
+
+```python
+list(agg.values())
+```
+
+
+
+
+    [21, 77, 60, 42]
+
+
+
+Without a [metric](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics.html) these numbers are the document counts.
+
+Above example as a one-liner:
+
+
+```python
+Search(index="world").agg_date_histogram(calendar_interval="1w").execute().to_dict()
+```
+
+
+
+
+    {'1999-12-27T00:00:00.000Z': 21,
+     '2000-01-03T00:00:00.000Z': 77,
+     '2000-01-10T00:00:00.000Z': 60,
+     '2000-01-17T00:00:00.000Z': 42}
+
+
+
+### nested aggregations and metrics
+
+
+```python
+s = Search(index="world")
 
 # the first parameter is the name of the aggregation 
 #   (if omitted it will be "a0", "a1", aso..)  
-agg = q \
+agg = s \
     .agg_terms("occasion", field="occasion") \
-    .agg_rare_terms("rare-excuses", field="excuse") \
+    .agg_rare_terms("rare-excuses", field="excuse", max_doc_count=2) \
     .metric_avg("avg-length", field="conversation_length") \
     .metric_max("max-length", field="conversation_length") \
     .execute()
-# the rare_terms aggregation is nested into the terms aggregation
-# the metrics are siblings nested inside rare_terms
-
-# keys(), values(), items() and to_dict() all operate on the current aggregation
-#   for bucket aggregations they typically show the doc_count value
-agg.to_dict()
-# {
-#     ("dinner", "my mouth is too dry"): 100,
-#     ("dinner", "i can't reach the spoon"): 60,
-# }
-
-# the dict_rows() and print.table() methods operate on the whole aggregation branch
-agg.dict_rows()
-# [
-#     {
-#         "occasion": "dinner", 
-#         "occasion.doc_count": 1234567, 
-#         "rare-excuses": "my mouth is too dry", 
-#         "rare-excuses.doc_count": 100, 
-#         "avg-length": 12.7, 
-#         "max-length": 122.3, 
-#     },
-#     {
-#         "occasion": "dinner", 
-#         "occasion.doc_count": 1234567, 
-#         "rare-excuses": "i can't reach the spoon", 
-#         "rare-excuses.doc_count": 60, 
-#         "avg-length": 5.1, 
-#         "max-length": 27.0, 
-#     }
-# ]
-
-agg.print.table()
-# ocassion | occasion.doc_count | rare-excuses            | rare-excuses.doc_count | avg-length | max-length
-# dinner   | 1234567            | my mouth is too dry     | 100                    | 12.7       | 122.3
-# dinner   | 1234567            | i can't reach the spoon | 60                     | 5.1        | 27.0
 ```
 
-#### query example
+The `rare_terms` aggregation is nested into the `terms` aggregation and 
+the metrics are siblings nested inside `rare_terms`.
 
-The querying is a bit similar to [elasticsearch-dsl](https://github.com/elastic/elasticsearch-dsl-py) 
-but there are also methods for each supported query on the **Search** object.  
+`keys()`, `values()`, `items()` and `to_dict()` all operate on the current aggregation.
+For bucket aggregations they typically show the `doc_count` value.'
+
 
 ```python
-from elastipy import Search, query
-
-q = Search(index="world")
-# chaining means AND
-q = q.term(field="category", value="programming").term("usage", "widely-used")
-# also can use operators
-q = q & (query.Term("topic", "yet-another-api") | query.Term("topic", "yet-another-operator-overload"))
-
-languages_per_country = q.agg_terms(field="country").agg_terms(field="language").execute()
-
-languages_per_country.to_dict()
-# {
-#     ('DE', 'Python'): 3197,
-#     ('DE', 'C++'): 1701,
-#     ('DE', 'php'): 52,
-#     ('ES', 'Python'): 5104,
-#     ('ES', 'C++'): 1201,
-#     ('ES', 'php'): 77,
-#     ...
-# }
-
-# .query() replaces the current query 
-q = q.query(query.MatchAll())
+agg.to_dict()
 ```
 
-There is some housekeeping and glue code for the basics. The methods for queries and aggregations as 
-well as the query classes are auto-generated from [yaml files](definition). They include all parameters,
-default values and documentation.
 
-#### export example
+
+
+    {('dinner', 'my mouth is too dry'): 1,
+     ('dinner', "i can't reach the spoon"): 2}
+
+
+
+The `rows()`, `dict_rows()` and `dump.table()` methods operate on the whole aggregation branch:
+
+
+```python
+list(agg.dict_rows())
+```
+
+
+
+
+    [{'occasion': 'dinner',
+      'occasion.doc_count': 200,
+      'rare-excuses': 'my mouth is too dry',
+      'rare-excuses.doc_count': 1,
+      'avg-length': 163.0,
+      'max-length': 163.0},
+     {'occasion': 'dinner',
+      'occasion.doc_count': 200,
+      'rare-excuses': "i can't reach the spoon",
+      'rare-excuses.doc_count': 2,
+      'avg-length': 109.5,
+      'max-length': 133.0}]
+
+
+
+
+```python
+agg.dump.table(colors=False)
+```
+
+    occasion │ occasion.doc_count │ rare-excuses            │ rare-excuses.doc_count │ avg-length   │ max-length  
+    ─────────┼────────────────────┼─────────────────────────┼────────────────────────┼──────────────┼─────────────
+    dinner   │ 200                │ my mouth is too dry     │ 1 ██████████▌          │ 163.0 ██████ │ 163.0 ██████
+    dinner   │ 200                │ i can't reach the spoon │ 2 ████████████████████ │ 109.5 ████   │ 133.0 ████▉ 
+
+
+### queries
+
+
+```python
+from elastipy import query
+
+s = Search(index="prog-world")
+
+# chaining means AND
+s = s \
+    .term(field="category", value="programming") \
+    .term("usage", "widely-used")
+
+# also can use operators
+s = s & (
+    query.Term("topic", "yet-another-api") 
+    | query.Term("topic", "yet-another-operator-overload")
+)
+
+# .query() replaces the current query 
+s = s.query(query.MatchAll())
+
+languages_per_country = s.agg_terms(field="country").agg_terms(field="language").execute()
+
+languages_per_country.to_dict()
+```
+
+
+
+
+    {('IT', 'PHP'): 28,
+     ('IT', 'Python'): 24,
+     ('IT', 'C++'): 21,
+     ('ES', 'C++'): 29,
+     ('ES', 'Python'): 22,
+     ('ES', 'PHP'): 18,
+     ('US', 'PHP'): 23,
+     ('US', 'Python'): 20,
+     ('US', 'C++'): 15}
+
+
+
+### exporting
 
 There is a small helper to export stuff to elasticsearch.
+
+
+
 
 ```python
 from elastipy import Exporter
@@ -164,24 +302,38 @@ class MyExporter(Exporter):
     
     # mapping can be defined here
     # it will be sent to elasticsearch before the first document is exported 
-    MAPPING = {
+    MAPPINGS = {
         "properties": {
             "some_field": {"type": "text"},
         }       
     }   
 
-Exporter().export_list(a_lot_of_objects)    
+count, errors = MyExporter().export_list(a_lot_of_objects)
+
+print(f"expored {count} objects, errors: {errors}")
 ```
+
+    expored 1000 objects, errors: []
+
+
 It uses bulk requests and is very fast, supports document transformation and
 control over id and sub-index of documents.
 
+
 ```python
 import datetime
-from elastipy import Exporter
 
 class MyExporter(Exporter):
     INDEX_NAME = "my-index-*"
-    
+    MAPPINGS = {
+        "properties": {
+            "some_field": {"type": "text"},
+            "group": {"type": "keyword"},
+            "id": {"type": "keyword"},
+            "timestamp": {"type": "date"},
+        }       
+    }   
+
     # if each document has a unique id value we can use it
     # as the elasticsearch id as well. That way we do not
     # create documents twice when exporting them again.
@@ -201,43 +353,130 @@ class MyExporter(Exporter):
         data["timestamp"] = datetime.datetime.now()
         return data
 
-Exporter().export_list(a_lot_of_objects)
-
-# if we are tired enough we can call
-Exporter().delete_index()
-# This would actually delete all sub-indices because 
-#   there's this '*' in the INDEX_NAME
+MyExporter().export_list(a_lot_of_objects)
 ```
+
+
+
+
+    (1000, [])
+
+
+
+If we are tired enough we can call:
+
+
+```python
+MyExporter().delete_index()
+```
+
+
+
+
+    True
+
+
+
+This will actually delete all sub-indices because there's this wildcard `*` in the `INDEX_NAME`.
 
 **More examples can be found [here](examples).**
 
 
-#### The big steps to success
-
-  - make sure that all the combinations of queries work as expected
-  - finalize the generic keys/values gathering from all those different aggregations with all their little 
-  peculiarities
-  - complete the yaml definitions by carefully reading all the 
-   [online documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html)
-
-
-### development / testing
+### testing
 
 To run the tests call:
-```bash
+```shell script
 python test.py
 ````
 
 To include testing against a live elasticsearch:
-```bash
+```shell script
 python test.py --live
 ```
 
-This runs by default against **localhost:9200**. If you need to change the connection
+To change **localhost:9200** to something different
 pass any arguments as json:
-```bash
+```shell script
 python test.py --live --elasticsearch '{"hosts": [{"host": "127.0.0.5", "port": 1200}], "http_auth": ["user", "password"]}'
 ```
 
 The live tests will create new indices and immediately destroy them afterwards. 
 They are prefixed with **elastipy---unittest-**
+
+To check the coverage of the tests add `-c` or `-m` flags.
+`-m` will add the missing line numbers to the summary. 
+
+### development
+
+The methods for **queries** and **aggregations** as well as the **query 
+classes** are auto-generated from [yaml files](definition). 
+They include all parameters, default values and documentation.
+
+
+#### Add a missing query or aggregation
+
+1. Create a yaml file with the name of it in one of the sub-directories 
+in `definition/query` or `definition/aggregation`. 
+    
+    The sub-directories in `query/` are just for tidiness and
+    follow the nesting in the sidebar of the official 
+    [documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html). 
+    The three directories below `aggregation/` actually define the
+    aggregation type `bucket`, `metric` or `pipeline`. 
+
+2. Create the python code via 
+   ```shell script
+   # in project root
+   python generate_interfaces.py
+   ```
+   This will update the files:
+    - [elastipy/query/generated_classes.py](elastipy/query/generated_classes.py)
+    - [elastipy/query/generated_interface.py](elastipy/query/generated_interface.py)  
+    - [elastipy/aggregation/generated_interface.py](elastipy/aggregation/generated_interface.py)
+    
+   The sphinx documentation will collect the respective documentation 
+   from these files.
+
+
+#### Update the example and tutorial notebooks
+
+1. Do some changes or add a new notebook (and keep main 
+    `requirements.txt` up to date).
+
+2. Execute: 
+   ```shell script
+   python run_doc_notebooks.py --execute
+   ``` 
+   This will convert the notebooks to `.rst` files into the [docs/](docs/) directory.
+   
+   The [docs/quickref.ipynb](docs/quickref.ipynb) notebook will even be rendered
+   as markdown into this README.  
+    
+   The `-e`/`--execute` flag is required for proper doc building. For debugging
+   purposes it can be omitted in which case the current notebook state is
+   rendered. 
+   
+3. Run
+   ```shell script
+   cd docs/
+   pip install -r requirements.txt
+   make clean && make html
+   ```
+   and inspect the results in 
+   [docs/_build/html/index.html](docs/_build/html/index.html).
+
+Before committing changes run 
+```shell script
+pip install pre-commit
+pre-commit install
+```
+This will install a pre-commit hook from 
+[.pre-commit-config.yaml](.pre-commit-config.yaml) 
+that clears the output of all notebooks.
+Since the interesting ones are already rendered to the document pages, i just 
+think this is more tidy and releases one from cleaning up the execution state
+of notebooks by hand before committing.
+  
+Generally, i'm stuck with *restructuredtext* for the docstrings although 
+besides the `:param:` syntax i find it simply repellent. 
+It still has the most supported toolchain it seems.

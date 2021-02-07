@@ -1,7 +1,4 @@
-import os
-import datetime
-
-from .data import QUERY_DEFINITION, AGGREGATION_DEFINITION
+from .data import QUERY_DEFINITION, AGGREGATION_DEFINITION, SEARCH_PARAM_DEFINITION
 from .renderer import render_function, render_class, change_text_indent
 
 
@@ -18,7 +15,7 @@ def doc_with_url(definition):
     if definition.get("url"):
         if not doc:
             doc = ""
-        doc += f"\n{definition['url']}"
+        doc += f"\n[elasticsearch documentation]({definition['url']})"
 
     return doc
 
@@ -178,15 +175,19 @@ def render_aggregation_class():
                     f"aggregation '{agg_name}'"
 
         # -- method body --
-        body = f"agg = self.{agg_type}(\n"
+        #body = "from .aggregation import Aggregation"
+        body = f"a = self.{agg_type}(\n"
         body += f"{INDENT}*(aggregation_name + (\"{agg_name}\", )),\n"
         for param_name, param in definition["parameters"].items():
             body += f"{INDENT}{param_name}={param_name},\n"
-        body += f")\n"
         if do_return_parent:
-            body += "return agg if return_self else self\n"
-        else:
-            body += "return agg\n"
+            body += f"{INDENT}return_self=return_self,\n"
+        body += f")\n"
+        body += f"return a\n"
+        #if do_return_parent:
+        #    body += "return agg if return_self else self\n"
+        #else:
+        #    body += "a\n"
 
         code += render_function(
             function_name=f"{agg_type}_{agg_name}",
@@ -206,3 +207,126 @@ def render_aggregation_class():
         ) + "\n"
 
     return code.rstrip() + "\n"
+
+
+def render_search_param_class():
+    code = HEADLINE + "\n" + TYPING_IMPORT + "\n\n"
+    code += "from .search_param import SearchParametersBase\n"
+    code += "from .search import Search\n\n"
+
+    code += f"\nclass Unset:\n{INDENT}pass\n\n"
+
+    code += f"\nclass SearchParameters(SearchParametersBase):\n\n"
+
+    code += f"{INDENT}# make sure sphinx get's the documentation string\n"
+    code += f"{INDENT}__doc__ = SearchParametersBase.__doc__\n\n"
+
+    # stripped-down version of the definition to access at class level
+    short_definition = dict()
+    for param_name, param in SEARCH_PARAM_DEFINITION.items():
+        short_definition[param_name] = {
+            key: value
+            for key, value in param.items()
+            if key not in ("doc", "type")
+        }
+
+    code += f"{INDENT}DEFINITION = {repr(short_definition)}\n\n"
+
+    # -- combined method for all parameters --
+
+    COMBINED_DOC = change_text_indent("""
+        Can set all search parameters at once.
+        
+        Each parameter that is different than it's
+        default value is put into the search request.
+        
+        The parameters are automatically split into 
+        query and body representation. 
+    """)
+
+    def func_name(name):
+        func_name = name.lstrip('_')
+        func_name = {"from": "from_"}.get(func_name, func_name)
+        return func_name
+
+    combined_params = dict()
+    combined_body = "s = self._search.copy()\n"
+    for name, defi in SEARCH_PARAM_DEFINITION.items():
+        fname = func_name(name)
+        #combined_body += f"if {fname} != self.DEFINITION[\"{name}\"].get(\"default\")
+        combined_body += f"if {fname} is not Unset:\n"
+        combined_body += f"{INDENT}s._parameters._params[\"{name}\"] = {fname}\n"
+
+        defi = defi.copy()
+        # defi["type"] = f"Union[Type[Unset], {defi['type']}]"
+        defi["declaration_default"] = "Unset"
+        combined_params[fname] = defi
+    combined_body += "return s\n"
+
+    code += render_function(
+        function_name="__call__",
+        parameters={
+            "self": {},
+            **combined_params,
+        },
+        doc=COMBINED_DOC,
+        body=combined_body,
+        return_type="Search",
+        return_doc="A new Search instance is created",
+        annotate_return_type=True,
+        indent=INDENT,
+    ) + "\n"
+
+    # -- method for each search parameter ---
+
+    for param_name, definition in SEARCH_PARAM_DEFINITION.items():
+
+        # -- method body --
+        body = f"return self._set_parameter(\"{param_name}\", value)\n"
+
+        code += render_function(
+            function_name=f"{func_name(param_name)}",
+            parameters={
+                "self": {},
+                "value": {
+                    **definition
+                },
+            },
+            doc=f"A search **{definition['group']}** parameter.",
+            body=body,
+            return_type="Search",
+            return_doc="A new Search instance is created",
+            annotate_return_type=True,
+            indent=INDENT,
+        ) + "\n"
+
+    return code.rstrip() + "\n"
+
+
+def render_rst_agg_index():
+    code = ""
+
+    groups = sorted(set(d["group"] for d in AGGREGATION_DEFINITION.values()))
+    for group in groups:
+        code += f"- {group}\n\n"
+        for agg_name in sorted(filter(lambda key: AGGREGATION_DEFINITION[key]["group"] == group, AGGREGATION_DEFINITION)):
+            definition = AGGREGATION_DEFINITION[agg_name]
+            group = {"bucket": "agg"}.get(definition["group"], definition["group"])
+            code += f"  - `{agg_name} <#elastipy.aggregation.Aggregation.{group}_{agg_name}>`__\n"
+        code += "\n"
+
+    return code
+
+
+def render_rst_query_index():
+    code = ""
+
+    groups = sorted(set(d["group"] for d in QUERY_DEFINITION.values()))
+    for group in groups:
+        code += f"- {group}\n\n"
+        for query_name in sorted(filter(lambda key: QUERY_DEFINITION[key]["group"] == group, QUERY_DEFINITION)):
+            definition = QUERY_DEFINITION[query_name]
+            code += f"  - `{query_name} <#elastipy.Search.{query_name}>`__\n"
+        code += "\n"
+
+    return code

@@ -1,6 +1,6 @@
 import json
 from copy import copy, deepcopy
-from typing import Optional, Union, Mapping, Callable, Sequence
+from typing import Optional, Union, Mapping, Callable, Sequence, List, Any
 
 from elasticsearch import Elasticsearch
 
@@ -12,7 +12,7 @@ from ._json import make_json_compatible
 
 class Search(QueryInterface, AggregationInterface):
     """
-    Interface to elasticsearch /search.
+    Interface to elasticsearch ``/search``.
 
     All changes to a search object create and return a copy.
     Except for aggregations, which are attached to the search instance.
@@ -21,90 +21,138 @@ class Search(QueryInterface, AggregationInterface):
     def __init__(
             self,
             index: str = None,
-            client: Union[Elasticsearch, Callable] = None,
+            client: Union[str, Callable, Elasticsearch, Any, None] = None,
             timestamp_field: str = "timestamp",
     ):
         """
         Create a new Search instance.
+
         :param index: str, optional index name/pattern, can also be set later via index()
-        :param client: elasticsearch.Client instance, if None elastipy.connections.get("default") is used
-        :param timestamp_field: str, the default timestamp field used for fields that require dates
+        :param client:
+            Can be an ``elasticsearch.Elasticsearch`` instance.
+
+            If None, then ``elastipy.connections.get("default")`` is used.
+
+            Can also be a string to change the connection alias
+            from "default" to something else.
+
+            Can also be a callable, which get's the whole ``to_request``__
+            as parameters.
+
+        :param timestamp_field: str
+            The default timestamp field used for fields that require dates.
         """
+        from .query import Query
+        from .generated_search_param import SearchParameters
+
         AggregationInterface.__init__(self, timestamp_field=timestamp_field)
         self._index = index
         self._client = client
-        self._sort = None
-        self._query = EmptyQuery()
+        self._parameters = SearchParameters(self)
+        self._query: Query = EmptyQuery()
         self._aggregations = []
         self._body = dict()
         self._response: Optional[Response] = None
+
+    @property
+    def param(self):
+        """Access to the search parameters"""
+        return self._parameters
+
+    @property
+    def dump(self):
+        """Access the print interface"""
+        from .search_dump import SearchDump
+        return SearchDump(self)
 
     def get_index(self) -> str:
         """Return current index"""
         return self._index
 
-    def get_query(self) -> QueryInterface:
+    def get_query(self):
         """Return current query"""
         return self._query
 
     def get_client(self):
         """Return current client"""
-        return self._client
+        client = self._client
+        if client is None:
+            client = connections.get()
+        elif isinstance(client, str):
+            client = connections.get(client)
+
+        return client
 
     def copy(self):
         """
         Make a copy of this instance and it's queries.
 
-        Warning: Copying of Aggregations is currently not supported so
+        .. WARNING::
+            Copying of Aggregations is currently not supported so
             aggregations must be added at the last step, after all queries are applied.
 
         :return: a new Search instance
         """
-        es = self.__class__(index=self._index, client=self._client, timestamp_field=self.timestamp_field)
-        es._body = deepcopy(self._body)
-        es._query = self._query.copy()
         if self._aggregations:
             raise NotImplementedError(
                 "Sorry, but copying of aggregations is currently not supported. "
                 "Please make all the queries before adding aggregations"
             )
-        es._aggregations = copy(self._aggregations)
+
+        es = self.__class__(index=self._index, client=self._client, timestamp_field=self.timestamp_field)
+        es._body = deepcopy(self._body)
+        es._query = self._query.copy()
+        es._parameters._params = deepcopy(self._parameters._params)
         return es
 
     def to_body(self) -> dict:
         """
         Returns the complete body of the search request
+
         :return: dict
         """
         body = copy(self._body)
 
         query_dict = self._query.to_dict()
-        if "query" not in query_dict:
-            query_dict = {"query": query_dict}
-        body.update(query_dict)
+        body.update({"query": query_dict})
 
-        if self._sort:
-            body["sort"] = self._sort
+        param_dict = self._parameters.to_body()
+        if param_dict:
+            body.update(param_dict)
 
         return make_json_compatible(body)
+
+    def to_request(self) -> dict:
+        """
+        Returns the complete request parameters as would be accepted
+        by ``elasticsearch.Elasticsearch.search()``.
+
+        :return: dict
+        """
+        return {
+            "index": self._index,
+            "params": self._parameters.to_query_params(),
+            "body": self.to_body()
+        }
 
     def execute(self) -> 'Response':
         """
         Sends the search against the current client and returns the response.
         If no client is specified, elastipy.connections.get("default") will be used.
+
         :return: Response, a dict wrapper with some convenience methods
         """
-        client = self._client
-        if client is None:
-            client = connections.get()
+        client = self.get_client()
 
-        response = client.search(
-            index=self._index,
-            params={
-                "rest_total_hits_as_int": "true"
-            },
-            body=self.to_body(),
-        )
+        if callable(client):
+            response = client(**self.to_request())
+        elif hasattr(client, "search") and callable(client.search):
+            response = client.search(**self.to_request())
+        else:
+            raise TypeError(
+                f"The client must have a search() method or must itself be callable, "
+                f"got {type(client).__name__}"
+            )
 
         self.set_response(response)
         return self._response
@@ -114,6 +162,7 @@ class Search(QueryInterface, AggregationInterface):
         """
         Access to the response of the search.
         Raises exception if accessed before search
+
         :return: Response, a dict wrapper with some convenience methods
         """
         if self._response is None:
@@ -125,6 +174,7 @@ class Search(QueryInterface, AggregationInterface):
     def index(self, index: str):
         """
         Replace the index.
+
         :param index: str
         :return: new Search instance
         """
@@ -135,6 +185,7 @@ class Search(QueryInterface, AggregationInterface):
     def client(self, client):
         """
         Replace the client that will be used for request.
+
         :param client: an elasticsearch.Elasticsearch client or compatible
         :return: new Search instance
         """
@@ -142,26 +193,39 @@ class Search(QueryInterface, AggregationInterface):
         es._client = client
         return es
 
-    def sort(self, *sort):
+    def sort(self, *sort) -> 'Search':
         """
-        Replace the sorting
-        :param sort: can be str, dict or list
+        Change the order of the returned documents. See `sort search results
+        <https://www.elastic.co/guide/en/elasticsearch/reference/current/sort-search-results.html>`__.
+
+        The parameter can be:
+
+            - ``"field"`` or ``"-field"`` to sort a field ascending or
+              descending
+            - ``{"field": "asc"}`` or ``{"field": "desc"}`` to sort a field
+              ascending or descending
+            - a ``list`` of strings or objects as above to sort by a couple of
+              fields
+            - ``None`` to turn off sorting
+
+        :returns: ``Search``
+            A new Search instance is created
+        """
+        return self._parameters.sort(sort)
+
+    def size(self, size):
+        """
+        Replace the maximum document count.
+
+        :param size: int. number of document hits to return
         :return: new Search instance
         """
-        args = []
-        for s in sort:
-            if isinstance(s, (list, tuple)):
-                args += list(s)
-            else:
-                args.append(s)
-
-        es = self.copy()
-        es._sort = args or None
-        return es
+        return self._parameters.size(size)
 
     def query(self, query: QueryInterface):
         """
-        Replace the query
+        Replace the query.
+
         :param query: a QueryInterface sub-class
         :return: new Search instance
         """
@@ -176,13 +240,20 @@ class Search(QueryInterface, AggregationInterface):
         es._query = es._query.add_query(name, **params)
         return es
 
-    def new_query(self, name, **params):
+    def __and__(self, other):
         es = self.copy()
-        es._query = es._query.new_query(name, **params)
+        es._query &= _to_query(other)
         return es
 
-    def query_to_dict(self):
-        return self._query.to_dict()
+    def __or__(self, other):
+        es = self.copy()
+        es._query |= _to_query(other)
+        return es
+
+    def __invert__(self):
+        es = self.copy()
+        es._query = ~es._query
+        return es
 
     # -- attach the AggregationInterface --
 
@@ -202,20 +273,7 @@ class Search(QueryInterface, AggregationInterface):
         self._add_body(f"aggregations.{name}.{aggregation_type}", agg.to_body())
         return agg
 
-    def __and__(self, other):
-        es = self.copy()
-        es._query &= _to_query(other)
-        return es
-
-    def __or__(self, other):
-        es = self.copy()
-        es._query |= _to_query(other)
-        return es
-
-    def __invert__(self):
-        es = self.copy()
-        es._query = ~es._query
-        return es
+    agg = aggregation
 
     # -- debugging stuff --
 
@@ -224,6 +282,7 @@ class Search(QueryInterface, AggregationInterface):
         Sets the elasticsearch API response.
 
         Use this if you need other means of passing the API response to the Search instance.
+
         :param response: Mapping, the complete response from /search/ endpoint
         :return: self
         """
@@ -232,16 +291,9 @@ class Search(QueryInterface, AggregationInterface):
             agg._response = self.response
         return self
 
-    def dump_body(self, indent=2, file=None):
-        print(json.dumps(self.to_body(), indent=indent), file=file)
-
-    def dump_response(self, indent=2, file=None):
-        print(json.dumps(self.response, indent=indent), file=file)
-
     # -- private impl --
 
-    def _add_body(self, path: str, value, override=True):
-        # print("ADD BODY", path, value)
+    def _add_body(self, path: Union[str, list], value, override=True):
         if isinstance(path, str):
             ppath = path.split(".")
         else:
@@ -260,10 +312,6 @@ class Search(QueryInterface, AggregationInterface):
                 if override or key not in body:
                     body[key] = value
 
-    def _add_bool_filter(self, data):
-        self._add_body(f"query.bool.filter", [], override=False)
-        self._body["query"]["bool"]["filter"].append(data)
-
 
 class Response(dict):
     """
@@ -271,22 +319,41 @@ class Response(dict):
     """
 
     @property
-    def total_hits(self):
-        return self["hits"]["total"]
+    def total_hits(self) -> int:
+        total = self["hits"]["total"]
+        if isinstance(total, dict):
+            return total["value"]
+        return total
 
     @property
-    def aggregations(self):
+    def aggregations(self) -> List[dict]:
         return self["aggregations"]
 
     @property
-    def documents(self):
+    def hits(self) -> List[dict]:
+        """Returns the hits list"""
+        return self["hits"]
+
+    @property
+    def documents(self) -> List[dict]:
+        """Returns a list of all documents inside each hit"""
         return [
             doc["_source"]
             for doc in self["hits"]["hits"]
         ]
 
-    def dump(self, indent=2, file=None):
-        print(json.dumps(self, indent=indent), file=file)
+    @property
+    def scores(self) -> List[float]:
+        """Returns the list of scores of each hit"""
+        return [
+            hit["_score"]
+            for hit in self["hits"]["hits"]
+        ]
+
+    @property
+    def dump(self):
+        from .response_dump import ResponseDump
+        return ResponseDump(self)
 
 
 def _to_query(query):

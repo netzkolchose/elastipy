@@ -4,23 +4,39 @@ url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggr
 doc: |
     A multi-bucket aggregation that creates composite buckets from different sources.
 
-    Unlike the other multi-bucket aggregations, you can use the composite aggregation to paginate all buckets from a multi-level aggregation efficiently. This aggregation provides a way to stream all buckets of a specific aggregation, similar to what [scroll](https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#scroll-search-results) does for documents.
+    Unlike the other multi-bucket aggregations, you can use the composite aggregation to paginate
+    all buckets from a multi-level aggregation efficiently. This aggregation provides a way to
+    stream all buckets of a specific aggregation, similar to what
+    [scroll](https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#scroll-search-results)
+    does for documents.
 
-    The composite buckets are built from the combinations of the values extracted/created for each document and each combination is considered as a composite bucket.
+    The composite buckets are built from the combinations of the values extracted/created for each
+    document and each combination is considered as a composite bucket.
 
-    For optimal performance the [index sort](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-index-sorting.html) should be set on the index so that it matches parts or fully the source order in the composite aggregation.
+    For optimal performance the
+    [index sort](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-index-sorting.html)
+    should be set on the index so that it matches parts or fully the source order in the composite aggregation.
 
-    Sub-buckets: Like any multi-bucket aggregations the composite aggregation can hold sub-aggregations. These sub-aggregations can be used to compute other buckets or statistics on each composite bucket created by this parent aggregation.
+    **Sub-buckets**: Like any multi-bucket aggregations the composite aggregation can hold sub-aggregations.
+    These sub-aggregations can be used to compute other buckets or statistics on each composite
+    bucket created by this parent aggregation.
 
-    Pipeline aggregations: The composite agg is not currently compatible with pipeline aggregations, nor does it make sense in most cases. E.g. due to the paging nature of composite aggs, a single logical partition (one day for example) might be spread over multiple pages. Since pipeline aggregations are purely post-processing on the final list of buckets, running something like a derivative on a composite page could lead to inaccurate results as it is only taking into account a "partial" result on that page.
+    **Pipeline aggregations**: The composite agg is not currently compatible with pipeline aggregations,
+    nor does it make sense in most cases. E.g. due to the paging nature of composite aggs, a single
+    logical partition (one day for example) might be spread over multiple pages.
+    Since pipeline aggregations are purely post-processing on the final list of buckets,
+    running something like a derivative on a composite page could lead to inaccurate results as
+    it is only taking into account a "partial" result on that page.
 parameters:
     sources:
         type: Sequence[Mapping]
         required: True
         doc: |
-            The sources parameter defines the source fields to use when building composite buckets. The order that the sources are defined controls the order that the keys are returned.
+            The sources parameter defines the source fields to use when building composite buckets.
+            The order that the sources are defined controls the order that the keys are returned.
 
             The sources parameter can be any of the following types:
+
                 - Terms
                 - Histogram
                 - Date histogram
@@ -31,14 +47,27 @@ parameters:
         type: int
         default: 10
         doc: |
-            The size parameter can be set to define how many composite buckets should be returned. Each composite bucket is considered as a single bucket, so setting a size of 10 will return the first 10 composite buckets created from the value sources. The response contains the values for each composite bucket in an array containing the values extracted from each value source.
+            The size parameter can be set to define how many composite buckets should be returned.
+            Each composite bucket is considered as a single bucket, so setting a size of 10 will
+            return the first 10 composite buckets created from the value sources. The response contains
+            the values for each composite bucket in an array containing the values extracted from each value source.
 
-            Pagination: If the number of composite buckets is too high (or unknown) to be returned in a single response it is possible to split the retrieval in multiple requests. Since the composite buckets are flat by nature, the requested size is exactly the number of composite buckets that will be returned in the response (assuming that they are at least size composite buckets to return). If all composite buckets should be retrieved it is preferable to use a small size (100 or 1000 for instance) and then use the after parameter to retrieve the next results.
+            **Pagination**: If the number of composite buckets is too high (or unknown) to be returned
+            in a single response it is possible to split the retrieval in multiple requests.
+            Since the composite buckets are flat by nature, the requested size is exactly the
+            number of composite buckets that will be returned in the response (assuming that they
+            are at least size composite buckets to return). If all composite buckets should be retrieved
+            it is preferable to use a small size (100 or 1000 for instance) and then use the after
+            parameter to retrieve the next results.
     after:
         type: Union[str, int, float, datetime]
         doc: |
-            To get the next set of buckets, resend the same aggregation with the after parameter set to the after_key value returned in the response.
+            To get the next set of buckets, resend the same aggregation with the after parameter set to
+            the `after_key` value returned in the response.
 
-            Note: The after_key is usually the key to the last bucket returned in the response, but that isn’t guaranteed. Always use the returned after_key instead of derriving it from the buckets.
+            Note: The after_key is usually the key to the last bucket returned in the response,
+            but that isn’t guaranteed. Always use the returned after_key instead of derriving it from the buckets.
 
-            In order to optimize the early termination it is advised to set track_total_hits in the request to false. The number of total hits that match the request can be retrieved on the first request and it would be costly to compute this number on every page.
+            In order to optimize the early termination it is advised to set `track_total_hits` in the request to false.
+            The number of total hits that match the request can be retrieved on the first request and it would be
+            costly to compute this number on every page.

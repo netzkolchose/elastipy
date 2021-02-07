@@ -30,7 +30,7 @@ class TestOrdersAggregations(TestCase):
         agg_sku_count = q.agg_terms(field="sku")
         agg_sku_qty = agg_sku_count.metric_sum(field="quantity", return_self=True)
 
-        #q.dump_body()
+        #q.dump.body()
         q.execute()#.dump()
 
         self.assertEqual(
@@ -87,7 +87,7 @@ class TestOrdersAggregations(TestCase):
         agg_sku = q.agg_terms(field="sku")
         agg_channel = agg_sku.aggregation("terms", field="channel")
         agg_country = agg_channel.aggregation("terms", field="country")
-        agg_qty = agg_country.metric("sum", field="quantity")
+        agg_qty = agg_country.metric("sum", field="quantity", return_self=True)
 
         q.execute()#.dump()
 
@@ -103,7 +103,6 @@ class TestOrdersAggregations(TestCase):
             },
             agg_qty.to_dict()
         )
-        #agg_qty.dump_table()
 
     def test_orders_filter(self):
         # The filter agg has a special request format and it's response is single-bucket style
@@ -115,10 +114,9 @@ class TestOrdersAggregations(TestCase):
                 .metric_sum("qty", field="quantity", return_self=True),
         ]
         for agg in aggs:
-            #q.dump_body()
+            #q.dump.body()
             agg.execute()#.dump()
 
-            #agg.dump_table()
             self.assertEqual(
                 [
                     ["a0", "a0.doc_count", "qty"],
@@ -211,7 +209,7 @@ class TestOrdersAggregations(TestCase):
             }).metric_sum("qty", field="quantity", return_self=True),
         ]
         for agg in aggregations:
-            agg.execute()#.print.dict()#.search.dump_body()
+            agg.execute()#.print.dict()#.search.dump.body()
 
             self.assertEqual(
                 [
@@ -232,12 +230,21 @@ class TestOrdersAggregations(TestCase):
                 },
                 agg.to_dict()
             )
+            self.assertEqual(
+                {
+                    "DE|group1": 4,
+                    "DE|group2": 3,
+                    "GB|group1": 3,
+                    "GB|group2": 0,
+                },
+                agg.to_dict(key_separator="|")
+            )
 
     def test_orders_date_histogram(self):
         q = self.search()
         items_per_day = q.agg_date_histogram(field="timestamp", calendar_interval="1d")
         orders_per_day = items_per_day.metric_cardinality(field="order_id", return_self=True)
-        #q.dump_body()
+        #q.dump.body()
         q.execute()#.dump()
 
         self.assertEqual(

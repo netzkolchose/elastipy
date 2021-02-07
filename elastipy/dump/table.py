@@ -1,11 +1,16 @@
-import os
+import math
 from itertools import chain
-from typing import Mapping, Sequence
+from typing import Mapping, Sequence, Union
 from io import StringIO
 from collections import deque
-from decimal import Decimal, InvalidOperation
 
-from .console import Characters, Colors, ColorCodes
+try:
+    import pandas as pd
+except ImportError:
+    pd = None
+
+from .console import Characters, Colors, get_terminal_size, clip_line
+from .helper import get_number
 
 
 class Table:
@@ -16,65 +21,71 @@ class Table:
         self.headers = []
         self._extract_source()
 
-    def to_str(
+    def print(
             self,
-            sort: str = None,
+            sort: Union[str, int] = None,
             digits: int = None,
             header: bool = True,
             bars: bool = True,
-            zero_based: bool = True,
+            zero: Union[bool, float] = True,
             colors: bool = True,
             ascii: bool = False,
             max_width: int = None,
             max_bar_width: int = 40,
-    ):
-        file = StringIO()
-        self.print(
-            sort=sort, digits=digits, header=header, bars=bars, colors=colors, ascii=ascii, max_width=max_width,
-            zero_based=zero_based, max_bar_width=max_bar_width,
-            file=file,
-        )
-        file.seek(0)
-        return file.read()
-
-    def print(self,
-              sort: str = None,
-              digits: int = None,
-              header: bool = True,
-              bars: bool = True,
-              zero_based: bool = True,
-              colors: bool = True,
-              ascii: bool = False,
-              max_width: int = None,
-              max_bar_width: int = 40,
-              file=None
+            file=None
     ):
         """
-        :param sort: str
-            optional sort column name which must match a 'header' key
-            can be prefixed with '-' to reverse order
-        :param digits: int, optional number of digits for rounding
-        :param header: bool, if True, include the names in the first row
-        :param bars: bool
+        :param sort: ``str`` or ``int``
+            Optional sort column name which must match a 'header' key.
+            Can be prefixed with ``-`` (minus) to reverse order.
+
+            Numbers are also accepted, which sort the ``x``th header.
+            Negative to reverse the order.
+
+        :param digits: ``int``
+            Optional number of digits for rounding.
+
+        :param header: ``bool``
+            if True, include the names in the first row.
+
+        :param bars: ``bool``
             Enable display of horizontal bars in each number column.
             The table width will stretch out in size while limited
             to 'max_width' and 'max_bar_width'
-        :param zero_based: bool
-            if True, the bar axis starts at zero,
-            otherwise it starts at each columns minimum value
-        :param colors: bool, enable console colors
-        :param ascii: bool, if True fall back to ascii characters
-        :param max_width: int
+
+        :param zero:
+            - If ``True``: the bar axis starts at zero
+              (or at a negative value if appropriate).
+            - If ``False``: the bar starts at the minimum of all values in the column.
+            - If a **number** is provided, the bar starts there,
+              regardless of the minimum of all values.
+
+        :param colors: ``bool``
+            Enable console colors.
+
+        :param ascii: ``bool``
+            If ``True`` fall back to ascii characters.
+
+        :param max_width: ``int``
             Will limit the expansion of the table when bars are enabled.
             If left None, the terminal width is used.
-        :param max_bar_width: int
+
+        :param max_bar_width: ``int``
             The maximum size a bar should have
-        :param file: optional text stream to print to
-        :return:
+
+        :param file:
+            Optional text stream to print to.
         """
         def _to_str(v):
             if v is None:
                 return "-"
+
+            try:
+                if math.isnan(v):
+                    return "-"
+            except TypeError:
+                pass
+
             if digits is not None:
                 try:
                     v = round(v, digits)
@@ -107,7 +118,7 @@ class Table:
                 value_width[key] = max(value_width.get(key, 0), len(value_str))
 
                 number = get_number(value)
-                if number:
+                if number is not None:
                     table_row[key]["value"] = number
                     if key not in value_bounds:
                         value_bounds[key] = {"min": number, "max": number}
@@ -117,9 +128,19 @@ class Table:
 
             table_rows.append(table_row)
 
-        if sort:
-            sort_key, reverse = sort.lstrip("-"), sort.startswith("-")
-            table_rows.sort(key=lambda row: row[sort_key]["value"], reverse=reverse)
+        if sort is not None:
+            if isinstance(sort, int):
+                if not 0 <= abs(sort) < len(self.headers):
+                    raise ValueError(
+                        f"Sort column {abs(sort)} is out of range, use [0-{len(self.headers)-1}]"
+                    )
+                reverse = sort < 0
+                sort_key = self.headers[abs(sort)]
+            else:
+                reverse = sort.startswith("-")
+                sort_key = sort.lstrip("-")
+
+            table_rows = sorted_rows(table_rows, key=sort_key, reverse=reverse)
 
         for key, bound in list(value_bounds.items()):
             if bound["min"] != bound["max"]:
@@ -127,13 +148,18 @@ class Table:
             else:
                 value_bounds.pop(key)
 
-        if zero_based:
+        if zero is True:
             for bound in value_bounds.values():
                 bound["min"] = min(0, bound["min"])
+        elif zero is False:
+            pass  # keep the calculated lower bound
+        else:
+            for bound in value_bounds.values():
+                bound["min"] = zero
 
         # width of whole column
         column_width = {
-            key: max(header_width[key], value_width[key])
+            key: max(header_width[key], value_width.get(key, 0))
             for key in self.headers
         }
 
@@ -142,7 +168,7 @@ class Table:
         bar_offset = 0.
         if bars and value_bounds:
             if max_width is None:
-                max_width, _ = os.get_terminal_size()
+                max_width, _ = get_terminal_size()
 
             needed_width = sum(column_width.values()) + (len(column_width) - 1) * 3
             free_width = max_width - needed_width
@@ -180,11 +206,11 @@ class Table:
                 if y != 0 and key in value_bounds:
                     cell = " " * (value_width[key] - len(value)) + value
                 else:
-                    cell = f"{value:{value_width[key]}}"
+                    cell = f"{value:{value_width.get(key, 1)}}"
 
                 if y != 0 and bar_width.get(key, 0) > 1:
                     try:
-                        value = row[key]["value"]
+                        value = get_number(row[key]["value"])
                         mi, ma = value_bounds[key]["min"], value_bounds[key]["max"]
                         t = bar_offset + (1. - bar_offset) * (value - mi) / (ma - mi)
                         cell += " " + co.LIGHT_BLUE + ch.hbar(t, bar_width[key] - 1) + co.END
@@ -208,20 +234,54 @@ class Table:
 
                 print(line, file=file)
 
+    def to_str(
+            self,
+            sort: str = None,
+            digits: int = None,
+            header: bool = True,
+            bars: bool = True,
+            zero: Union[bool, float] = True,
+            colors: bool = True,
+            ascii: bool = False,
+            max_width: int = None,
+            max_bar_width: int = 40,
+    ):
+        file = StringIO()
+        self.print(
+            sort=sort, digits=digits, header=header, bars=bars, colors=colors, ascii=ascii, max_width=max_width,
+            zero=zero, max_bar_width=max_bar_width,
+            file=file,
+        )
+        file.seek(0)
+        return file.read()
+
     def _extract_source(self):
         self.headers = None
+
+        source = self.source
+
+        if pd is not None and isinstance(self.source, pd.DataFrame):
+            source = self.source.values.tolist()
+            source.insert(0, list(self.source.columns))
+
         try:
-            row = self.source[0]
-            if isinstance(row, Sequence):
-                self.headers = row
+            try:
+                first_row = source[0]
+            except IndexError:
+                self.rows = []
+                self.headers = []
+                return
+
+            if isinstance(first_row, Sequence):
+                self.headers = first_row
                 self.rows = [
                     {
                         key: value
                         for key, value in zip(self.headers, row)
                     }
-                    for row in self.source[1:]
+                    for row in source[1:]
                 ]
-            elif isinstance(row, Mapping):
+            elif isinstance(first_row, Mapping):
                 self.rows = self.source
                 self.headers = all_dict_row_keys(self.rows)
             return
@@ -233,9 +293,11 @@ class Table:
             self.headers = all_dict_row_keys(self.rows)
             return
 
-        raise TypeError(f"Invalid source {type(self.source).__name__}")
+        raise TypeError(f"Invalid source '{type(self.source).__name__}' for Table")
 
     def _spend_extra_width(self, width: dict, extra_width: int, max_width: int = None, recursive=True):
+        if not width:
+            return
         cur_max_width = max(width.values())
         keys = deque(width.keys())
         count = extra_width
@@ -282,32 +344,26 @@ def all_dict_row_keys(rows):
     return keys
 
 
-def get_number(value):
-    """Convert any number format-able thing to int or float"""
+def sorted_rows(rows, key: str, reverse: bool):
     try:
-        v = int(value)
-        if v == float(value):
-            return v
-    except (TypeError, ValueError):
-        pass
-
-    try:
-        return float(value)
-    except (TypeError, ValueError):
-        pass
+        return sorted(rows, key=lambda row: row[key]["value"], reverse=reverse)
+    except TypeError:
+        rows = [RowCompare(row, key) for row in rows]
+        rows.sort(reverse=reverse)
+        return [row.row for row in rows]
 
 
-def clip_line(line, max_width=None):
-    if max_width is None:
-        return line
+class RowCompare:
 
-    return line
+    def __init__(self, row, key):
+        self.row = row
+        self.key = key
 
-    # TODO: this is currently not working when colors are involved
-    if len(line) > max_width > 2:
-        line, rest = line[:max_width-2], line[max(0, max_width - 2 - len(ColorCodes.END)):]
-        if ColorCodes.END in rest:
-            line += ColorCodes.END
-        line += ".."
-
-    return line
+    def __lt__(self, other):
+        v1 = self.row[self.key]["value"]
+        v2 = other.row[self.key]["value"]
+        if v1 is None:
+            return True
+        if v2 is None:
+            return False
+        return v1 < v2

@@ -15,21 +15,30 @@ class Exporter:
 
     Derive from class and define class attributes:
 
-        INDEX_NAME: str, name of index
-            It can contain a wildcard *
-        MAPPINGS: dict, the mapping definition for the index
+        - ``INDEX_NAME``: ``str``
+          Name of index, might contain a wildcard `*`
 
-    And optionally override:
-        transform_document()
-            convert a document to elasticsearch
-        get_document_id()
-            return a unique id for the elasticsearch document
-        get_document_index()
-            return an alternative index name for the document
+        - ``MAPPINGS``: ``dict``
+          The `mapping <https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html>`__
+          definition for the index.
+
+    And optionally override methods:
+
+        - :meth:`.transform_document`
+          Convert a document to elasticsearch.
+
+        - :meth:`.get_document_id`
+          Return a unique id for the elasticsearch document.
+
+        - :meth:`.get_document_index`
+          Return an alternative index name for the document.
     """
 
+    # Name of the elasticsearch index where things are exported
     INDEX_NAME: str = None
-    MAPPINGS: Mapping = None
+
+    # dict with mapping parameters
+    MAPPINGS: dict = None
 
     def __init__(
             self,
@@ -39,17 +48,21 @@ class Exporter:
             update_index: bool = True,
     ):
         """
-        Create a nwe instance of the exporter.
+        Create a new instance of the exporter.
 
-        :param client: an optional instance of an elasticsearch.Elasticsearch compatible object
+        :param client:
+            An optional instance of an elasticsearch.Elasticsearch compatible object
             If omitted elastipy.connections.get("default") will be used
-        :param index_prefix: str
-            Optional string that is put before the INDEX_NAME
-        :param index_postfix: str
-            Optional string that is put after the INDEX_NAME
-        :param update_index: bool
-            If True, the elasticsearch index will be created or updated with the current MAPPINGS
-            before the first export of a document.
+
+        :param index_prefix: ``str``
+            Optional string that is put before the class-attribute ``INDEX_NAME``
+
+        :param index_postfix: ``str``
+            Optional string that is put after the class-attribute ``INDEX_NAME``
+
+        :param update_index: ``bool``
+            If ``True``, the elasticsearch index will be created or updated with
+            the current ``MAPPINGS`` before the first export of a document.
         """
         for required_attribute in ("INDEX_NAME", "MAPPINGS"):
             if not getattr(self, required_attribute, None):
@@ -64,7 +77,8 @@ class Exporter:
     def client(self):
         """
         Access to the elasticsearch client.
-        If none was defined in constructor, elastipy.connections.get("default") is returned.
+        If none was defined in constructor
+        then ``elastipy.connections.get("default")`` is returned.
         """
         if self._client is None:
             self._client = connections.get()
@@ -72,7 +86,8 @@ class Exporter:
 
     def index_name(self) -> str:
         """
-        Returns the configured index_prefix - INDEX_NAME - index_suffix
+        Returns the configured ``index_prefix - INDEX_NAME - index_suffix``
+
         :return: str
         """
         name = self.INDEX_NAME
@@ -84,7 +99,8 @@ class Exporter:
 
     def search(self, **kwargs) -> Search:
         """
-        return a new Search object for this index and client
+        Return a new ``Search`` object for this index and client.
+
         :return: Search instance
         """
         from .search import Search
@@ -92,8 +108,11 @@ class Exporter:
 
     def get_document_id(self, es_data: Mapping):
         """
-        Override this to return a single elasticsearch object's id
-        :param es_data: dict, single object as returned by transform_document()
+        Override this to return a single elasticsearch object's id.
+
+        :param es_data: ``dict``
+            Single object as returned by transform_document()
+
         :return: str, int etc..
         """
         return None
@@ -102,24 +121,31 @@ class Exporter:
         """
         Override to define an index per document.
 
-        The default function returns the result from index_name() but it's possible
-        to put objects into separate indices.
+        The default function returns the result from ``index_name()``
+        but it's possible to put objects into separate indices.
 
-        For example you might define
-            INDEX_NAME = "documents-*"
-        and get_document_index() might return
-            self.index_name() + es_data["type"]
+        For example you might define ``INDEX_NAME = "documents-*"``
 
-        :param es_data: dict, single document as returned by transform_document()
+        and ``get_document_index`` might return
+
+        .. CODE::
+
+            self.index_name().replace("*", es_data["type"]
+
+        :param es_data: ``dict``
+            Single document as returned by transform_document()
+
         :return: str
         """
         return self.index_name()
 
     def transform_document(self, data: Mapping) -> Union[Mapping, Iterator[Mapping]]:
         """
-        Override this to transform each documents's data into an elasticsearch document
+        Override this to transform each documents's data into
+        an elasticsearch document.
 
-        It's possible to return a list or yield multiple elasticsearch documents.
+        It's possible to return a **list** or **yield** multiple
+        elasticsearch documents.
         
         :param data: dict 
         :return: dict or iterable of dict
@@ -130,7 +156,7 @@ class Exporter:
         """
         Create the index or update changes to the mapping.
 
-        Can only be called if INDEX_NAME does not contain a '*'
+        Can only be called if ``INDEX_NAME`` does not contain a ``'*'``
         :return: None
         """
         if "*" in self.index_name():
@@ -141,11 +167,22 @@ class Exporter:
         """
         Try to delete the index. Ignore if not found.
 
-        :return: bool, True if deleted, False otherwise
+        :return: ``bool``
+            True if deleted, False otherwise.
+
+            If the index name contains a wildcard ``*``,
+            True is always returned.
         """
+        from .aggregation.helper import wildcard_match
+
+        name = self.index_name()
         try:
-            self.client.indices.delete(index=self.index_name())
+            self.client.indices.delete(index=name)
             self._index_updated.pop(self.index_name(), None)
+            if "*" in name:
+                for key in list(self._index_updated):
+                    if wildcard_match(key, name):
+                        self._index_updated.pop(key)
             return True
         except NotFoundError:
             return False
@@ -163,16 +200,33 @@ class Exporter:
         """
         Export a list of objects.
 
-        :param object_list: list of dict
-        :param chunk_size: int, number of objects per bulk request
-        :param refresh: bool, if True require the immediate refresh of the index
-        :param verbose: bool, if True print some progress to stderr (using tqdm if present)
-        :param count: int, provide the number of objects for the verbosity if object_list is a generator
-        :param file: optional string stream to output verbose info, default is stderr
+        :param object_list: ``sequence of dict``
+            This can be a list or generator of dictionaries, containing the
+            objects that should be exported.
 
-        All other parameters are passed to elasticsearch.helpers.bulk
+        :param chunk_size: ``int``
+            Number of objects per bulk request.
 
-        :return: dict, response of elasticsearch bulk call
+        :param refresh: ``bool``
+            if ``True`` require the immediate refresh of the index
+            when finished exporting.
+
+        :param verbose: ``bool``
+            If True print some progress to stderr
+            (using `tqdm <https://pypi.org/project/tqdm/>`__ if present)
+
+        :param count: ``int``
+            Provide the number of objects for the **verbosity** if
+            ``object_list`` is a generator.
+
+        :param file:
+            Optional string stream to output verbose info, default is ``stderr``.
+
+        All other parameters are passed to
+        `elasticsearch.helpers.bulk <https://elasticsearch-py.readthedocs.io/en/v7.10.1/helpers.html#elasticsearch.helpers.bulk>`__
+
+        :return: ``dict``
+            Response of elasticsearch bulk call.
         """
         def bulk_actions():
             for object_data in self._verbose_iter(object_list, verbose, count, file):
@@ -197,18 +251,25 @@ class Exporter:
 
                     yield action
 
-        return bulk(
+        response = bulk(
             client=self.client,
             actions=bulk_actions(),
             chunk_size=chunk_size,
             refresh=refresh,
             **kwargs,
         )
+        if verbose:
+            # TODO: print error status
+            print(f"{self.__class__.__name__}: exported {response[0]} objects", file=file)
+
+        return response
 
     def get_index_params(self) -> dict:
         """
         Returns the complete index parameters.
+
         Override if you need to specialize things.
+
         :return: dict
         """
         return {

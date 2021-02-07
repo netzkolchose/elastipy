@@ -29,7 +29,6 @@ class TestNestedOrdersAggregations(TestCase):
         agg_count = q.agg_nested("items", path="items").agg_terms(field="items.sku")
         agg_quantity = agg_count.metric_sum(field="items.quantity", return_self=True)
 
-        #q.dump_body()
         q.execute()#.dump()
 
         self.assertEqual(

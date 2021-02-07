@@ -1,6 +1,10 @@
 url: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-datehistogram-aggregation.html
 doc: |
-    This multi-bucket aggregation is similar to the normal histogram, but it can only be used with date or date range values. Because dates are represented internally in Elasticsearch as long values, it is possible, but not as accurate, to use the normal histogram on dates as well. The main difference in the two APIs is that here the interval can be specified using date/time expressions. Time-based data requires special support because time-based intervals are not always a fixed length.
+    This multi-bucket aggregation is similar to the normal histogram, but it can only be used with date or date
+    range values. Because dates are represented internally in Elasticsearch as long values, it is possible,
+    but not as accurate, to use the normal histogram on dates as well. The main difference in the two APIs is
+    that here the interval can be specified using date/time expressions. Time-based data requires special
+    support because time-based intervals are not always a fixed length.
 parameters:
     field:
         type: str
@@ -8,48 +12,82 @@ parameters:
     calendar_interval:
         type: str
         doc: |
-            Calendar-aware intervals are configured with the calendar_interval parameter. You can specify calendar intervals using the unit name, such as month, or as a single unit quantity, such as 1M. For example, day and 1d are equivalent. Multiple quantities, such as 2d, are not supported.
+            Calendar-aware intervals are configured with the calendar_interval parameter.
+            You can specify calendar intervals using the unit name, such as `month`, or as a single unit quantity,
+            such as `1M`. For example, `day` and `1d` are equivalent. Multiple quantities, such as `2d`, are not supported.
     fixed_interval:
         type: str
         doc: |
-            In contrast to calendar-aware intervals, fixed intervals are a fixed number of SI units and never deviate, regardless of where they fall on the calendar. One second is always composed of 1000ms. This allows fixed intervals to be specified in any multiple of the supported units.
+            In contrast to calendar-aware intervals, fixed intervals are a fixed number of SI units and
+            never deviate, regardless of where they fall on the calendar. One second is always composed of 1000ms.
+            This allows fixed intervals to be specified in any multiple of the supported units.
             
-            However, it means fixed intervals cannot express other units such as months, since the duration of a month is not a fixed quantity. Attempting to specify a calendar interval like month or quarter will throw an exception.
+            However, it means fixed intervals cannot express other units such as months, since the duration of a
+            month is not a fixed quantity. Attempting to specify a calendar interval like month or
+            quarter will throw an exception.
+
+            The accepted units for fixed intervals are:
+
+                - milliseconds (`ms`): A single millisecond. This is a very, very small interval.
+                - seconds (`s`): Defined as 1000 milliseconds each.
+                - minutes (`m`): Defined as 60 seconds each (60,000 milliseconds). All minutes begin at 00 seconds.
+                - hours (`h`): Defined as 60 minutes each (3,600,000 milliseconds). All hours begin at 00 minutes and 00 seconds.
+                - days (`d`): Defined as 24 hours (86,400,000 milliseconds). All days begin at the earliest
+                  possible time, which is usually 00:00:00 (midnight).
+
     min_doc_count:
         type: int
         default: 1
         doc: |
-            Minimum documents to required for a bucket. Set to 0 to allow creating empty buckets.  
+            Minimum documents required for a bucket. Set to 0 to allow creating empty buckets.
     offset:
         type: str
         doc: |
-            Use the offset parameter to change the start value of each bucket by the specified positive (+) or negative offset (-) duration, such as 1h for an hour, or 1d for a day. See Time units for more possible time duration options.
+            Use the offset parameter to change the start value of each bucket by the specified
+            positive (+) or negative offset (-) duration, such as `1h` for an hour, or `1d` for a day.
+            See [Time units](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#time-units)
+            for more possible time duration options.
             
-            For example, when using an interval of day, each bucket runs from midnight to midnight. Setting the offset parameter to +6h changes each bucket to run from 6am to 6am
+            For example, when using an interval of day, each bucket runs from midnight to midnight.
+            Setting the offset parameter to `+6h` changes each bucket to run from 6am to 6am
     time_zone:
         type: str
         doc: |
-            Elasticsearch stores date-times in Coordinated Universal Time (UTC). By default, all bucketing and rounding is also done in UTC. Use the time_zone parameter to indicate that bucketing should use a different time zone.
+            Elasticsearch stores date-times in Coordinated Universal Time (UTC). By default,
+            all bucketing and rounding is also done in UTC. Use the time_zone parameter to indicate
+            that bucketing should use a different time zone.
             
-            For example, if the interval is a calendar day and the time zone is America/New_York then 2020-01-03T01:00:01Z is : # Converted to 2020-01-02T18:00:01 # Rounded down to 2020-01-02T00:00:00 # Then converted back to UTC to produce 2020-01-02T05:00:00:00Z # Finally, when the bucket is turned into a string key it is printed in America/New_York so it’ll display as "2020-01-02T00:00:00"
+            For example, if the interval is a calendar day and the time zone is `America/New_York`
+            then `2020-01-03T01:00:01Z` is
+
+                - converted to `2020-01-02T18:00:01`
+                - rounded down to `2020-01-02T00:00:00`
+                - then converted back to UTC to produce `2020-01-02T05:00:00:00Z`
+                - finally, when the bucket is turned into a string key it is printed in `America/New_York`
+                  so it’ll display as `"2020-01-02T00:00:00"`
             
-            It looks like: bucket_key = localToUtc(Math.floor(utcToLocal(value) / interval) * interval))
+            It looks like:
+
+                `bucket_key = localToUtc(Math.floor(utcToLocal(value) / interval) * interval))`
             
-            You can specify time zones as an ISO 8601 UTC offset (e.g. +01:00 or -08:00) or as an IANA time zone ID, such as America/Los_Angeles.
+            You can specify time zones as an ISO 8601 UTC offset (e.g. `+01:00` or `-08:00`) or as an
+            IANA time zone ID, such as America/Los_Angeles.
     format:
         type: str
         doc: |
             Specifies the format of the 'key_as_string' response.
-            See: https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html
+            See: [mapping date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html)
     keyed:
         type: bool
         default: False
         doc: |
-            Setting the keyed flag to true associates a unique string key with each bucket and returns the ranges as a hash rather than an array.
+            Setting the keyed flag to true associates a unique string key with each bucket and returns
+            the ranges as a hash rather than an array.
     missing:
         type: Any
         doc: |
-            The missing parameter defines how documents that are missing a value should be treated. By default they will be ignored but it is also possible to treat them as if they had a value.
+            The missing parameter defines how documents that are missing a value should be treated.
+            By default they will be ignored but it is also possible to treat them as if they had a value.
     script:
         type: dict
         doc: |

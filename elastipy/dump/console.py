@@ -1,4 +1,5 @@
 import os
+from typing import Sequence
 
 
 class UnicodeCharacters:
@@ -61,6 +62,7 @@ class Characters:
         return self._bar(v, width, self.left8th)
 
     def _bar(self, v, width, characters):
+        v = max(0., min(1., v))
         v = v * width
         v_floor = int(v)
         v_fract = v - int(v)
@@ -70,6 +72,38 @@ class Characters:
             rest = int(v_fract * num_char)
             ret += characters[rest]
         return ret + " " * (width - len(ret))
+
+
+class ColorScale:
+
+    def __init__(self, ascii=False, colors=True, characters: Sequence[str] = None):
+        self.characters = []
+        if characters:
+            self.characters = characters
+        elif colors and not ascii:
+            colors = [4, 6, 2, 7]
+
+            intensity = 0 if is_notebook() else 1
+            back_color = 0
+            shades = ("░", "▒", "▓", "█")
+            for i, color in enumerate(colors):
+                for ch in shades:
+                    ansi = f"\033[{intensity};{30+color};{40+back_color}m{ch}\033[0m"
+                    self.characters.append(ansi)
+                back_color = color
+                if i == 0:
+                    shades = shades[1:]
+        elif colors and ascii:
+            # TODO: add colors
+            self.characters = [".", ":", "*", "#"]
+        elif not colors and ascii:
+            self.characters = ".:*#"
+        else:  # not colors and not ascii:
+            self.characters = ("░", "▒", "▓", "█")
+
+    def __call__(self, v: float):
+        i = max(0, min(len(self.characters) - 1, int(v * len(self.characters))))
+        return self.characters[i]
 
 
 class UnicodePixels:
@@ -170,3 +204,48 @@ class Colors:
         self.CROSSED = ColorCodes.CROSSED if enable else ""
         self.END = ColorCodes.END if enable else ""
 
+
+def get_terminal_size():
+    """
+    Return size of terminal.
+
+    If running in a notebook it returns some default values
+    which fit at least on my local setup..
+
+    :return: tuple(int, int) width and height
+    """
+    if is_notebook():
+        return 110, 30
+
+    w, h = os.get_terminal_size()
+    return w, h
+
+
+def is_notebook() -> bool:
+    """
+    Returns True if inside ipython notebook, False otherwise.
+
+    See lengthy discussion: https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook
+    :return: bool
+    """
+    try:
+        name = type(get_ipython()).__name__
+        return name == "ZMQInteractiveShell"
+    except NameError:
+        return False
+
+
+def clip_line(line, max_width=None):
+    if max_width is None:
+        return line
+
+    return line
+
+    # TODO: this is currently not working when colors are involved
+    if len(line) > max_width > 2:
+        line, rest = line[:max_width-2], line[max(0, max_width - 2 - len(ColorCodes.END)):]
+        if ColorCodes.END in rest:
+            line += ColorCodes.END
+        line += ".."
+
+    return line

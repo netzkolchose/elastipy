@@ -20,14 +20,14 @@ def accidents_by_state():
 
     # print all received data points
     print("\n### Accidents by state\n")
-    agg.print.table()
+    agg.dump.table()
 
 
 # a function to add some metrics to an aggregation
 def add_vehicle_metrics(agg):
     # Since the boolean flags for the vehicle type are integer values
     #   we can just count the average and get the ratio between 0 and 1.
-    # The agg.print.table() as well as the agg.dict_rows() methods
+    # The agg.dump.table() as well as the agg.dict_rows() methods
     #   return all values including contained metrics
     agg.metric_avg("with trucks", field="truck")
     agg.metric_avg("with cars", field="car")
@@ -54,7 +54,7 @@ def accidents_by_state_more_precise():
         s2.execute()
 
         print("\n### Accidents by state (category: %s)\n" % ("all" if not category else category))
-        agg.print.table(digits=3)
+        agg.dump.table(digits=3)
 
 
 def accidents_by_city():
@@ -83,7 +83,7 @@ def accidents_by_city():
     s.execute()
 
     print("\n### Accidents by city\n")
-    agg.print.table(digits=2, sort="-accidents_per_population_percent", zero_based=True)
+    agg.dump.table(digits=2, sort="-accidents_per_population_percent", zero=True)
 
 
 def accidents_by_weekday():
@@ -97,7 +97,7 @@ def accidents_by_weekday():
     s.execute()
 
     print("\n### Accidents by weekday\n")
-    agg.print.table(digits=3)
+    agg.dump.table(digits=3)
 
 
 def accidents_by_hour():
@@ -109,7 +109,7 @@ def accidents_by_hour():
     s.execute()
 
     print("\n### Accidents by hour\n")
-    agg.print.table(digits=3)
+    agg.dump.table(digits=3)
 
 
 def accidents_by_condition():
@@ -122,7 +122,7 @@ def accidents_by_condition():
     s.execute()
 
     print("\n### Accidents by condition\n")
-    agg.print.table()
+    agg.dump.table()
 
     # the to_dict method returns the values of the chosen aggregation
     #   and all bucket keys that lead to it
@@ -149,7 +149,7 @@ def accidents_by_vehicle_combination():
     s.execute()
 
     print("\n### Accidents by vehicle combination\n")
-    agg.print.table(sort="-combi.doc_count", digits=2, zero_based=True)
+    agg.dump.table(sort="-combi.doc_count", digits=2, zero=True)
 
 
 def accidents_geo_centroid_per_state():
@@ -163,7 +163,7 @@ def accidents_geo_centroid_per_state():
     print("\n### Accidents geo-centroid per state\n")
     # it's not possible to order the terms aggregation along a centroid coordinate
     # but we can at least order the table output
-    agg.print.table(digits=5, sort="centroid.lat")
+    agg.dump.table(digits=5, sort="centroid.lat")
 
 
 def accidents_geo_bounds_per_state():
@@ -175,7 +175,7 @@ def accidents_geo_bounds_per_state():
     s.execute()
 
     print("\n### Accidents geo-bounds per state\n")
-    agg.print.table(digits=5)
+    agg.dump.table(digits=5)
 
 
 def accidents_geotile_grid():
@@ -186,7 +186,7 @@ def accidents_geotile_grid():
 
     print("\n### Accidents geo-grid")
     print("(The key represents zoom-level/X/Y, see https://en.wikipedia.org/wiki/Tiled_web_map\n")
-    agg.print.table()
+    agg.dump.table()
 
 
 #accidents_by_state()

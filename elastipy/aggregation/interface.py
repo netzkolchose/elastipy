@@ -8,7 +8,7 @@ class AggregationInterfaceBase:
     def __init__(self, timestamp_field="timestamp"):
         self.timestamp_field = timestamp_field
 
-    def aggregation(self, *aggregation_name_type, **params) -> 'AggregationInterfaceBase':
+    def aggregation(self, *aggregation_name_type, **params):
         """
         Creates an aggregation.
 
@@ -27,18 +27,28 @@ class AggregationInterfaceBase:
         """
         Alias for aggregation()
         """
-        return self.aggregation(*aggregation_name_type, **params)
+        from .aggregation import Aggregation
+        a: Aggregation = self.aggregation(*aggregation_name_type, **params)
+        return a
 
     def metric(self, *aggregation_name_type, **params):
         """
         Alias for aggregation()
         """
-        # aggregation_type = aggregation_name_type[0] if len(aggregation_name_type) == 1 else aggregation_name_type[1]
-        # assert aggregation_type in DEFINITION["metric"], f"'{aggregation_type}' is not a supported metric"
-        return self.aggregation(*aggregation_name_type, **params)
+        from .aggregation import Aggregation
+        return_self = params.pop("return_self", None)
+        a: Aggregation = self.aggregation(*aggregation_name_type, **params)
+        if not return_self:
+            return self
+        return a
 
     def pipeline(self, *aggregation_name_type, **params):
         """
         Alias for aggregation()
         """
-        return self.aggregation(*aggregation_name_type, **params)
+        from .aggregation import Aggregation
+        return_self = params.pop("return_self", None)
+        a: Aggregation = self.aggregation(*aggregation_name_type, **params)
+        if not return_self:
+            return self
+        return a

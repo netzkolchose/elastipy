@@ -2,7 +2,7 @@ import time
 import unittest
 
 from elastipy import Search
-from elastipy.plot.text.console import Characters
+from elastipy.dump.console import Characters
 
 from tests import data
 from tests.live.base import TestCase
@@ -57,7 +57,7 @@ class TestPlot(TestCase):
     def test_orders_terms_sku(self):
         query = self.search()
         agg_sku_count = query.agg_terms(field="sku")
-        agg_sku_qty = agg_sku_count.metric("sum", field="quantity")
+        agg_sku_qty = agg_sku_count.metric("sum", field="quantity", return_self=True)
         query.execute()
 
         self.assertEqual(
@@ -68,7 +68,13 @@ class TestPlot(TestCase):
             },
             agg_sku_qty.to_dict()
         )
-        agg_sku_qty.plot.text.hbar()
+        agg_sku_qty.dump.hbar()
+
+    def test_orders_documents_table(self):
+        s = self.search()
+        s = s.term(field="sku", value="sku-1") | s.term(field="sku", value="sku-2")
+
+        s.execute().dump.table()
 
 
 if __name__ == "__main__":

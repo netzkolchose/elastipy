@@ -4,6 +4,7 @@ import time
 import unittest
 
 from elastipy import Search, aggregation
+from elastipy.aggregation.visitor import Visitor
 
 
 class TestAggregationHousing(unittest.TestCase):
@@ -62,6 +63,34 @@ class TestAggregationHousing(unittest.TestCase):
         self.assertEqual(
             Search().agg_terms(field="a", order={"_count": "desc"}).to_body(),
             Search().agg_terms(field="a", order="-_count").to_body(),
+        )
+
+    def test_visitor_iter_tree(self):
+        agg = Search() \
+            .agg_terms("1", field="") \
+            .agg_terms("2", field="") \
+            .metric_sum("2.1", field="") \
+            .agg_terms("3", field="") \
+            .metric_sum("3.1", field="") \
+            .metric_sum("3.2", field="")
+
+        agg2 = agg.search._aggregations[1]
+        self.assertEqual("2", agg2.name)
+        agg2.agg_terms("2.2", field="").agg_terms("2.2.1", field="")
+
+        self.assertEqual(
+            ["3", "3.1", "3.2"],
+            [a.name for a in Visitor(agg).iter_tree(depth_first=True)]
+        )
+
+        self.assertEqual(
+            ["1", "2", "2.1", "3", "3.1", "3.2", "2.2", "2.2.1"],
+            [a.name for a in Visitor(agg).iter_tree(root=agg.root, depth_first=True)]
+        )
+
+        self.assertEqual(
+            ["1", "2", "2.1", "3", "2.2", "3.1", "3.2", "2.2.1"],
+            [a.name for a in Visitor(agg).iter_tree(root=agg.root, depth_first=False)]
         )
 
 
