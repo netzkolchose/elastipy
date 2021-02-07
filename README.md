@@ -6,13 +6,14 @@
 
 A python wrapper to make elasticsearch queries and aggregations more fun.
 
-Lean more at [readthedocs.io](https://elastipy.readthedocs.io/en/latest/)
+Lean more at [readthedocs.io](https://elastipy.readthedocs.io/en/latest/).
 
 Actually i'm just learning this stuff and have the following requests:
 - some generic convenient data access to nested bucketed aggregations and such
 - the IDE/auto-completion should help a bit/lot with all the elasticsearch parameters
 
----
+
+#### contents
 
 - [installation](#installation)
 - [requirements](#requirements)
@@ -402,36 +403,80 @@ python test.py --live --elasticsearch '{"hosts": [{"host": "127.0.0.5", "port": 
 The live tests will create new indices and immediately destroy them afterwards. 
 They are prefixed with **elastipy---unittest-**
 
+To check the coverage of the tests add `-c` or `-m` flags.
+`-m` will add the missing line numbers to the summary. 
 
 ### development
 
-There is some housekeeping and glue code for the basics. 
-The methods for queries and aggregations as well as the query 
-classes are auto-generated from [yaml files](definition). 
+The methods for **queries** and **aggregations** as well as the **query 
+classes** are auto-generated from [yaml files](definition). 
 They include all parameters, default values and documentation.
 
-The interface python code is rendered via 
+
+#### Add a missing query or aggregation
+
+1. Create a yaml file with the name of it in one of the sub-directories 
+in `definition/query` or `definition/aggregation`. 
+    
+    The sub-directories in `query/` are just for tidiness and
+    follow the nesting in the sidebar of the official 
+    [documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html). 
+    The three directories below `aggregation/` actually define the
+    aggregation type `bucket`, `metric` or `pipeline`. 
+
+2. Create the python code via 
+   ```shell script
+   # in project root
+   python generate_interfaces.py
+   ```
+   This will update the files:
+    - [elastipy/query/generated_classes.py](elastipy/query/generated_classes.py)
+    - [elastipy/query/generated_interface.py](elastipy/query/generated_interface.py)  
+    - [elastipy/aggregation/generated_interface.py](elastipy/aggregation/generated_interface.py)
+    
+   The sphinx documentation will collect the respective documentation 
+   from these files.
+
+
+#### Update the example and tutorial notebooks
+
+1. Do some changes or add a new notebook (and keep main 
+    `requirements.txt` up to date).
+
+2. Execute: 
+   ```shell script
+   python run_doc_notebooks.py --execute
+   ``` 
+   This will convert the notebooks to `.rst` files into the [docs/](docs/) directory.
+   
+   The [docs/quickref.ipynb](docs/quickref.ipynb) notebook will even be rendered
+   as markdown into this README.  
+    
+   The `-e`/`--execute` flag is required for proper doc building. For debugging
+   purposes it can be omitted in which case the current notebook state is
+   rendered. 
+   
+3. Run
+   ```shell script
+   cd docs/
+   pip install -r requirements.txt
+   make clean && make html
+   ```
+   and inspect the results in 
+   [docs/_build/html/index.html](docs/_build/html/index.html).
+
+Before committing changes run 
 ```shell script
-# in project root
-python generate_interfaces.py
-``` 
-using all the yamls and some rendering code from the [definition/](definition/) directory.
-
-Notebooks that create part of the documentation are executed and converted to .rst files in 
-the [docs/](docs/) directory with
-```shell script
-python run_doc_notebooks.py
-``` 
-
-I'm stuck with restructuredtext for the docstrings although besides the `:param:` syntax 
-i find it simply repellent. It still has the most supported toolchain it seems.
-
-
-#### The big steps to success
-
-  - make sure that all the combinations of queries work as expected
-  - finalize the generic keys/values gathering from all those different aggregations with all their little 
-  peculiarities
-  - complete the yaml definitions by carefully reading all the 
-   [online documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html)
-
+pip install pre-commit
+pre-commit install
+```
+This will install a pre-commit hook from 
+[.pre-commit-config.yaml](.pre-commit-config.yaml) 
+that clears the output of all notebooks.
+Since the interesting ones are already rendered to the document pages, i just 
+think this is more tidy and releases one from cleaning up the execution state
+of notebooks by hand before committing.
+  
+Generally, i'm stuck with *restructuredtext* for the docstrings although 
+besides the `:param:` syntax i find it simply repellent. 
+It still has the most supported toolchain it seems.
