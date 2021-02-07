@@ -1,20 +1,31 @@
-.. elastipy documentation master file, created by
-   sphinx-quickstart on Wed Jan 13 15:01:32 2021.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+elastipy
+========
 
-elastipy's documentation!
-=========================
+Welcome, Seeker of Aggregated Data!
 
+May thou find the information about the usage of
+**elastipy** on these pages.
 
 
 .. toctree::
    :maxdepth: 2
+   :caption: Tutorials
 
+   quickref
    tutorial
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Reference
+
    reference/search
    reference/aggregation
    reference/exporter
-   Example: gitlogs <examples/gitlogs>
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Examples
+
+   examples/gitlogs
 
 

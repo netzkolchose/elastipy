@@ -125,7 +125,15 @@ def render_quickref():
     """
     Renders the docs/quickref.ipynb notebook, converts to markdown
     and inserts the stuff into the README.md
+
+    Also puts a .rst copy in the docs
     """
+    export_notebook("docs/quickref.ipynb", "rst", DOCS_DIR)
+    with open("docs/quickref.rst") as fp:
+        text = fp.read()
+    with open("docs/quickref.rst", "w") as fp:
+        fp.write("Overview\n========\n\n\n" + text)
+
     with tempfile.TemporaryDirectory() as TEMP_DIR:
         export_notebook("docs/quickref.ipynb", "markdown", TEMP_DIR)
 
@@ -162,6 +170,6 @@ if __name__ == "__main__":
     args = parse_arguments()
     EXECUTE_NOTEBOOKS = args.execute
 
-    render_tutorial()
     render_quickref()
+    render_tutorial()
     render_gitlogs_example()
