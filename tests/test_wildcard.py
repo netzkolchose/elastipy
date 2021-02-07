@@ -5,7 +5,7 @@ from decimal import Decimal
 from elastipy.aggregation.helper import wildcard_match, wildcard_filter
 
 
-class TestJson(unittest.TestCase):
+class TestWildcard(unittest.TestCase):
 
     def test_wildcard_match(self):
         with self.assertRaises(TypeError):
