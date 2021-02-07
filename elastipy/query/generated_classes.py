@@ -29,6 +29,7 @@ class _Bool(Query, factory=False):
     name = 'bool'
     _parameters = {'must': {}, 'must_not': {}, 'should': {}, 'filter': {}}
 
+
     def __init__(
             self,
             must: Optional[Union['QueryInterface', Mapping, Sequence[Union['QueryInterface', Mapping]]]] = None,

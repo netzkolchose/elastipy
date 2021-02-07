@@ -13,7 +13,7 @@ class TestPlot(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.maxDiff = int(1e5)
-        data.export_data(data.orders.orders1, data.orders.OrderExporter)
+        data.export_data(data.orders.orders, data.orders.OrderExporter)
         time.sleep(1.1)  # give time to update index
 
     @classmethod

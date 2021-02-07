@@ -16,7 +16,7 @@ class TestOrdersAggregationsPandas(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.maxDiff = int(1e5)
-        data.export_data(data.orders.orders1, data.orders.OrderExporter)
+        data.export_data(data.orders.orders, data.orders.OrderExporter)
 
     @classmethod
     def tearDownClass(cls):

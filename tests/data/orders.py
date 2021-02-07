@@ -37,8 +37,8 @@ class OrderExporter(Exporter):
         return elastic_data
 
 
-orders1 = json_data("orders1.json")
+orders = json_data("orders.json")
 
 
-def export1(client):
-    return ExportScope(orders1, OrderExporter, client)
+def export(client):
+    return ExportScope(orders, OrderExporter, client)

@@ -16,6 +16,7 @@
   - `histogram <#elastipy.aggregation.Aggregation.agg_histogram>`__
   - `ip_range <#elastipy.aggregation.Aggregation.agg_ip_range>`__
   - `missing <#elastipy.aggregation.Aggregation.agg_missing>`__
+  - `nested <#elastipy.aggregation.Aggregation.agg_nested>`__
   - `range <#elastipy.aggregation.Aggregation.agg_range>`__
   - `rare_terms <#elastipy.aggregation.Aggregation.agg_rare_terms>`__
   - `sampler <#elastipy.aggregation.Aggregation.agg_sampler>`__

@@ -16,7 +16,7 @@ class TestOrdersAggregationsTable(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.maxDiff = int(1e5)
-        data.export_data(data.orders.orders1, data.orders.OrderExporter)
+        data.export_data(data.orders.orders, data.orders.OrderExporter)
 
     @classmethod
     def tearDownClass(cls):
@@ -34,7 +34,7 @@ class TestOrdersAggregationsTable(TestCase):
 
         s.execute()
 
-        #agg_qty.dump_table()
+        #agg_qty.dump.table()
         self.assertEqual(
             [
                 ["sku", "sku.doc_count", "channel", "channel.doc_count", "country", "country.doc_count", "quantity"],

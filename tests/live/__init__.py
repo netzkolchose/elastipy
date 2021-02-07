@@ -1,4 +1,5 @@
 from .test_exporter import *
+from .test_nested_orders_agg import *
 from .test_orders_agg import *
 from .test_orders_agg_auto import *
 from .test_orders_agg_matrix import *
