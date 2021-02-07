@@ -4,6 +4,7 @@ import time
 import unittest
 
 from elastipy import Search, query
+from elastipy.query import factory, factory_from_dict
 
 
 class TestQueryHousing(unittest.TestCase):
@@ -12,16 +13,51 @@ class TestQueryHousing(unittest.TestCase):
         with self.assertRaises(TypeError):
             query.Query()
 
-    def test_factory(self):
+    def test_factory_special_type(self):
         self.assertEqual(
             query.Bool,
             type(query.factory("bool"))
+        )
+
+    def test_factory_from_dict(self):
+        self.assertEqual(
+            query.Term(field="field1", value="value1", boost=23.),
+            factory_from_dict({"term": {"field1": {"value": "value1", "boost": 23.}}})
+        )
+
+        self.assertEqual(
+            query.Terms(field="field1", value=[1, 2, 3], boost=23.),
+            factory_from_dict({"terms": {"field1": [1, 2, 3], "boost": 23.}})
+        )
+
+        with self.assertRaises(TypeError):
+            factory_from_dict({"some": {}, "other": {}})
+
+        with self.assertRaises(TypeError):
+            query.Term.from_dict({"some": {}, "other": {}})
+
+    def test_to_dict(self):
+        self.assertEqual(
+            {"term": {"field1": {"value": "value1", "boost": 23.}}},
+            query.Term(field="field1", value="value1", boost=23.).to_dict()
+        )
+        self.assertEqual(
+            {"terms": {"field1": [1, 2, 3]}},
+            query.Terms(field="field1", value=[1, 2, 3]).to_dict()
+        )
+        self.assertEqual(
+            {"terms": {"field1": [1, 2, 3], "boost": 23.}},
+            query.Terms(field="field1", value=[1, 2, 3], boost=23.).to_dict()
         )
 
     def test_compare(self):
         self.assertEqual(
             query.Term("a", "b"),
             query.Term("a", "b"),
+        )
+        self.assertEqual(
+            query.Term("a", "b"),
+            {"term": {"a": {"value": "b"}}},
         )
         self.assertIn(
             query.Term("a", "b"),
@@ -68,6 +104,13 @@ class TestQueryHousing(unittest.TestCase):
         self.assertEqual(
             [query.MatchNone()],
             s.get_query().parameters["must_not"]
+        )
+
+    def test_repr(self):
+        q = query.Term("field", "value")
+        self.assertEqual(
+            "Term(field='field', value='value')",
+            repr(q)
         )
 
 

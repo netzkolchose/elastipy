@@ -52,6 +52,37 @@ class Query(QueryInterface):
     def copy(self):
         return self.__copy__()
 
+    @classmethod
+    def from_dict(cls, params: Mapping) -> 'Query':
+        """
+        Create a new instance from the elastic-search compatible dictionary.
+
+        .. CODE::
+
+            q = Query.from_dict({
+                "terms": {
+                    "my_field": ["a", "b"],
+                    "boost": 2.
+                }
+            })
+
+        :param params: Mapping
+        :return: new Query instance
+        """
+        if cls._top_level_parameter:
+            if len(params) != 1:
+                raise TypeError(
+                    f"Can not create query {cls.__name__}, "
+                    f"expecting one '{cls._top_level_parameter}' parameter, got {params}"
+                )
+            top_level_param = next(iter(params.keys()))
+            params = {
+                cls._top_level_parameter: top_level_param,
+                **params[top_level_param]
+            }
+
+        return cls(**params)
+
     def to_dict(self):
         dic = dict()
         write_dic = dic
@@ -99,10 +130,27 @@ def factory(name, **params) -> Query:
     """
     if name in Query._factory_class_map:
         klass = Query._factory_class_map[name]
-        try:
-            return klass(**params)
-        except TypeError as e:
-            raise TypeError(f"{e} in class {klass.__name__}")
+        return klass(**params)
 
     raise NotImplementedError(f"Query '{name}' not implemented")
-    #return Query(name, **params)
+
+
+def factory_from_dict(params: Mapping) -> Query:
+    """
+    Creates an instance of the matching Query sub-class
+    :param params: Mapping
+        A query object like ``{"term": {"field": "value"}}``
+    :return: instance of derived Query class
+    """
+    if len(params) != 1:
+        raise TypeError(
+            f"Can not create query, expecting mapping with one base key, got {params}"
+        )
+
+    name = next(iter(params.keys()))
+
+    if name in Query._factory_class_map:
+        klass = Query._factory_class_map[name]
+        return klass.from_dict(params[name])
+
+    raise NotImplementedError(f"Query '{name}' not implemented")

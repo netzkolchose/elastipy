@@ -169,6 +169,15 @@ class TestSearchRequest(unittest.TestCase):
                 },
             }
         })
+        s = Search().query(query.MatchNone())
+        s = ~s
+        self.assertRequest(s, {
+            "body": {
+                "query": {
+                    "match_all": {}
+                },
+            }
+        })
 
     def test_aggregation(self):
         s = Search()

@@ -26,13 +26,18 @@ class TestBool(unittest.TestCase):
             query.Bool(must=self.q1())
         )
 
-    def test_type(self):
+    def test_transform_dict(self):
         self.assertEqual(
-            query.Bool(must={"term": {"a": 1}}),
-            query.Bool(must=[{"term": {"a": 1}}])
+            query.Bool(must=[query.Term("a", 1)]),
+            query.Bool(must=[{"term": {"a": {"value": 1}}}])
         )
+
+    def test_invalid_type(self):
         with self.assertRaises(TypeError):
             query.Bool(must=23)
+
+        with self.assertRaises(TypeError):
+            query.Bool(must=[{"bool": {"must": 23}}])
 
     def test_copy_bug(self):
         s = Search().copy().bool(must=self.q1())
