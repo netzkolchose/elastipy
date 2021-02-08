@@ -258,7 +258,10 @@ class ConverterMixin:
             header=True,
         ))
 
-        df = pd.DataFrame(rows[1:], columns=rows[0], dtype=dtype)
+        if rows:
+            df = pd.DataFrame(rows[1:], columns=rows[0], dtype=dtype)
+        else:
+            df = pd.DataFrame(dtype=dtype)
 
         for key in df:
             if df[key].dtype == np.dtype("O"):
