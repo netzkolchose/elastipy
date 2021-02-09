@@ -1,6 +1,4 @@
-import json
-import datetime
-from typing import Optional, List, Iterable, Union, Tuple, TextIO, Sequence, Mapping
+from typing import Optional, List, Union, Sequence, Mapping
 from warnings import warn
 
 from .. import make_json_compatible
@@ -60,7 +58,7 @@ class Aggregation(ConverterMixin, AggregationInterface):
 
         :return: :link:`PandasPlotWrapper` instance
         """
-        from .aggregation_plot_pd import PandasPlotWrapper
+        from ..plot.aggregation_plot_pd import PandasPlotWrapper
         return PandasPlotWrapper(self)
 
     @property

@@ -1,7 +1,7 @@
 import fnmatch
 from copy import copy, deepcopy
 from itertools import chain
-from typing import Sequence, Union, Optional, Iterable, Tuple, TextIO, Any, Mapping
+from typing import Sequence, Union, Optional, Iterable, Tuple, TextIO, Any, Mapping, List
 
 from elastipy.aggregation import Aggregation
 from .helper import wildcard_filter
@@ -122,12 +122,20 @@ class Visitor:
             a = a.parent
         return aggs
 
-    def key_names(self):
+    def key_names(self, buckets: bool = True) -> List[str]:
+        """
+        Return all names of aggregation branch, starting at root
+
+        :param buckets: ``bool``
+            If True, do not return metric/pipeline names unless
+            it's the only aggregation
+        :return: list[str]
+        """
         aggs = self.root_branch()
         if len(aggs) == 1:
             return [aggs[0].name]
         else:
-            return [a.name for a in aggs if a.is_bucket()]
+            return [a.name for a in aggs if not buckets or a.is_bucket()]
 
     def concat_key(self, key: Union[Any, Sequence]):
         if isinstance(key, str):

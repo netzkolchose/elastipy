@@ -1,8 +1,12 @@
 import time
 import unittest
+from io import BytesIO
 
-from elastipy import Search
-from elastipy.dump.console import Characters
+from matplotlib.axes import Axes
+from plotly.graph_objects import Figure
+
+from elastipy import Search, plot
+from elastipy.aggregation import Aggregation
 
 from tests import data
 from tests.live.base import TestCase
@@ -14,7 +18,6 @@ class TestPlot(TestCase):
     def setUpClass(cls):
         cls.maxDiff = int(1e5)
         data.export_data(data.orders.orders, data.orders.OrderExporter)
-        time.sleep(1.1)  # give time to update index
 
     @classmethod
     def tearDownClass(cls):
@@ -23,58 +26,91 @@ class TestPlot(TestCase):
     def search(self):
         return Search(index=data.orders.OrderExporter.INDEX_NAME)
 
-    def test_unicode_bar(self):
-        ch = Characters()
+    def get_fig_data(self, plt, format: str = "png"):
+        if isinstance(plt, Axes):
+            file = BytesIO()
+            plt.figure.savefig(file, format=format)
+            file.seek(0)
+            return file.read()
+        elif isinstance(plt, Figure):
+            # TODO: what could we test here?
+            return plt
+        else:
+            raise AssertionError(f"Invalid plt type '{type(plt)}'")
+
+    def test_backend(self):
+        # just check that default is actually what the docs say
         self.assertEqual(
-            " ",
-            ch.hbar(.124, 1),
-        )
-        self.assertEqual(
-            ch.left8th[0],
-            ch.hbar(.125, 1),
-        )
-        self.assertEqual(
-            ch.left8th[3],
-            ch.hbar(.5, 1),
-        )
-        self.assertEqual(
-            ch.left8th[6],
-            ch.hbar(.875, 1),
-        )
-        self.assertEqual(
-            ch.block * 3,
-            ch.hbar(1, 3),
-        )
-        self.assertEqual(
-            ch.block + " ",
-            ch.hbar(.5, 2),
-        )
-        self.assertEqual(
-            ch.block + ch.left8th[3] + " ",
-            ch.hbar(.5, 3),
+            "matplotlib", plot.get_backend()
         )
 
-    def test_orders_terms_sku(self):
-        query = self.search()
-        agg_sku_count = query.agg_terms(field="sku")
-        agg_sku_qty = agg_sku_count.metric("sum", field="quantity", return_self=True)
-        query.execute()
+    def test_heatmap_matplotlib(self):
+        plot.set_backend("matplotlib")
 
-        self.assertEqual(
-            {
-                "sku-1": 7,
-                "sku-2": 3,
-                "sku-3": 5,
-            },
-            agg_sku_qty.to_dict()
-        )
-        agg_sku_qty.dump.hbar()
+        agg = self.search() \
+            .agg_date_histogram(calendar_interval="day") \
+            .agg_terms(field="sku").execute()
+        ax = agg.plot.heatmap()
+        data = self.get_fig_data(ax)
 
-    def test_orders_documents_table(self):
-        s = self.search()
-        s = s.term(field="sku", value="sku-1") | s.term(field="sku", value="sku-2")
+        ax = agg.plot.heatmap(figsize=(20, 20))
+        data2 = self.get_fig_data(ax)
+        self.assertGreater(len(data2), len(data))
 
-        s.execute().dump.table()
+    def test_heatmap_plotly(self):
+        plot.set_backend("plotly")
+
+        agg = self.search() \
+            .agg_date_histogram("date", calendar_interval="day") \
+            .agg_terms("sku", field="sku").execute()
+
+        fig = agg.plot.heatmap()
+        self.assertEqual("date", fig.layout.xaxis.title.text)
+        self.assertEqual("sku", fig.layout.yaxis.title.text)
+        self.assertEqual("sku.doc_count", fig.layout.coloraxis.colorbar.title.text)
+
+        fig = agg.plot.heatmap(labels={"x": "override"})
+        self.assertEqual("override", fig.layout.xaxis.title.text)
+        self.assertEqual("sku", fig.layout.yaxis.title.text)
+        self.assertEqual("sku.doc_count", fig.layout.coloraxis.colorbar.title.text)
+
+        agg = self.search() \
+            .agg_date_histogram("date", calendar_interval="day") \
+            .agg_terms("sku", field="sku") \
+            .metric_sum("qty", field="quantity", return_self=True).execute()
+
+        fig = agg.plot.heatmap()
+        self.assertEqual("date", fig.layout.xaxis.title.text)
+        self.assertEqual("sku", fig.layout.yaxis.title.text)
+        self.assertEqual("qty", fig.layout.coloraxis.colorbar.title.text)
+
+    def assert_line_bar_etc(self, mpl: bool):
+        agg: Aggregation = self.search() \
+            .agg_date_histogram("date", calendar_interval="day") \
+            .metric_sum("qty", field="quantity").execute() \
+            .metric_sum("idx", field="item_line_index").execute()
+
+        self.assertTrue(self.get_fig_data(agg.plot(to_index=True)))
+        self.assertTrue(self.get_fig_data(agg.plot.bar(to_index=True)))
+        self.assertTrue(self.get_fig_data(agg.plot.barh(to_index=True)))
+        self.assertTrue(self.get_fig_data(agg.plot.box(to_index=True)))
+        self.assertTrue(self.get_fig_data(agg.plot.hist(to_index=True)))
+        if mpl:
+            self.assertTrue(self.get_fig_data(agg.plot.kde(to_index=True, y="qty")))
+        self.assertTrue(self.get_fig_data(agg.plot.area(to_index=True, y="qty")))
+        if mpl:
+            self.assertTrue(self.get_fig_data(agg.plot.pie(to_index=True, y="qty")))
+        self.assertTrue(self.get_fig_data(agg.plot.scatter("idx", "qty", to_index=True)))
+        if mpl:
+            self.assertTrue(self.get_fig_data(agg.plot.hexbin("idx", "qty", to_index=True)))
+
+    def test_line_bar_etc_matplotlib(self):
+        plot.set_backend("matplotlib")
+        self.assert_line_bar_etc(True)
+
+    def test_line_bar_etc_plotly(self):
+        plot.set_backend("plotly")
+        self.assert_line_bar_etc(False)
 
 
 if __name__ == "__main__":

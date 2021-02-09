@@ -72,7 +72,7 @@ printing utilities
 plotting
 --------
 
-.. autoclass:: elastipy.aggregation.aggregation_plot_pd.PandasPlotWrapper
+.. autoclass:: elastipy.plot.aggregation_plot_pd.PandasPlotWrapper
    :members:
    :inherited-members:
    :show-inheritance:

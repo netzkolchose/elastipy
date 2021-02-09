@@ -1,6 +1,7 @@
 from typing import Union, Sequence, Tuple, Optional, Any
 
-from elastipy.aggregation import Aggregation
+from ..aggregation import Aggregation
+from .backend import get_backend
 
 
 class PandasPlotWrapper:
@@ -10,7 +11,7 @@ class PandasPlotWrapper:
     interface.
 
     The documented parameters below will be passed to
-    :meth:`Aggregation.to_pandas`. All other parameters
+    :link:`Aggregation.to_pandas`. All other parameters
     are passed to the respective functions of the pandas
     interface.
 
@@ -238,16 +239,32 @@ class PandasPlotWrapper:
             **kwargs,
     ):
         """
-        Plots a heatmap using
+        Plots a heatmap using the data from :link:`Aggregation.df_matrix`.
+
+        Pandas' default plotting backend is matplotlib. In this case the
         `seaborn.heatmap <http://seaborn.pydata.org/generated/seaborn.heatmap.html>`__.
+        is used and the ``seaborn`` package must be installed along with
+        ``pandas`` and ``matplotlib``.
+
+        The `ploty backend <>`__
+        is also supported in which case the
+        `plotly.express.imshow <https://plotly.com/python/imshow/>`
+        function is used.
+
+        In matplotlib-mode, the ``figsize`` parameter will
+        create a new Axes before calling
+        `seaborn.heatmap <http://seaborn.pydata.org/generated/seaborn.heatmap.html>`__.
+        For plotly it's ignored.
 
         The documented parameters below are passed to
-        :meth:`Aggregation.df_matrix`, generating a
+        :link:`Aggregation.df_matrix`, generating a
         `pandas.DataFrame <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html>`__.
-        All other parameters are passed to :meth:`seaborn.heatmap`.
+        All other parameters are passed to the heatmap function.
 
-        The ``figsize`` can be specified as an argument to this function and will
-        create a new axis before calling :meth:`seaborn.heatmap`.
+        In matplotlib-mode, the ``figsize`` parameter will
+        create a new Axes before calling
+        `seaborn.heatmap <http://seaborn.pydata.org/generated/seaborn.heatmap.html>`__.
+        For plotly it's ignored.
 
         :param sort:
             Can sort one or several keys/axises.
@@ -284,16 +301,17 @@ class PandasPlotWrapper:
             Transposes the matrix, e.g. exchanges X and Y axis.
 
         :param figsize: ``tuple of ints or floats``
-            Optional tuple to change the size of the plot.
-            ``int`` values will be passes to :link:`matplotlib.axes.Axes` unchanged.
+            Optional tuple to change the size of the plot when the plotting
+            backend is ``matplotlib``.
+            ``int`` values will be passed to :link:`matplotlib.axes.Axes` unchanged.
             A ``float`` value defines the size in terms of the number of
-            keys per axis and isconverted to int with ``int(len(keys) * value)``
+            keys per axis and is converted to int with ``int(len(keys) * value)``
 
         :param kwargs: Passed to :meth:`seaborn.heatmap`
         :return: :class:`matplotlib.axes.Axes` Axis object with the heatmap.
         """
-        import matplotlib.pyplot
-        import seaborn
+        from .heatmap_ import heatmap
+        from ..aggregation.visitor import Visitor
 
         df = self._agg.df_matrix(
             sort=sort,
@@ -306,12 +324,21 @@ class PandasPlotWrapper:
         if transpose:
             df = df.transpose()
 
-        if figsize is not None:
-            figsize = tuple(
-                v if isinstance(v, int) else int(df.shape[i] * v)
-                for i, v in enumerate(figsize)
-            )
-            matplotlib.pyplot.subplots(figsize=figsize)
+        # set plotly labels
+        if get_backend() == "plotly":
 
-        kwargs.setdefault("cmap", "cividis")
-        return seaborn.heatmap(df, **kwargs)
+            labels = kwargs.get("labels") or dict()
+
+            names = Visitor(self._agg).key_names()
+            if self._agg.is_bucket():
+                names.append(f"{self._agg.name}.doc_count")
+            else:
+                names.append(self._agg.name)
+
+            labels.setdefault("x", names[0])
+            labels.setdefault("y", names[1])
+            labels.setdefault("color", names[2])
+
+            kwargs["labels"] = labels
+
+        return heatmap(df, figsize=figsize, **kwargs)

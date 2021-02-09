@@ -19,7 +19,7 @@ INTERNAL_CLASS_LINKS = [
     ("elastipy.aggregation.Aggregation", "reference/aggregation"),
     ("elastipy.Search", "reference/search"),
     ("elastipy.Exporter", "reference/exporter"),
-    ("elastipy.aggregation.aggregation_plot_pd.PandasPlotWrapper", "reference/aggregation"),
+    ("elastipy.plot.aggregation_plot_pd.PandasPlotWrapper", "reference/aggregation"),
 ]
 
 
