@@ -266,6 +266,12 @@ class PandasPlotWrapper:
         `seaborn.heatmap <http://seaborn.pydata.org/generated/seaborn.heatmap.html>`__.
         For plotly it's ignored.
 
+        **Labels** can be defined in **plotly** with the ``labels`` parameter,
+        e.g. ``labels={"x": "date", "y": "temperature", "color": "date.doc_count"}``.
+        If ``labels`` or any of the keys are not defined they will be set to the
+        name of each aggregation. ``color`` will either be ``<bucket-agg-name>.doc_count``
+        or ``<metric-name>`` (or pipeline).
+
         :param sort:
             Can sort one or several keys/axises.
 
@@ -330,14 +336,19 @@ class PandasPlotWrapper:
             labels = kwargs.get("labels") or dict()
 
             names = Visitor(self._agg).key_names()
+            if transpose:
+                names[0], names[1] = names[1], names[0]
+
             if self._agg.is_bucket():
                 names.append(f"{self._agg.name}.doc_count")
             else:
                 names.append(self._agg.name)
 
-            labels.setdefault("x", names[0])
-            labels.setdefault("y", names[1])
+            labels.setdefault("x", names[1])
+            labels.setdefault("y", names[0])
             labels.setdefault("color", names[2])
+
+            #labels["x"], labels["y"] = labels["y"], labels["x"]
 
             kwargs["labels"] = labels
 

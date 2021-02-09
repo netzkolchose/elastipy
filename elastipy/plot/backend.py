@@ -12,7 +12,7 @@ def get_backend() -> Optional[str]:
     """
     try:
         import pandas
-    except ImportError:
+    except ImportError:  # pragma: no cover
         return None
 
     return pandas.options.plotting.backend
@@ -22,6 +22,13 @@ def set_backend(backend: str):
     """
     Sets the pandas plotting backend.
 
+    This is equivalent to:
+
+    .. code::
+
+        import pandas
+        pandas.options.plotting.backend = <str>
+
     If pandas is not install nothing happens.
 
     :param backend: str
@@ -30,7 +37,7 @@ def set_backend(backend: str):
     """
     try:
         import pandas
-    except ImportError:
+    except ImportError:  # pragma: no cover
         return
 
     pandas.options.plotting.backend = backend

@@ -2,6 +2,7 @@ import time
 import unittest
 from io import BytesIO
 
+import numpy as np
 from matplotlib.axes import Axes
 from plotly.graph_objects import Figure
 
@@ -64,12 +65,12 @@ class TestPlot(TestCase):
             .agg_date_histogram("date", calendar_interval="day") \
             .agg_terms("sku", field="sku").execute()
 
-        fig = agg.plot.heatmap()
-        self.assertEqual("date", fig.layout.xaxis.title.text)
-        self.assertEqual("sku", fig.layout.yaxis.title.text)
+        fig = agg.plot.heatmap(replace={np.nan: 0})
+        self.assertEqual("sku", fig.layout.xaxis.title.text)
+        self.assertEqual("date", fig.layout.yaxis.title.text)
         self.assertEqual("sku.doc_count", fig.layout.coloraxis.colorbar.title.text)
 
-        fig = agg.plot.heatmap(labels={"x": "override"})
+        fig = agg.plot.heatmap(labels={"x": "override"}, transpose=True)
         self.assertEqual("override", fig.layout.xaxis.title.text)
         self.assertEqual("sku", fig.layout.yaxis.title.text)
         self.assertEqual("sku.doc_count", fig.layout.coloraxis.colorbar.title.text)
@@ -80,8 +81,8 @@ class TestPlot(TestCase):
             .metric_sum("qty", field="quantity", return_self=True).execute()
 
         fig = agg.plot.heatmap()
-        self.assertEqual("date", fig.layout.xaxis.title.text)
-        self.assertEqual("sku", fig.layout.yaxis.title.text)
+        self.assertEqual("sku", fig.layout.xaxis.title.text)
+        self.assertEqual("date", fig.layout.yaxis.title.text)
         self.assertEqual("qty", fig.layout.coloraxis.colorbar.title.text)
 
     def assert_line_bar_etc(self, mpl: bool):
@@ -94,6 +95,7 @@ class TestPlot(TestCase):
         self.assertTrue(self.get_fig_data(agg.plot.bar(to_index=True)))
         self.assertTrue(self.get_fig_data(agg.plot.barh(to_index=True)))
         self.assertTrue(self.get_fig_data(agg.plot.box(to_index=True)))
+        self.assertTrue(self.get_fig_data(agg.plot.line(to_index=True)))
         self.assertTrue(self.get_fig_data(agg.plot.hist(to_index=True)))
         if mpl:
             self.assertTrue(self.get_fig_data(agg.plot.kde(to_index=True, y="qty")))
