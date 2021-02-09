@@ -26,6 +26,8 @@ def heatmap(
     `seaborn.heatmap <http://seaborn.pydata.org/generated/seaborn.heatmap.html>`__.
     For plotly it's ignored.
 
+    :param data: :link:`pandas.DataFrame`
+
     :param figsize: ``tuple of ints or floats``
         Optional tuple to change the size of the plot when the plotting
         backend is ``matplotlib``.
@@ -43,7 +45,7 @@ def heatmap(
 
         if figsize is not None:
             figsize = tuple(
-                v if isinstance(v, int) else int(df.shape[i] * v)
+                v if isinstance(v, int) else int(data.shape[i] * v)
                 for i, v in enumerate(figsize)
             )
             matplotlib.pyplot.subplots(figsize=figsize)
