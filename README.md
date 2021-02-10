@@ -29,10 +29,9 @@ Actually i'm just learning this stuff and have the following requests:
 
 ### installation
 
-Currently you can only use the github link, e.g.:
 
 ```shell script
-pip install https://github.com/netzkolchose/elastipy/archive/v0.1.1.zip
+pip install elastipy
 ``` 
 
 #### requirements
