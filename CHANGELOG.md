@@ -1,6 +1,6 @@
 # history / changes
 
-## v0.2.0 (*upcoming*)
+## v0.2.0 (2021/02)
 
 - clean up test interface and create `test.py`
 - add [travis-ci](https://travis-ci.com/github/netzkolchose/elastipy) and 
@@ -22,4 +22,4 @@
 
 ## v0.0.1 (2020/12)
 
-- Initial release
+- Initial crappy release
