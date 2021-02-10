@@ -2,12 +2,12 @@ import math
 from typing import Tuple, Union
 
 
-def maptile_to_lat_lon(
+def geotile_to_lat_lon(
         tile: Union[str, Tuple[int, int, int]],
         offset: Tuple[float, float] = (.5, .5),
 ) -> Tuple[float, float]:
     """
-    Convert an elasticsearch maptile key to a latitude/longitude tuple
+    Convert an elasticsearch geotile key to a latitude/longitude tuple
 
     Specific implementation is adapted from bing-map's
     `quadtile example code <https://docs.microsoft.com/en-us/bingmaps/articles/bing-maps-tile-system`__.
@@ -35,3 +35,21 @@ def maptile_to_lat_lon(
     lat = 90. - 360. * math.atan(math.exp((y - .5) * 2 * math.pi)) / math.pi
 
     return lat, lon
+
+
+def geohash_to_lat_lon(
+        hash: str,
+) -> Tuple[float, float]:
+    """
+    Convert a `geohash <https://en.wikipedia.org/wiki/Geohash>`__ to
+    a tuple with latitude and longitude.
+
+    Uses `pygeohash <https://github.com/wdm0006/pygeohash>`__.decode()
+    so the package must be installed.
+
+    :param hash: The geohash string
+
+    :return: tuple of latitude and longitude as float
+    """
+    import pygeohash
+    return pygeohash.decode(hash)
