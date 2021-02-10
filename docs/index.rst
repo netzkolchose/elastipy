@@ -27,5 +27,6 @@ May thou find the information about the usage of
    :caption: Examples
 
    examples/gitlogs
+   examples/plotting-maps
 
 
