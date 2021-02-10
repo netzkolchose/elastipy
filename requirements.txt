@@ -7,7 +7,10 @@ jupyter>=1.0.0
 matplotlib>=3.3.3
 seaborn>=0.11.1
 plotly>=4.14.3
+Shapely>=1.7.1
+geopandas>=0.8.2
 
+# test utils
 coverage>=5.3.1
 coveralls>=3.0.0
 
