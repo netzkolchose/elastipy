@@ -234,7 +234,7 @@ Better execute the search now before the body get's too complicated:
 .. parsed-literal::
 
     {
-      "took": 0,
+      "took": 8,
       "timed_out": false,
       "_shards": {
         "total": 1,
@@ -252,7 +252,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "OgDdcncBRaPeo2d7s-W4",
+            "_id": "1Lf0jHcBB26LJVfaIvox",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -263,7 +263,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "egDdcncBRaPeo2d7s-W4",
+            "_id": "FLf0jHcBB26LJVfaIvsx",
             "_score": 2.1868048,
             "_source": {
               "shape": "triangle",
@@ -274,7 +274,7 @@ Better execute the search now before the body get's too complicated:
           {
             "_index": "elastipy-example-shapes",
             "_type": "_doc",
-            "_id": "ngDdcncBRaPeo2d7s-W4",
+            "_id": "OLf0jHcBB26LJVfaIvsx",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -437,7 +437,7 @@ Let's look at the result from elasticsearch:
 .. parsed-literal::
 
     {
-      "took": 0,
+      "took": 2,
       "timed_out": false,
       "_shards": {
         "total": 1,

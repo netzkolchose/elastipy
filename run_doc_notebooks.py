@@ -166,6 +166,13 @@ def render_gitlogs_example():
     export_notebook("examples/gitlogs.ipynb", "rst", os.path.join(DOCS_DIR, "examples"))
 
 
+def render_plotting_maps_example():
+    """
+    Renders the examples/plotting-maps.ipynb notebook
+    """
+    export_notebook("examples/plotting-maps.ipynb", "rst", os.path.join(DOCS_DIR, "examples"))
+
+
 def copy_plotlyjs():
     """
     Copy the currently installed plotly.min.js to doc/static
@@ -183,6 +190,7 @@ if __name__ == "__main__":
 
     copy_plotlyjs()
 
-    #render_quickref()
-    #render_tutorial()
-    #render_gitlogs_example()
+    render_quickref()
+    render_tutorial()
+    render_gitlogs_example()
+    render_plotting_maps_example()

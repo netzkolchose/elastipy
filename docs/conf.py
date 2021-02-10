@@ -69,3 +69,7 @@ html_js_files = [
     'js/plotly.min.js',
     'js/require-stub.js',
 ]
+
+html_css_files = [
+    'css/pandas.css',
+]

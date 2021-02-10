@@ -75,6 +75,32 @@ additions/deletions per week
 .. image:: gitlogs_files/gitlogs_9_1.png
 
 
+commits per weekday/hour for each year
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: python3
+
+    def commits_per(field, interval="year"):
+        s = search()
+        agg = s.agg_date_histogram(interval, calendar_interval=interval)
+        #agg = s.agg_terms("author", field="author")
+        agg = agg.agg_terms("weekday", field=field, size=100)
+        agg.execute().plot.heatmap(
+            sort=True, transpose=True, 
+            annot=False, fmt=".0f", cmap="gray_r", figsize=(15, .3), 
+        )
+    commits_per("timestamp_weekday")
+    commits_per("timestamp_hour")
+
+
+
+.. image:: gitlogs_files/gitlogs_11_0.png
+
+
+
+.. image:: gitlogs_files/gitlogs_11_1.png
+
+
 authors
 -------
 
@@ -92,7 +118,7 @@ top 3 authors per year
 
 
 
-.. image:: gitlogs_files/gitlogs_12_1.png
+.. image:: gitlogs_files/gitlogs_14_1.png
 
 
 commits of all top 3 authors
@@ -113,7 +139,7 @@ commits of all top 3 authors
 
 
 
-.. image:: gitlogs_files/gitlogs_14_1.png
+.. image:: gitlogs_files/gitlogs_16_1.png
 
 
 top 3 average-additions per author per year
@@ -133,7 +159,7 @@ top 3 average-additions per author per year
 
 
 
-.. image:: gitlogs_files/gitlogs_16_1.png
+.. image:: gitlogs_files/gitlogs_18_1.png
 
 
 number of authors per year
@@ -155,7 +181,7 @@ number of authors per year
 
 
 
-.. image:: gitlogs_files/gitlogs_18_1.png
+.. image:: gitlogs_files/gitlogs_20_1.png
 
 
 --------------
@@ -249,7 +275,7 @@ significant terms by year
 
 
 
-.. image:: gitlogs_files/gitlogs_24_0.png
+.. image:: gitlogs_files/gitlogs_26_0.png
 
 
 significant terms by author
@@ -281,7 +307,7 @@ significant terms by author
 
 
 
-.. image:: gitlogs_files/gitlogs_26_0.png
+.. image:: gitlogs_files/gitlogs_28_0.png
 
 
 files
@@ -302,7 +328,7 @@ overall top 50 edited files per year
 
 
 
-.. image:: gitlogs_files/gitlogs_29_0.png
+.. image:: gitlogs_files/gitlogs_31_0.png
 
 
 significant changed files by year
@@ -317,7 +343,7 @@ significant changed files by year
 
 
 
-.. image:: gitlogs_files/gitlogs_31_0.png
+.. image:: gitlogs_files/gitlogs_33_0.png
 
 
 significant changed files by author
@@ -329,7 +355,7 @@ significant changed files by author
 
 
 
-.. image:: gitlogs_files/gitlogs_33_0.png
+.. image:: gitlogs_files/gitlogs_35_0.png
 
 
 which files get edited together
@@ -349,7 +375,7 @@ which files get edited together
 
 
 
-.. image:: gitlogs_files/gitlogs_35_0.png
+.. image:: gitlogs_files/gitlogs_37_0.png
 
 
 
