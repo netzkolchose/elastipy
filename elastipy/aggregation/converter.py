@@ -266,8 +266,8 @@ class ConverterMixin:
         for key in df:
             if df[key].dtype == np.dtype("O"):
                 try:
-                    df[key] = pd.to_datetime(df[key])
-                except (TypeError, ParserError, OutOfBoundsDatetime):
+                    df[key] = pd.to_datetime(df[key], format="%Y-%m-%dT%H:%M:%S.%fZ")
+                except (ValueError, TypeError, ParserError, OutOfBoundsDatetime):
                     pass
 
         index = index or to_index
