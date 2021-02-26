@@ -193,7 +193,7 @@ class Exporter:
             chunk_size: int = 500,
             refresh: bool = False,
             verbose: bool = False,
-            count: int = None,
+            verbose_total: int = None,
             file=None,
             **kwargs
     ):
@@ -215,7 +215,7 @@ class Exporter:
             If True print some progress to stderr
             (using `tqdm <https://pypi.org/project/tqdm/>`__ if present)
 
-        :param count: ``int``
+        :param verbose_total: ``int``
             Provide the number of objects for the **verbosity** if
             ``object_list`` is a generator.
 
@@ -229,7 +229,7 @@ class Exporter:
             Response of elasticsearch bulk call.
         """
         def bulk_actions():
-            for object_data in self._verbose_iter(object_list, verbose, count, file):
+            for object_data in self._verbose_iter(object_list, verbose, verbose_total, file):
 
                 es_data_iter = self.transform_document(object_data)
                 if isinstance(es_data_iter, Mapping):

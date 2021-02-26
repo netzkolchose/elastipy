@@ -231,7 +231,7 @@ class TestTheExporter(TestCase):
                     self.assertIn("TestExporter 0", stream.read())
 
                 stream = StringIO()
-                exporter.export_list(iter(), verbose=verbose, count=100, file=stream)
+                exporter.export_list(iter(), verbose=verbose, verbose_total=100, file=stream)
                 stream.seek(0)
                 if verbose == "simple":
                     self.assertIn("TestExporter 0/100", stream.read())
