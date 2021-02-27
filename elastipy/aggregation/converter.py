@@ -243,9 +243,6 @@ class ConverterMixin:
         :return: pandas ``DataFrame`` instance
         """
         import pandas as pd
-        from pandas._libs.tslibs import OutOfBoundsDatetime
-        import numpy as np
-        from dateutil.parser import ParserError
 
         if index and to_index:
             raise ValueError(
@@ -264,11 +261,9 @@ class ConverterMixin:
             df = pd.DataFrame(dtype=dtype)
 
         for key in df:
-            if df[key].dtype == np.dtype("O"):
-                try:
-                    df[key] = pd.to_datetime(df[key], format="%Y-%m-%dT%H:%M:%S.%fZ")
-                except (ValueError, TypeError, ParserError, OutOfBoundsDatetime):
-                    pass
+            series = pd_series_to_datetime(df[key])
+            if series is not None:
+                df[key] = series
 
         index = index or to_index
 
@@ -463,6 +458,15 @@ class ConverterMixin:
                 f"Can not convert matrix of dimension {len(keys)} to pandas DataFrame"
             )
 
+        series = pd_series_to_datetime(df.index)
+        if series is not None:
+            df.index = series
+
+        if len(keys) == 2:
+            series = pd_series_to_datetime(df.columns)
+            if series is not None:
+                df.columns = series
+
         return df
 
 
@@ -484,3 +488,18 @@ def is_key_match(key: str, include: Optional[Sequence], exclude: Optional[Sequen
         return False
 
     return True
+
+
+def pd_series_to_datetime(series):
+    import pandas as pd
+    from pandas._libs.tslibs import OutOfBoundsDatetime
+    import numpy as np
+    from dateutil.parser import ParserError
+
+    if series.dtype == np.dtype("O"):
+        try:
+            return pd.to_datetime(series, format="%Y-%m-%dT%H:%M:%S.%fZ")
+        except (ValueError, TypeError, ParserError, OutOfBoundsDatetime):
+            pass
+
+    return None
