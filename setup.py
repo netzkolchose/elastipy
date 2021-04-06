@@ -22,10 +22,14 @@ else:
     from setuptools import setup, find_namespace_packages
 
     def get_long_description():
-        return "%s\n%s" % (
-            open("./README.md").read(),
-            open("./CHANGELOG.md").read(),
-        )
+        with open("./README.md") as fp:
+            text = fp.read()
+        try:
+            with open("./CHANGELOG.md") as fp:
+                text += "\n\n" + fp.read()
+        except IOError:
+            pass
+        return text
 
     def get_packages():
         packages = ['elastipy']
