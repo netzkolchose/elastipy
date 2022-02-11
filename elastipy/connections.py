@@ -1,12 +1,21 @@
 from typing import Optional, Union, Mapping
 
+from elasticsearch import VERSION
+
 __all__ = ("get", "set")
 
 
-DEFAULT_PARAMS = {
-    "hosts": [{"host": "localhost", 'port': 9200}],
-    "timeout": 30,
-}
+if VERSION[0] == 7:
+    DEFAULT_PARAMS = {
+        "hosts": [{"host": "localhost", "port": 9200}],
+        "timeout": 30,
+    }
+
+elif VERSION[0] == 8:
+    DEFAULT_PARAMS = {
+        "hosts": "http://localhost:9200",
+        "request_timeout": 30,
+    }
 
 
 class Connections:
@@ -15,7 +24,7 @@ class Connections:
         self._parameters = dict()
         self._connections = dict()
 
-    def get_connection(self, alias : str = "default"):
+    def get_connection(self, alias: str = "default"):
         if alias in self._connections:
             return self._connections[alias]
 

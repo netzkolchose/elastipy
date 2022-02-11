@@ -1,8 +1,8 @@
 import time
 import sys
-from typing import Iterable, Any, Mapping, Union, Iterator, Sequence
+from typing import Iterable, Any, Mapping, Union
 
-from elasticsearch import ElasticsearchException, NotFoundError
+from elasticsearch.exceptions import NotFoundError
 from elasticsearch.helpers import streaming_bulk, bulk
 
 from . import connections
@@ -139,7 +139,7 @@ class Exporter:
         """
         return self.index_name()
 
-    def transform_document(self, data: Mapping) -> Union[Mapping, Iterator[Mapping]]:
+    def transform_document(self, data: Mapping) -> Union[Mapping, Iterable[Mapping]]:
         """
         Override this to transform each documents's data into
         an elasticsearch document.
