@@ -217,7 +217,11 @@ def get_terminal_size():
     if is_notebook():
         return 110, 30
 
-    w, h = os.get_terminal_size()
+    try:
+        w, h = os.get_terminal_size()
+    except OSError:
+        w, h = 80, 40
+
     return w, h
 
 
