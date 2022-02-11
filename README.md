@@ -1,6 +1,6 @@
 ## elastipy
 
-[![Build Status](https://travis-ci.com/netzkolchose/elastipy.svg?branch=development)](https://travis-ci.com/netzkolchose/elastipy)
+[![test](https://github.com/netzkolchose/elastipy/actions/workflows/tests.yml/badge.svg)](https://github.com/netzkolchose/elastipy/actions/workflows/tests.yml)
 [![Coverage Status](https://coveralls.io/repos/github/netzkolchose/elastipy/badge.svg?branch=development)](https://coveralls.io/github/netzkolchose/elastipy?branch=development)
 [![Documentation Status](https://readthedocs.org/projects/elastipy/badge/?version=latest)](https://elastipy.readthedocs.io/en/latest/?badge=latest)
 
@@ -8,9 +8,11 @@ A python wrapper to make elasticsearch queries and aggregations more fun.
 
 Lean more at [readthedocs.io](https://elastipy.readthedocs.io/en/latest/).
 
-Actually i'm just learning this stuff and have the following requests:
-- some generic convenient data access to nested bucketed aggregations and such
-- the IDE/auto-completion should help a bit/lot with all the elasticsearch parameters
+In comparison to [elasticsearch-dsl](https://github.com/elastic/elasticsearch-dsl-py)
+this library provides:
+- typing and IDE-based auto-completion for search and aggregation parameters.
+- some convenient data access to responses of nested bucketed aggregations and metrics
+  (also supporting [pandas](https://github.com/pandas-dev/pandas))
 
 
 #### contents
