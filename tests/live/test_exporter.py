@@ -24,7 +24,7 @@ class TestExporter(Exporter):
 
     timestamp = datetime.datetime.now()
 
-    def transform_document(self, data):
+    def transform_document(self, data: dict):
         data = copy(data)
         data["timestamp"] = self.timestamp
         self.timestamp += datetime.timedelta(seconds=1)

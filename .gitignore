@@ -6,6 +6,7 @@ docs/_*/
 .idea/
 
 env/
+env8/
 build/
 dist/
 *.egg-info/
