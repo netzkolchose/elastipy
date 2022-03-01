@@ -2,7 +2,8 @@ import json
 from copy import copy, deepcopy
 from typing import Optional, Union, Mapping, Callable, Sequence, List, Any
 
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, VERSION
+
 
 from . import connections
 from .aggregation import Aggregation, AggregationInterface, factory as agg_factory
@@ -129,11 +130,18 @@ class Search(QueryInterface, AggregationInterface):
 
         :return: dict
         """
-        return {
-            "index": self._index,
-            "params": self._parameters.to_query_params(),
-            "body": self.to_body()
-        }
+        if VERSION[0] >= 8:
+            return {
+                "index": self._index,
+                **self._parameters.to_query_params(),
+                **self.to_body()
+            }
+        else:
+            return {
+                "index": self._index,
+                "params": self._parameters.to_query_params(),
+                "body": self.to_body()
+            }
 
     def execute(self) -> 'Response':
         """
