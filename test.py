@@ -61,6 +61,7 @@ def check_cluster_ready(params: str = None, max_seconds: int = 60, interval: int
 
     for i in range(0, max_seconds, interval):
         try:
+            print(connections.get())
             health = connections.get("default").cat.health(format="json")
 
             health = health[0]  # expect at least one node
@@ -69,7 +70,8 @@ def check_cluster_ready(params: str = None, max_seconds: int = 60, interval: int
                 return
             print("waiting for elasticsearch status change:", health["status"])
 
-        except elasticsearch.ConnectionError:
+        except elasticsearch.ConnectionError as e:
+            print(e)
             print("waiting for elasticsearch server")
 
         time.sleep(interval)
