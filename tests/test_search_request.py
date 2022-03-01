@@ -4,12 +4,21 @@ import time
 import unittest
 from io import StringIO
 
+from elasticsearch import VERSION
+
 from elastipy import Search, query
 
 
 class TestSearchRequest(unittest.TestCase):
 
     def assertRequest(self, search: Search, expected_request: dict, and_not_more: bool = False):
+        if VERSION[0] >= 8:
+            expected_request = {
+                **{key: value for key, value in expected_request.items() if key not in ("params", "body")},
+                **(expected_request.get("params") or {}),
+                **(expected_request.get("body") or {}),
+            }
+        
         for i in range(2):
             request = search.to_request()
             self._assert_obj_rec(search, expected_request, request, and_not_more=and_not_more)
