@@ -8,7 +8,7 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master, development ]
-
+--
 jobs:
 
   elasticsearch-7:
@@ -45,7 +45,7 @@ jobs:
           parallel: true
           flag-name: Unit Test
 
-  elasticsearch-8:
+  elasticsearch-8-unsecured:
 
     runs-on: ubuntu-latest
     strategy:
@@ -62,7 +62,11 @@ jobs:
       - name: Run elasticsearch
         run: |
           docker pull docker.elastic.co/elasticsearch/elasticsearch:8.0.0
-          docker run -d -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:8.0.0
+          docker run -d -p 9200:9200 -p 9300:9300 \
+            -e "discovery.type=single-node" \
+            -e "xpack.security.enabled=false" \
+            -e "action.destructive_requires_name=fals" \
+            docker.elastic.co/elasticsearch/elasticsearch:8.0.0
 
       - name: Install dependencies
         run: |

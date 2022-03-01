@@ -225,7 +225,7 @@ class TestOrdersAggregationsAuto(TestCase):
                 if "Sampler aggregation must be used with child aggregations." in str(e):
                     continue
 
-                if re.match(r".*Index \d out of bounds for length \d", str(e)) and (
+                if re.match(r".*Index \d+ out of bounds for length \d+", str(e)) and (
                         "diversified_sampler" in agg_types or "geo_bounds" in agg_types
                         or "sampler" in agg_types
                 ):
