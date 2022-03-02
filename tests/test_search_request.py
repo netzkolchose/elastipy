@@ -347,9 +347,14 @@ class TestSearchRequest(unittest.TestCase):
         param_types = {}
         for key, value in args.annotations.items():
             if key not in ("fields", "return"):
-                if type(value) is type(Union):
-                    self.assertIsNotNone(value.__args__[0])
-                    param_type = value.__args__[0]
+                if "int" in repr(value):
+                    param_type = int
+                elif "bool" in repr(value):
+                    param_type = bool
+                elif "str" in repr(value):
+                    param_type = str
+                elif "Query" in repr(value):
+                    param_type = query.Query
                 else:
                     raise AssertionError(f"parameter '{key}' type {value} not handled")
 
