@@ -2,12 +2,12 @@ import json
 from copy import copy, deepcopy
 from typing import Optional, Union, Mapping, Callable, Sequence, List, Any
 
-from elasticsearch import Elasticsearch, VERSION
+from elasticsearch import Elasticsearch, VERSION as ES_VERSION
 
 
 from . import connections
 from .aggregation import Aggregation, AggregationInterface, factory as agg_factory
-from .query import QueryInterface, EmptyQuery
+from .query import QueryInterface, EmptyQuery, Query
 from ._json import make_json_compatible
 
 
@@ -24,6 +24,7 @@ class Search(QueryInterface, AggregationInterface):
             index: str = None,
             client: Union[str, Callable, Elasticsearch, Any, None] = None,
             timestamp_field: str = "timestamp",
+            version: Optional[int] = None
     ):
         """
         Create a new Search instance.
@@ -42,18 +43,52 @@ class Search(QueryInterface, AggregationInterface):
 
         :param timestamp_field: str
             The default timestamp field used for fields that require dates.
+
+        :param version: int,
+            optionally sets the elasticsearch server major version for which
+            the request is constructed. Default is the major version of
+            the installed ``elasticsearch-py`` package.
         """
         from .query import Query
         from .generated_search_param import SearchParameters
 
         AggregationInterface.__init__(self, timestamp_field=timestamp_field)
+        self._version = version
         self._index = index
         self._client = client
         self._parameters = SearchParameters(self)
         self._query: Query = EmptyQuery()
         self._aggregations = []
         self._body = dict()
+        self._highlighters = dict()
         self._response: Optional[Response] = None
+
+        if not self.version >= 7:
+            raise ValueError(
+                f"Unsupported elasticsearch major version {self.version}"
+                f", elastipy only supports 7 and upwards"
+            )
+
+    def __repr__(self):  # pragma: no cover
+        params = dict()
+        if self._index:
+            params["index"] = self._index
+        if self._client:
+            params["client"] = self._client
+        if self.timestamp_field != "timestamp":
+            params["timestamp"] = self.timestamp_field
+        if self._version:
+            params["version"] = self._version
+
+        params = ", ".join(
+            f"{key}={repr(value)}"
+            for key, value in params.items()
+        )
+        return f"{self.__class__.__name__}({params})"
+
+    @property
+    def version(self) -> int:
+        return self._version or ES_VERSION[0]
 
     @property
     def param(self):
@@ -84,7 +119,7 @@ class Search(QueryInterface, AggregationInterface):
 
         return client
 
-    def copy(self):
+    def copy(self) -> "Search":
         """
         Make a copy of this instance and it's queries.
 
@@ -100,10 +135,16 @@ class Search(QueryInterface, AggregationInterface):
                 "Please make all the queries before adding aggregations"
             )
 
-        es = self.__class__(index=self._index, client=self._client, timestamp_field=self.timestamp_field)
+        es = self.__class__(
+            index=self._index,
+            client=self._client,
+            timestamp_field=self.timestamp_field,
+            version=self.version,
+        )
         es._body = deepcopy(self._body)
         es._query = self._query.copy()
         es._parameters._params = deepcopy(self._parameters._params)
+        es._highlighters = deepcopy(self._highlighters)
         return es
 
     def to_body(self) -> dict:
@@ -114,12 +155,22 @@ class Search(QueryInterface, AggregationInterface):
         """
         body = copy(self._body)
 
-        query_dict = self._query.to_dict()
-        body.update({"query": query_dict})
+        body["query"] = self._query.to_dict()
 
         param_dict = self._parameters.to_body()
         if param_dict:
             body.update(param_dict)
+
+        if self._highlighters:
+            hl = dict()
+            for key, value in self._highlighters.items():
+                if key == "*global*":
+                    hl.update(value)
+                else:
+                    if "fields" not in hl:
+                        hl["fields"] = dict()
+                    hl["fields"][key] = value
+            body["highlight"] = hl
 
         return make_json_compatible(body)
 
@@ -130,7 +181,7 @@ class Search(QueryInterface, AggregationInterface):
 
         :return: dict
         """
-        if VERSION[0] >= 8:
+        if self.version > 7:
             return {
                 "index": self._index,
                 **self._parameters.to_query_params(),
@@ -229,6 +280,71 @@ class Search(QueryInterface, AggregationInterface):
         :return: new Search instance
         """
         return self._parameters.size(size)
+
+    def highlight(
+            self,
+            *fields: str,
+            boundary_chars: Optional[str] = None,
+            boundary_max_scan: Optional[int] = None,
+            boundary_scanner: Optional[str] = None,
+            boundary_scanner_locale: Optional[str] = None,
+            encoder: Optional[str] = None,
+            force_source: Optional[bool] = None,
+            fragmenter: Optional[str] = None,
+            fragment_offset: Optional[int] = None,
+            fragment_size: Optional[int] = None,
+            highlight_query: Optional[Query] = None,
+            matched_fields: Optional[List[str]] = None,
+            no_match_size: Optional[int] = None,
+            number_of_fragments: Optional[int] = None,
+            order: Optional[str] = None,
+            phrase_limit: Optional[int] = None,
+            pre_tags: Optional[str] = None,
+            post_tags: Optional[str] = None,
+            require_field_match: Optional[bool] = None,
+            max_analyzed_offset: Optional[int] = None,
+            tags_schema: Optional[str] = None,
+            type: Optional[str] = None,
+    ) -> "Search":
+        kwargs = {
+            "boundary_chars": boundary_chars,
+            "boundary_max_scan": boundary_max_scan,
+            "boundary_scanner": boundary_scanner,
+            "boundary_scanner_locale": boundary_scanner_locale,
+            "encoder": encoder,
+            "force_source": force_source,
+            "fragmenter": fragmenter,
+            "fragment_offset": fragment_offset,
+            "fragment_size": fragment_size,
+            "highlight_query": highlight_query,
+            "matched_fields": matched_fields,
+            "no_match_size": no_match_size,
+            "number_of_fragments": number_of_fragments,
+            "order": order,
+            "phrase_limit": phrase_limit,
+            "pre_tags": pre_tags,
+            "post_tags": post_tags,
+            "require_field_match": require_field_match,
+            "max_analyzed_offset": max_analyzed_offset,
+            "tags_schema": tags_schema,
+            "type": type,
+        }
+
+        es = self.copy()
+
+        if not fields:
+            fields = ["*global*"]
+
+        for field in fields:
+            if field not in es._highlighters:  # pragma: no cover
+                es._highlighters[field] = dict()
+            hl = es._highlighters[field]
+
+            for key, value in kwargs.items():
+                if value is not None:
+                    hl[key] = value
+
+        return es
 
     def query(self, query: QueryInterface):
         """
