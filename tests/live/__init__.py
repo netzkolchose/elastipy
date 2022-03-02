@@ -9,3 +9,4 @@ from .test_orders_agg_table import *
 from .test_orders_query import *
 from .test_orders_query_all import *
 from .test_plot import *
+from .test_text_highlight import *

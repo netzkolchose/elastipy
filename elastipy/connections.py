@@ -2,16 +2,17 @@ from typing import Optional, Union, Mapping
 
 from elasticsearch import VERSION
 
+
 __all__ = ("get", "set")
 
 
-if VERSION[0] == 7:
+if VERSION[0] < 8:
     DEFAULT_PARAMS = {
         "hosts": [{"host": "localhost", "port": 9200}],
         "timeout": 30,
     }
 
-elif VERSION[0] == 8:
+else:
     DEFAULT_PARAMS = {
         "hosts": "http://localhost:9200",
         "request_timeout": 30,
