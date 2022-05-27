@@ -73,14 +73,18 @@ class Bool(_Bool):
     def __and__(self, other) -> 'Bool':
         if not isinstance(other, Bool):
             q = copy(self)
-            q.must += [other]
+            if other not in q.must:
+                q.must += [other]
             return q
-
         else:
+            if self.should or other.should:
+                return super().__and__(other)
+
             q = copy(self)
-            for key in ("must", "must_not", "should", "filter"):
+            for key in ("must", "must_not", "filter"):
                 for o in getattr(other, key):
-                    if o not in getattr(self, key):
+                    print(o in getattr(q, key), o, getattr(q, key))
+                    if o not in getattr(q, key):
                         setattr(q, key, getattr(q, key) + [o])
             return q
 
