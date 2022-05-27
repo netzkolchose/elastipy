@@ -88,11 +88,22 @@ class Bool(_Bool):
             return q
 
     def __or__(self, other):
+        self_has_and = bool(self.must or self.must_not or self.filter)
+
         if not isinstance(other, Bool):
-            q = copy(self)
-            if q.should:
-                if not q.must and not q.must_not and not q.filter:
+            if not self_has_and:
+                q = copy(self)
+                if other not in q.should:
                     q.should += [other]
-                    return q
+                return q
+
+        else:
+            other_has_and = bool(other.must or other.must_not or other.filter)
+            if not self_has_and and not other_has_and:
+                q = copy(self)
+                for sub_q in other.should:
+                    if sub_q not in q.should:
+                        q.should += [sub_q]
+                return q
 
         return super().__or__(other)
