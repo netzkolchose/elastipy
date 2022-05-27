@@ -77,13 +77,12 @@ class Bool(_Bool):
                 q.must += [other]
             return q
         else:
-            if self.should or other.should:
+            if other.should:
                 return super().__and__(other)
 
             q = copy(self)
             for key in ("must", "must_not", "filter"):
                 for o in getattr(other, key):
-                    print(o in getattr(q, key), o, getattr(q, key))
                     if o not in getattr(q, key):
                         setattr(q, key, getattr(q, key) + [o])
             return q
