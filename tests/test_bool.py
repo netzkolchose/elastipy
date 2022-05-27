@@ -197,6 +197,15 @@ class TestBool(unittest.TestCase):
             s.to_dict(),
         )
 
+    def test_or_regression_16_with_other(self):
+        self.assertEqualQuery(
+            query.Bool(
+                should=[self.q1(), self.q2()],
+                must=[self.q3()],
+            ),
+            (self.q1() | self.q2()) & self.q3()
+        )
+
     def test_and_with_other(self):
         self.assertEqualQuery(
             query.Bool(must=[self.q1(), self.q2()]),
