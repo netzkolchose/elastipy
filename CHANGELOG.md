@@ -1,5 +1,14 @@
 # history / changes
 
+## ??? (2022/03)
+
+- support for elasticsearch 8.0.0
+- support [highlighting](https://www.elastic.co/guide/en/elasticsearch/reference/current/highlighting.html)
+
+## v0.2.1 (2021/04)
+
+- fix in setup.py 
+
 ## v0.2.0 (2021/02)
 
 - clean up test interface and create `test.py`
@@ -22,4 +31,4 @@
 
 ## v0.0.1 (2020/12)
 
-- Initial crappy release
+- initial crappy release
