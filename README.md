@@ -9,7 +9,7 @@ Tested with python 3.6 and 3.10 and elasticsearch 7 and 8.
 [![Documentation Status](https://readthedocs.org/projects/elastipy/badge/?version=latest)](https://elastipy.readthedocs.io/en/latest/?badge=latest)
 
 
-Lean more at [readthedocs.io](https://elastipy.readthedocs.io/en/latest/).
+Learn more at [elastipy.readthedocs.io](https://elastipy.readthedocs.io/en/latest/).
 
 In comparison to [elasticsearch-dsl](https://github.com/elastic/elasticsearch-dsl-py)
 this library provides:
