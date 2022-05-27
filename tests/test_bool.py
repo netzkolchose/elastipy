@@ -134,6 +134,19 @@ class TestBool(unittest.TestCase):
             self.q2() | query.Bool(must=self.q1())
         )
 
+    def test_or_no_duplicates(self):
+        self.assertEqualQuery(
+            query.Bool(should=[self.q1(), self.q2()]),
+            query.Bool(should=[self.q1()]) | query.Bool(should=[self.q1()])
+            | query.Bool(should=[self.q2()]) | query.Bool(should=[self.q2()])
+        )
+
+    def test_or_no_duplicates_with_other(self):
+        self.assertEqualQuery(
+            query.Bool(should=[self.q1(), self.q2()]),
+            query.Bool(should=[self.q1()]) | self.q1() | self.q2() | self.q2()
+        )
+
     def test_or_regression_16(self):
         """
         https://github.com/netzkolchose/elastipy/issues/16
