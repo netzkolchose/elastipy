@@ -1,4 +1,5 @@
-from mistletoe import Document, BaseRenderer
+from mistletoe import Document, block_token
+from mistletoe.base_renderer import BaseRenderer
 
 
 def parse_markdown(text: str):
