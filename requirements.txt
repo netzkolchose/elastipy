@@ -1,23 +1,23 @@
 elasticsearch>=7.10.1
-PyYAML>=5.3.1
-mistletoe>=0.7.2
-tqdm>=4.55.1
-pandas>=1.1.5
+PyYAML>=6.0.2
+mistletoe>=1.4.0
+tqdm>=4.67.1
+pandas>=2.0.3
 jupyter>=1.0.0
-matplotlib>=3.3.3
-seaborn>=0.11.1
-plotly>=4.14.3
-Shapely>=1.7.1
-geopandas>=0.8.2
+matplotlib>=3.7.5
+seaborn>=0.13.2
+plotly>=5.24.1
+shapely>=2.0.6
+geopandas>=0.13.2
 
 # test utils
-coverage>=5.3.1
-coveralls>=3.0.0
+coverage>=7.6.1
+coveralls>=4.0.1
 
-# for doc-tests
-Sphinx>=3.4.3
-sphinx-rtd-theme>=0.5.1
-docutils>=0.16
+# for generate-doc tests
+Sphinx>=7.1.2
+sphinx-rtd-theme>=3.0.2
+docutils>=0.20.1
 
 # for pre-commit hook
-pre-commit>=2.17.0
+pre-commit>=3.5.0
