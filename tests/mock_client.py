@@ -83,6 +83,11 @@ elif VERSION[0] == 8:
             self._client = FakeClient(self)
             self.bulk_calls = []
             self.search_calls = []
+            try:
+                from elasticsearch._otel import OpenTelemetry
+                self._otel = OpenTelemetry()
+            except ImportError:
+                pass
 
         def exists(self, index, id):
             return False
@@ -123,6 +128,11 @@ elif VERSION[0] == 8:
         def __init__(self, parent):
             self.parent = parent
             self.transport = Transport(parent)
+            try:
+                from elasticsearch._otel import OpenTelemetry
+                self._otel = OpenTelemetry()
+            except ImportError:
+                pass
 
         def bulk(self, *args, **kwargs):
             self.parent.bulk_calls.append([
