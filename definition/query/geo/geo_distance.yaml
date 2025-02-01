@@ -1,0 +1,42 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-distance-query.html
+doc: |
+  Matches geo_point and geo_shape values within a given distance of a geopoint.
+parameters:
+  field:
+    type: str
+    required: True
+    doc: |
+      The geo_point or geo_shape field you wish to search.
+  origin:
+    type: Union[str, Mapping[str, float], Sequence[float]]
+    required: True
+    top_level_field_value: field
+    doc: |
+      The origin point can accept all formats supported by the
+      [geo_point type](https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-point.html):
+
+          - Object format: `{ "lat" : 52.3760, "lon" : 4.894 }` - this is the safest format
+          as it is the most explicit about the lat & lon values
+          - String format: `"52.3760, 4.894"` - where the first number is the lat and the second is the lon
+          - Array format: `[4.894, 52.3760]` - which is based on the GeoJson standard and where
+          the first number is the lon and the second one is the lat
+  distance:
+    type: str
+    required: True
+    doc: |
+      The radius of the circle centred on the specified location. Points which fall into this circle are considered to be matches. The distance can be specified in various units. See [Distance Units](https://www.elastic.co/guide/en/elasticsearch/reference/current/api-conventions.html#distance-units).
+  distance_type:
+    type: str
+    default: arc
+    doc: |
+      How to compute the distance. Can either be `arc` (default), or `plane` (faster, but inaccurate on long distances and close to the poles).
+  validation_method:
+    type: str
+    default: STRICT
+    doc: |
+      Set to `IGNORE_MALFORMED` to accept geo points with invalid latitude or longitude, set to `COERCE` to additionally try and infer correct coordinates (default is `STRICT`)
+  ignore_unmapped:
+    type: bool
+    default: False
+    doc: |
+      When set to true the `ignore_unmapped` option will ignore an unmapped field and will not match any documents for this query. This can be useful when querying multiple indexes which might have different mappings. When set to false (the default value) the query will throw an exception if the field is not mapped.

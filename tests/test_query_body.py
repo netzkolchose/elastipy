@@ -135,6 +135,51 @@ class TestQueryBody(unittest.TestCase):
             if callable(func) and name != "self":
                 self.query_test(name, func)
 
+    def test_top_level_field_parameter(self):
+        def test_geo_distance(q: query.QueryInterface):
+            q = q.geo_distance("loc_field", [10, 50], "10km")
+            return q, {
+                'geo_distance': {
+                    "loc_field": [10, 50],
+                    "distance": "10km",
+                }
+            }
+
+        def test_geo_grid_1(q: query.QueryInterface):
+            q = q.geo_grid("loc_field", geohash="u0")
+            return q, {
+                'geo_grid': {
+                    "loc_field": {
+                        "geohash": "u0",
+                    }
+                }
+            }
+
+        def test_geo_grid_2(q: query.QueryInterface):
+            q = q.geo_grid("loc_field", geotile="6/32/22")
+            return q, {
+                'geo_grid': {
+                    "loc_field": {
+                        "geotile": "6/32/22",
+                    }
+                }
+            }
+
+        def test_geo_bbox(q: query.QueryInterface):
+            q = q.geo_bounding_box("loc_field", {"top_left": [-74.1, 40.73], "bottom_right": [-71.12, 40.01]})
+            return q, {
+                'geo_bounding_box': {
+                    "loc_field": {
+                        "top_left": [-74.1, 40.73],
+                        "bottom_right": [-71.12, 40.01]
+                    }
+                }
+            }
+
+        for name, func in locals().items():
+            if callable(func) and name != "self":
+                self.query_test(name, func)
+
 
 if __name__ == "__main__":
     unittest.main()
