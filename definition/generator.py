@@ -90,6 +90,14 @@ def render_query_classes():
         for param_name, param in definition["parameters"].items():
             if param.get("top_level"):
                 class_parameters["_top_level_parameter"] = param_name
+            elif param.get("top_level_field_value"):
+                class_parameters["_top_level_field_parameter"] = (param_name, param["top_level_field_value"])
+
+        if class_parameters.get("_top_level_parameter") and class_parameters.get("_top_level_field_parameter"):
+            raise ValueError(
+                f"Can only define `top_level` OR `top_level_field_value`, not both"
+                f" in {query_name}"
+            )
 
         body = f"super().__init__(\n"
         for param_name, param in definition["parameters"].items():

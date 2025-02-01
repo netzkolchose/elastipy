@@ -7,6 +7,13 @@
   - `match <#elastipy.Search.match>`__
   - `query_string <#elastipy.Search.query_string>`__
 
+- geo
+
+  - `geo_bounding_box <#elastipy.Search.geo_bounding_box>`__
+  - `geo_distance <#elastipy.Search.geo_distance>`__
+  - `geo_grid <#elastipy.Search.geo_grid>`__
+  - `geo_shape <#elastipy.Search.geo_shape>`__
+
 - match
 
   - `match_all <#elastipy.Search.match_all>`__

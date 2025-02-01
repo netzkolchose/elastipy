@@ -64,7 +64,8 @@ class SearchParameters(SearchParametersBase):
         Each parameter that is different than it's default value is put into the
         search request.
 
-        The parameters are automatically split into query and body representation.
+        For elasticsearch below version 8, the parameters are automatically split
+        into query and body representation.
 
         :param source: ``Union[bool, str, Sequence]``
             Indicates which `source fields
