@@ -6,8 +6,8 @@ from .query import Query, QueryInterface
 
 
 __all__ = (
-    "_Bool", "Match", "_MatchAll", "_MatchNone", "QueryString", "Range", "Term",
-    "_Terms"
+    "_Bool", "GeoBoundingBox", "GeoDistance", "GeoGrid", "GeoShape", "Match",
+    "_MatchAll", "_MatchNone", "QueryString", "Range", "Term", "_Terms"
 )
 
 
@@ -73,6 +73,374 @@ class _Bool(Query, factory=False):
             must_not=must_not,
             should=should,
             filter=filter,
+        )
+
+
+class GeoBoundingBox(Query):
+
+    """
+    Matches geo_point and geo_shape values that intersect a bounding box.
+
+    `elasticsearch documentation
+    <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-bounding-box-query.html>`__
+    """
+
+    name = 'geo_bounding_box'
+    _parameters = {'field': {'required': True}, 'box': {'required': True, 'top_level_field_value': 'field'}, 'validation_method': {'default': 'STRICT'}, 'ignore_unmapped': {'default': False}}
+    _top_level_field_parameter = ('box', 'field')
+
+
+    def __init__(
+            self,
+            field: str,
+            box: Mapping[str, Union[str, float, Mapping[str, float], Sequence[float]]],
+            validation_method: str = 'STRICT',
+            ignore_unmapped: bool = False,
+    ):
+        """
+        Matches geo_point and geo_shape values that intersect a bounding box.
+
+        `elasticsearch documentation
+        <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-bounding-box-query.html>`__
+
+        :param field: ``str``
+            The geo_point or geo_shape field you wish to search.
+
+        :param box: ``Mapping[str, Union[str, float, Mapping[str, float], Sequence[float]]]``
+            To define the box, provide geopoint values for two opposite corners:
+
+            .. CODE::
+
+                {"top_left": [-74.1, 40.73], "bottom_right": [-71.12, 40.01]}
+
+            or provide values for each of the four corners:
+
+            .. CODE::
+
+                {"top": 40.73, "left": -74.1, "bottom": 40.01, "right": -71.12}
+
+            The points can accept all formats supported by the `geo_point type
+            <https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-point.html>`__:
+
+                - Object format: ``{ "lat" : 52.3760, "lon" : 4.894 }`` - this is
+                  the safest format as it is the most explicit about the lat & lon
+                  values
+                - String format: ``"52.3760, 4.894"`` - where the first number is
+                  the lat and the second is the lon
+                - Array format: ``[4.894, 52.3760]`` - which is based on the GeoJson
+                  standard and where the first number is the lon and the second one
+                  is the lat
+
+            Additionally, geohashes can be used. When geohashes are used to specify
+            the bounding the edges of the bounding box, the geohashes are treated as
+            rectangles. The bounding box is defined in such a way that its top left
+            corresponds to the top left corner of the geohash specified in the
+            top_left parameter and its bottom right is defined as the bottom right
+            of the geohash specified in the bottom_right parameter.
+
+            In order to specify a bounding box that would match entire area of a
+            geohash the geohash can be specified in both top_left and bottom_right
+            parameters:
+
+            .. CODE::
+
+                {"top_left": "dr", "bottom_right": "dr"}
+
+            .. NOTE::
+
+                Notes on precision:
+
+                Geopoints have limited precision and are always rounded down during
+                index time. During the query time, upper boundaries of the bounding
+                boxes are rounded down, while lower boundaries are rounded up. As a
+                result, the points along on the lower bounds (bottom and left edges
+                of the bounding box) might not make it into the bounding box due to
+                the rounding error. At the same time points alongside the upper
+                bounds (top and right edges) might be selected by the query even if
+                they are located slightly outside the edge. The rounding error
+                should be less than 4.20e-8 degrees on the latitude and less than
+                8.39e-8 degrees on the longitude, which translates to less than 1cm
+                error even at the equator.
+
+                Geoshapes also have limited precision due to rounding. Geoshape
+                edges along the bounding box’s bottom and left edges may not match a
+                geo_bounding_box query. Geoshape edges slightly outside the box’s
+                top and right edges may still match the query.
+
+        :param validation_method: ``str``
+            Set to ``IGNORE_MALFORMED`` to accept geo points with invalid latitude
+            or longitude, set to ``COERCE`` to additionally try and infer correct
+            coordinates (default is ``STRICT``)
+
+        :param ignore_unmapped: ``bool``
+            When set to true the ``ignore_unmapped`` option will ignore an unmapped
+            field and will not match any documents for this query. This can be
+            useful when querying multiple indexes which might have different
+            mappings. When set to false (the default value) the query will throw an
+            exception if the field is not mapped.
+        """
+        super().__init__(
+            field=field,
+            box=box,
+            validation_method=validation_method,
+            ignore_unmapped=ignore_unmapped,
+        )
+
+
+class GeoDistance(Query):
+
+    """
+    Matches geo_point and geo_shape values within a given distance of a
+    geopoint.
+
+    `elasticsearch documentation
+    <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-distance-query.html>`__
+    """
+
+    name = 'geo_distance'
+    _parameters = {'field': {'required': True}, 'origin': {'required': True, 'top_level_field_value': 'field'}, 'distance': {'required': True}, 'distance_type': {'default': 'arc'}, 'validation_method': {'default': 'STRICT'}, 'ignore_unmapped': {'default': False}}
+    _top_level_field_parameter = ('origin', 'field')
+
+
+    def __init__(
+            self,
+            field: str,
+            origin: Union[str, Mapping[str, float], Sequence[float]],
+            distance: str,
+            distance_type: str = 'arc',
+            validation_method: str = 'STRICT',
+            ignore_unmapped: bool = False,
+    ):
+        """
+        Matches geo_point and geo_shape values within a given distance of a
+        geopoint.
+
+        `elasticsearch documentation
+        <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-distance-query.html>`__
+
+        :param field: ``str``
+            The geo_point or geo_shape field you wish to search.
+
+        :param origin: ``Union[str, Mapping[str, float], Sequence[float]]``
+            The origin point can accept all formats supported by the `geo_point type
+            <https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-point.html>`__:
+
+                - Object format: ``{ "lat" : 52.3760, "lon" : 4.894 }`` - this is
+                  the safest format as it is the most explicit about the lat & lon
+                  values
+                - String format: ``"52.3760, 4.894"`` - where the first number is
+                  the lat and the second is the lon
+                - Array format: ``[4.894, 52.3760]`` - which is based on the GeoJson
+                  standard and where the first number is the lon and the second one
+                  is the lat
+
+        :param distance: ``str``
+            The radius of the circle centred on the specified location. Points which
+            fall into this circle are considered to be matches. The distance can be
+            specified in various units. See `Distance Units
+            <https://www.elastic.co/guide/en/elasticsearch/reference/current/api-conventions.html#distance-units>`__.
+
+        :param distance_type: ``str``
+            How to compute the distance. Can either be ``arc`` (default), or
+            ``plane`` (faster, but inaccurate on long distances and close to the
+            poles).
+
+        :param validation_method: ``str``
+            Set to ``IGNORE_MALFORMED`` to accept geo points with invalid latitude
+            or longitude, set to ``COERCE`` to additionally try and infer correct
+            coordinates (default is ``STRICT``)
+
+        :param ignore_unmapped: ``bool``
+            When set to true the ``ignore_unmapped`` option will ignore an unmapped
+            field and will not match any documents for this query. This can be
+            useful when querying multiple indexes which might have different
+            mappings. When set to false (the default value) the query will throw an
+            exception if the field is not mapped.
+        """
+        super().__init__(
+            field=field,
+            origin=origin,
+            distance=distance,
+            distance_type=distance_type,
+            validation_method=validation_method,
+            ignore_unmapped=ignore_unmapped,
+        )
+
+
+class GeoGrid(Query):
+
+    """
+    Matches geo_point and geo_shape values that intersect a grid cell from a
+    GeoGrid aggregation.
+
+    The query is designed to match the documents that fall inside a bucket of a
+    geogrid aggregation by providing the key of the bucket. For geohash and
+    geotile grids, the query can be used for geo_point and geo_shape fields. For
+    geo_hex grid, it can only be used for geo_point fields.
+
+    `elasticsearch documentation
+    <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-grid-query.html>`__
+    """
+
+    name = 'geo_grid'
+    _parameters = {'field': {'required': True, 'top_level': True}, 'geohash': {}, 'geotile': {}, 'geohex': {}}
+    _top_level_parameter = 'field'
+
+
+    def __init__(
+            self,
+            field: str,
+            geohash: Optional[str] = None,
+            geotile: Optional[str] = None,
+            geohex: Optional[str] = None,
+    ):
+        """
+        Matches geo_point and geo_shape values that intersect a grid cell from a
+        GeoGrid aggregation.
+
+        The query is designed to match the documents that fall inside a bucket of a
+        geogrid aggregation by providing the key of the bucket. For geohash and
+        geotile grids, the query can be used for geo_point and geo_shape fields. For
+        geo_hex grid, it can only be used for geo_point fields.
+
+        `elasticsearch documentation
+        <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-grid-query.html>`__
+
+        :param field: ``str``
+            The geo_point or geo_shape field you wish to search.
+
+        :param geohash: ``Optional[str]``
+            Extract the documents using the geohash bucket key, e.g. ``"u0"``
+            "6/32/22"
+
+        :param geotile: ``Optional[str]``
+            Extract the documents using the geotile bucket key, e.g. ``"6/32/22"``
+
+        :param geohex: ``Optional[str]``
+            Extract the documents using the geohex bucket key, e.g.
+            ``"811fbffffffffff"``
+        """
+        super().__init__(
+            field=field,
+            geohash=geohash,
+            geotile=geotile,
+            geohex=geohex,
+        )
+
+
+class GeoShape(Query):
+
+    """
+    Filter documents indexed using either the geo_shape or the geo_point type.
+
+    The geo_shape query uses the same `index
+    <https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-shape.html#geoshape-indexing-approach>`__
+    as the geo_shape or geo_point mapping to find documents that have a shape
+    that is related to the query shape, using a specified `spatial relationship
+    <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-shape-query.html#geo-shape-spatial-relations>`__:
+    either intersects, contained, within or disjoint.
+
+    The query supports two ways of defining the query shape, either by providing
+    a whole shape definition, or by referencing the name of a shape pre-indexed
+    in another index.
+
+    `elasticsearch documentation
+    <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-shape-query.html>`__
+    """
+
+    name = 'geo_shape'
+    _parameters = {'field': {'required': True, 'top_level': True}, 'shape': {}, 'indexed_shape': {}, 'relation': {'default': 'intersects'}, 'ignore_unmapped': {'default': False}}
+    _top_level_parameter = 'field'
+
+
+    def __init__(
+            self,
+            field: str,
+            shape: Optional[Mapping[str, Any]] = None,
+            indexed_shape: Optional[Mapping[str, str]] = None,
+            relation: str = 'intersects',
+            ignore_unmapped: bool = False,
+    ):
+        """
+        Filter documents indexed using either the geo_shape or the geo_point type.
+
+        The geo_shape query uses the same `index
+        <https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-shape.html#geoshape-indexing-approach>`__
+        as the geo_shape or geo_point mapping to find documents that have a shape
+        that is related to the query shape, using a specified `spatial relationship
+        <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-shape-query.html#geo-shape-spatial-relations>`__:
+        either intersects, contained, within or disjoint.
+
+        The query supports two ways of defining the query shape, either by providing
+        a whole shape definition, or by referencing the name of a shape pre-indexed
+        in another index.
+
+        `elasticsearch documentation
+        <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-shape-query.html>`__
+
+        :param field: ``str``
+            The geo_point or geo_shape field you wish to search.
+
+        :param shape: ``Optional[Mapping[str, Any]]``
+            The shape to locate points or shapes.
+
+            For example, this shape will find the point using Elasticsearch’s
+            ``envelope`` GeoJSON extension:
+
+            .. CODE::
+
+              { "type": "envelope", "coordinates": [ [13, 53], [14, 52] ] }
+
+            .. CODE::
+
+              { "type": "multipoint" "coordinates": [ [46.25, 20.14], [47.49, 19.04]
+              ] }
+
+        :param indexed_shape: ``Optional[Mapping[str, str]]``
+            The query also supports using a shape which has already been indexed in
+            another index. This is particularly useful for when you have a
+            pre-defined list of shapes and you want to reference the list using a
+            logical name (for example New Zealand) rather than having to provide
+            coordinates each time. In this situation, it is only necessary to
+            provide:
+
+              - id - The ID of the document that contains the pre-indexed shape.
+              - index - Name of the index where the pre-indexed shape is. Defaults
+                to ``shapes``.
+              - path - The field specified as path containing the pre-indexed shape.
+                Defaults to ``shape``.
+              - routing - The routing of the shape document if required.
+
+            The following is an example of using the Filter with a pre-indexed
+            shape:
+
+            .. CODE::
+
+                indexed_shape={ "index": "shapes", "id": "deu", "path": "location" }
+
+        :param relation: ``str``
+            - ``INTERSECTS`` - (default) Return all documents whose geo_shape or
+              geo_point field intersects the query geometry.
+            - ``DISJOINT`` - Return all documents whose geo_shape or geo_point field
+              has nothing in common with the query geometry.
+            - ``WITHIN`` - Return all documents whose geo_shape or geo_point field
+              is within the query geometry. Line geometries are not supported.
+            - ``CONTAINS`` - Return all documents whose geo_shape or geo_point field
+              contains the query geometry.
+
+        :param ignore_unmapped: ``bool``
+            When set to true the ``ignore_unmapped`` option will ignore an unmapped
+            field and will not match any documents for this query. This can be
+            useful when querying multiple indexes which might have different
+            mappings. When set to false (the default value) the query will throw an
+            exception if the field is not mapped.
+        """
+        super().__init__(
+            field=field,
+            shape=shape,
+            indexed_shape=indexed_shape,
+            relation=relation,
+            ignore_unmapped=ignore_unmapped,
         )
 
 

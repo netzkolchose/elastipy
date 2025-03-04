@@ -1,0 +1,26 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-grid-query.html
+doc: |
+  Matches geo_point and geo_shape values that intersect a grid cell from a GeoGrid aggregation.
+  
+  The query is designed to match the documents that fall inside a bucket of a geogrid aggregation by providing the key of the bucket. For geohash and geotile grids, the query can be used for geo_point and geo_shape fields. For geo_hex grid, it can only be used for geo_point fields.
+
+parameters:
+  field:
+    type: str
+    required: True
+    top_level: True
+    doc: |
+      The geo_point or geo_shape field you wish to search.
+  geohash:
+    type: str
+    doc: |
+      Extract the documents using the geohash bucket key, e.g. `"u0"`
+      "6/32/22"
+  geotile:
+    type: str
+    doc: |
+      Extract the documents using the geotile bucket key, e.g. `"6/32/22"`
+  geohex:
+    type: str
+    doc: |
+      Extract the documents using the geohex bucket key, e.g. `"811fbffffffffff"`

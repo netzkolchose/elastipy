@@ -1,0 +1,77 @@
+url: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-shape-query.html
+doc: |
+  Filter documents indexed using either the geo_shape or the geo_point type.
+
+  The geo_shape query uses the same [index](https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-shape.html#geoshape-indexing-approach) as the geo_shape or geo_point mapping to find documents that have a shape that is related to the query shape, using a specified [spatial relationship](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-shape-query.html#geo-shape-spatial-relations): either intersects, contained, within or disjoint.
+  
+  The query supports two ways of defining the query shape, either by providing a whole shape definition, or by referencing the name of a shape pre-indexed in another index.
+
+parameters:
+  field:
+    type: str
+    required: True
+    top_level: True
+    doc: |
+      The geo_point or geo_shape field you wish to search.
+  shape:
+    type: Mapping[str, Any]
+    doc: |
+      The shape to locate points or shapes. 
+      
+      For example, this shape will find the point using Elasticsearch’s `envelope` GeoJSON extension:
+
+      .. CODE::
+
+        {
+            "type": "envelope",
+            "coordinates": [
+                [13, 53],
+                [14, 52]
+            ]
+        }
+      
+      .. CODE::
+        
+        {
+            "type": "multipoint"
+            "coordinates": [
+                [46.25, 20.14],
+                [47.49, 19.04]
+            ]
+        }
+
+  indexed_shape:
+    type: Mapping[str, str]
+    doc: |
+      The query also supports using a shape which has already been indexed in another index. This is particularly useful for when you have a pre-defined list of shapes and you want to reference the list using a logical name (for example New Zealand) rather than having to provide coordinates each time. In this situation, it is only necessary to provide:
+    
+        - id - The ID of the document that contains the pre-indexed shape.
+        - index - Name of the index where the pre-indexed shape is. Defaults to `shapes`.
+        - path - The field specified as path containing the pre-indexed shape. Defaults to `shape`.
+        - routing - The routing of the shape document if required.
+
+      The following is an example of using the Filter with a pre-indexed shape:
+      
+      .. CODE::
+      
+          indexed_shape={
+              "index": "shapes",
+              "id": "deu",
+              "path": "location"
+          }
+
+  relation:
+    type: str
+    default: intersects
+    doc: |
+        
+        - `INTERSECTS` - (default) Return all documents whose geo_shape or geo_point field intersects the query geometry.
+        - `DISJOINT` - Return all documents whose geo_shape or geo_point field has nothing in common with the query geometry.
+        - `WITHIN` - Return all documents whose geo_shape or geo_point field is within the query geometry. Line geometries are not supported.
+        - `CONTAINS` - Return all documents whose geo_shape or geo_point field contains the query geometry.
+    
+  ignore_unmapped:
+    type: bool
+    default: False
+    doc: |
+      When set to true the `ignore_unmapped` option will ignore an unmapped field and will not match any documents for this query. This can be useful when querying multiple indexes which might have different mappings. When set to false (the default value) the query will throw an exception if the field is not mapped.

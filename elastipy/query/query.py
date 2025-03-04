@@ -1,6 +1,6 @@
 import re
 from copy import copy, deepcopy
-from typing import Mapping, Any
+from typing import Mapping, Any, Optional, Tuple
 
 from .generated_interface import QueryInterface
 
@@ -11,7 +11,8 @@ class Query(QueryInterface):
     """
     _factory_class_map = dict()
 
-    _top_level_parameter = None
+    _top_level_parameter: Optional[str] = None
+    _top_level_field_parameter: Optional[Tuple[str, str]] = None
     _parameters = {}
     name = None
 
@@ -89,9 +90,15 @@ class Query(QueryInterface):
         if self._top_level_parameter:
             value = self.parameters[self._top_level_parameter]
             write_dic = dic[value] = dict()
+        elif self._top_level_field_parameter:
+            value_field_name = self.parameters[self._top_level_field_parameter[1]]
+            value = self.parameters[self._top_level_field_parameter[0]]
+            write_dic[value_field_name] = value
 
         for key, value in self.parameters.items():
-            if key != self._top_level_parameter:
+            if key != self._top_level_parameter and (
+                self._top_level_field_parameter is None or key not in self._top_level_field_parameter
+            ):
                 write_dic[key] = value_to_dict(value)
         return {self.name: dic}
 
