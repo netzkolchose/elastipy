@@ -9,4 +9,3 @@ from .search import Search, Response
 # sub-packets that should be available through `elastipy.*`
 from . import connections
 from . import query
-from . import plot

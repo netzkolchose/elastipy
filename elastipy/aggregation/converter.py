@@ -178,13 +178,13 @@ class ConverterMixin:
 
     def to_pandas(
             self,
-            index: Union[bool, str] = False,
-            to_index: Union[bool, str] = False,
+            *,
             include: Union[str, Sequence[str]] = None,
             exclude: Union[str, Sequence[str]] = None,
             flat: Union[bool, str, Sequence[str]] = False,
             dtype=None,
             default=None,
+            convert_datetime: bool = True,
     ):
         """
         Converts the results of ``dict_rows()`` to a pandas DataFrame.
@@ -195,25 +195,6 @@ class ConverterMixin:
         Any columns containing dates will be automatically converted to pandas.Timestamp.
 
         This method has a synonym: ``df``
-
-        :param index: ``bool`` or ``str``
-            Sets a specific column as the index of the DataFrame.
-
-                - If ``False`` no explicit index is set.
-                - If ``True`` the root aggregation's keys will be the index.
-                - if ``str`` explicitly set a certain column as the DataFrame index.
-
-            .. NOTE::
-
-                The column is kept in the DataFrame. If you wan't to set a
-                column as index and remove it from the columns, use ``to_index``.
-
-        :param to_index: ``bool`` or ``str``
-            Same as ``index`` but the column is removed from DataFrame.
-
-                - If ``False`` no explicit index is set.
-                - If ``True`` the root aggregation's keys will be the index.
-                - if ``str`` explicitly set a certain column as the DataFrame index.
 
         :param include: ``str or list of str``
             Can be one or more (OR-combined) wildcard patterns.
@@ -240,14 +221,12 @@ class ConverterMixin:
         :param default:
             This value will be used wherever a value is undefined.
 
+        :param convert_datetime: ``bool``
+            If True (default), all columns will be converted to Timestamps if possible
+
         :return: pandas ``DataFrame`` instance
         """
         import pandas as pd
-
-        if index and to_index:
-            raise ValueError(
-                "Can not use 'index' and 'to_index' together, settle for one please."
-            )
 
         rows = list(dict_rows_to_list_rows(
             self.dict_rows(include=include, exclude=exclude, flat=flat),
@@ -260,21 +239,11 @@ class ConverterMixin:
         else:
             df = pd.DataFrame(dtype=dtype)
 
-        for key in df:
-            series = pd_series_to_datetime(df[key])
-            if series is not None:
-                df[key] = series
-
-        index = index or to_index
-
-        if index and len(df):
-            if index is True:
-                index = self.root.name
-
-            df.index = df[index]
-
-            if to_index:
-                df.pop(index)
+        if convert_datetime:
+            for key in df:
+                series = pd_series_to_datetime(df[key])
+                if series is not None:
+                    df[key] = series
 
         return df
 
@@ -301,16 +270,19 @@ class ConverterMixin:
 
         .. CODE::
 
-            a = Search().agg_terms("color", field="color")
-            a = a.agg_terms("shape", field="shape")
+            a = (
+                Search()
+                .agg_terms("color", field="color")
+                .agg_terms("shape", field="shape")
+            )
             ...
             names, keys, matrix = a.to_matrix()
             names == ["color", "shape"]
             keys == [["red", "green", "blue"], ["circle", "triangle"]]
-            matrix == [[23, 42], [84, 69], [4, 10]]
+            matrix == [[23, 42], [84, 69], [4, 10]]  # number of shapes for each color:
 
         :param sort:
-            Can sort one or several keys/axises.
+            Can sort one or several keys/axes.
 
                 - ``True`` sorts all keys ascending
                 - ``"-"`` sorts all keys descending
@@ -322,7 +294,7 @@ class ConverterMixin:
 
             For example, `agg.to_matrix(sort=("color", "-shape", -4))` would
             sort the ``color`` keys ascending, the ``shape`` keys descending and the
-            4th aggregation *-whatever that is-* descending.
+            4th aggregation --whatever that is-- descending.
 
         :param default:
             If not None any None-value will be replaced by this value
