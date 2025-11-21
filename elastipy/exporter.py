@@ -172,8 +172,9 @@ class Exporter:
             True if at least one index was deleted, False otherwise.
         """
         name = self.index_name()
-        indices = self.client.indices.get(index=name, expand_wildcards="all")
-        if not indices:
+        try:
+            indices = self.client.indices.get(index=name, expand_wildcards="all")
+        except NotFoundError:
             return False
         for matched_name in indices.keys():
             self.client.indices.delete(index=matched_name)

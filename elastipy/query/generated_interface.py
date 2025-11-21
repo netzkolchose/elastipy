@@ -362,6 +362,119 @@ class QueryInterface(QueryInterfaceBase):
             ignore_unmapped=ignore_unmapped,
         )
 
+    def knn(
+            self,
+            field: str,
+            query_vector: Optional[Union[str, Sequence[int], Sequence[float]]] = None,
+            query_vector_builder: Optional[Mapping] = None,
+            k: Optional[int] = None,
+            num_candidates: Optional[int] = None,
+            visit_percentage: Optional[float] = None,
+            filter: Optional[Union['QueryInterface', Mapping, Sequence[Union['QueryInterface', Mapping]]]] = None,
+            similarity: Optional[float] = None,
+            boost: Optional[float] = None,
+    ) -> 'QueryInterface':
+        """
+        Finds the k nearest vectors to a query vector, as measured by a similarity
+        metric. knn query finds nearest vectors through approximate search on
+        indexed dense_vectors. The preferred way to do approximate kNN search is
+        through the `top level knn section
+        <https://www.elastic.co/docs/solutions/search/vector/knn>`__ of a search
+        request. knn query is reserved for expert cases, where there is a need to
+        combine this query with other queries, or perform a kNN search against a
+        `semantic_text
+        <https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/semantic-text>`__
+        field.
+
+        `elasticsearch documentation
+        <https://www.elastic.co/docs/reference/query-languages/query-dsl/query-dsl-knn-query>`__
+
+        :param field: ``str``
+            The name of the vector field to search against. Must be a
+            ```dense_vector`` field with indexing enabled
+            <https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/dense-vector#index-vectors-knn-search>`__,
+            or a ```semantic_text`` field
+            <https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/semantic-text>`__
+            with a compatible dense vector inference model.
+
+        :param query_vector: ``Optional[Union[str, Sequence[int], Sequence[float]]]``
+            Query vector. Must have the same number of dimensions as the vector
+            field you are searching against. Must be either an array of floats or a
+            hex-encoded byte vector. Either this or ``query_vector_builder`` must be
+            provided.
+
+        :param query_vector_builder: ``Optional[Mapping]``
+            Query vector builder. A configuration object indicating how to build a
+            query_vector before executing the request. You must provide either a
+            query_vector_builder or query_vector, but not both. Refer to `Perform
+            semantic search
+            <https://www.elastic.co/docs/solutions/search/vector/knn#knn-semantic-search>`__
+            to learn more.
+
+            If all queried fields are of type ```semantic_text``
+            <https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/semantic-text>`__,
+            the inference ID associated with the ``semantic_text`` field may be
+            inferred.
+
+        :param k: ``Optional[int]``
+            The number of nearest neighbors to return from each shard. Elasticsearch
+            collects ``k`` results from each shard, then merges them to find the
+            global top results. This value must be less than or equal to
+            ``num_candidates``. Defaults to search request size.
+
+        :param num_candidates: ``Optional[int]``
+            The number of nearest neighbor candidates to consider per shard while
+            doing knn search. Cannot exceed 10,000. Increasing num_candidates tends
+            to improve the accuracy of the final results. Defaults to ``1.5 * k`` if
+            ``k`` is set, or ``1.5 * size`` if ``k`` is not set.
+
+        :param visit_percentage: ``Optional[float]``
+            The percentage of vectors to explore per shard while doing knn search
+            with ``bbq_disk``. Must be between 0 and 100.  0 will default to using
+            ``num_candidates`` for calculating the percent visited. Increasing
+            ``visit_percentage`` tends to improve the accuracy of the final results.
+             If ``visit_percentage`` is set for ``bbq_disk``, ``num_candidates`` is
+            ignored. Defaults to ~1% per shard for every 1 million vectors.
+
+        :param filter: ``Optional[Union['QueryInterface', Mapping, Sequence[Union['QueryInterface', Mapping]]]]``
+            Query to filter the documents that can match. The kNN search will return
+            the top documents that also match this filter. The value can be a single
+            query or a list of queries. If ``filter`` is not provided, all documents
+            are allowed to match.
+
+            The filter is a pre-filter, meaning that it is applied **during** the
+            approximate kNN search to ensure that ``num_candidates`` matching
+            documents are returned.
+
+        :param similarity: ``Optional[float]``
+            The minimum similarity required for a document to be considered a match.
+            The similarity value calculated relates to the raw ```similarity``
+            <https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/dense-vector#dense-vector-similarity>`__
+            used. Not the document score. The matched documents are then scored
+            according to ```similarity``
+            <https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/dense-vector#dense-vector-similarity>`__
+            and the provided ``boost`` is applied.
+
+        :param boost: ``Optional[float]``
+            Floating point number used to multiply the scores of matched documents.
+            This value cannot be negative. Defaults to ``1.0``.
+
+        :returns: ``'QueryInterface'``
+            A new instance is created
+        """
+        return self.add_query(
+            "knn",
+            field=field,
+            query_vector=query_vector,
+            query_vector_builder=query_vector_builder,
+            k=k,
+            num_candidates=num_candidates,
+            visit_percentage=visit_percentage,
+            filter=filter,
+            similarity=similarity,
+            boost=boost,
+        )
+
     def match(
             self,
             field: str,

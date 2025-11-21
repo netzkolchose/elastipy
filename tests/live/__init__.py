@@ -1,3 +1,4 @@
+from .test_dense_vector import *
 from .test_dump import *
 from .test_exporter import *
 from .test_nested_orders_agg import *

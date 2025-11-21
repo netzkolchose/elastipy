@@ -113,11 +113,26 @@ class Query(QueryInterface):
         return {
             key: self._map_parameter(key, value)
             for key, value in params.items()
-            if self._parameters.get(key, {}).get("required") or value != self._parameters.get(key, {}).get("default")
+            if self._parameters.get(key, {}).get("required") or not _compare_equal(value, self._parameters.get(key, {}).get("default"))
         }
 
     def _map_parameter(self, name: str, value: Any) -> Any:
         return value
+
+
+def _compare_equal(a: Any, b: Any) -> bool:
+    try:
+        return bool(a == b)
+    except ValueError as e:
+        try:
+            import numpy
+        except ImportError:
+            raise e
+
+        try:
+            return numpy.all(numpy.equal(a, b))
+        except:
+            raise e
 
 
 def value_to_dict(value):
