@@ -60,20 +60,24 @@ consists of sphinx with the readthedocs theme.
 usual stack of jupyter, scipy, matplotlib, ..   
 
 
-### configuration 
+### Configuration 
 
-By default an [elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/elasticsearch-intro.html) host is expected at `localhost:9200`. There are currently two ways 
+By default an [elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/elasticsearch-intro.html) host is expected at `localhost:9200`. There are three ways 
 to specify a different connection.
+
+#### 1. In code
 
 
 ```python
+# official elasticsearch python client
 from elasticsearch import Elasticsearch
+# Search class from elastipy
 from elastipy import Search
 
 # Use an explicit Elasticsearch client (or compatible class)
 client = Elasticsearch(
     hosts="http://localhost:9200", 
-    basic_auth=("user", "pwd")
+    basic_auth=("user", "password"),
 )
 
 # create a Search using the specified client
@@ -83,18 +87,19 @@ s = Search(index="bla", client=client)
 s = s.client(client)
 ```
 
-Check the Elasticsearch [API reference](https://elasticsearch-py.readthedocs.io/en/latest/api/elasticsearch.html) for all the parameters.
+Check the Elasticsearch [API reference](https://elasticsearch-py.readthedocs.io/en/v7.10.1/api.html#elasticsearch) for all the parameters.
 
-We can also set a default client at the program start:  
+#### 2. At program start
 
 
 ```python
 from elastipy import connections
 
+# set the "default" connection 
 connections.set("default", client)
 
 # .. or as parameters, they get converted to an Elasticsearch client
-connections.set("default", {"hosts": "http://localhost:1234"})
+connections.set("default", {"hosts": "https://localhost:9200"})
 
 # get a client
 connections.get("default")
@@ -103,7 +108,7 @@ connections.get("default")
 
 
 
-    <Elasticsearch([{'host': 'localhost', 'port': 9200}])>
+    <Elasticsearch(['https://localhost:9200'])>
 
 
 
@@ -111,8 +116,9 @@ Different connections can be specified with the *alias* name:
 
 
 ```python
-connections.set("special", {"hosts": [{"host": "special", "port": 1234}]})
+connections.set("special", {"hosts": "http://special.host:1234"})
 
+# Search's `client` parameter understands the alias names
 s = Search(client="special")
 s.get_client()
 ```
@@ -120,11 +126,27 @@ s.get_client()
 
 
 
-    <Elasticsearch([{'host': 'special', 'port': 1234}])>
+    <Elasticsearch(['http://special.host:1234'])>
 
 
 
-### aggregations
+#### 3. Via .env file or environment variables
+
+The `default` connection, when not specified differently, is determined using [python-decouple](https://github.com/HBNetwork/python-decouple). You can set environment variables or place a `.env` file somewhere. The default settings: 
+```
+ELASTIPY_SCHEME=https
+ELASTIPY_HOST=localhost
+ELASTIPY_PORT=9200
+ELASTIPY_USER=user
+ELASTIPY_PASSWORD=password
+ELASTIPY_VERIFY_CERTS=True
+ELASTIPY_SSL_SHOW_WARN=True
+ELASTIPY_TIMEOUT=30
+```
+
+
+
+### Aggregations
 
 More details can be found in the [tutorial](https://elastipy.readthedocs.io/en/latest/tutorial.html).
 
@@ -187,7 +209,7 @@ Search(index="world").agg_date_histogram(calendar_interval="1w").execute().to_di
 
 
 
-### nested aggregations and metrics
+### Nested aggregations and metrics
 
 
 ```python
@@ -258,7 +280,7 @@ agg.dump.table(colors=False)
     dinner   │ 200                │ i can't reach the spoon │ 2 ████████████████████ │ 109.5 ████   │ 133.0 ████▉ 
 
 
-### queries
+### Queries
 
 
 ```python
@@ -300,7 +322,7 @@ languages_per_country.to_dict()
 
 
 
-### exporting
+### Exporting
 
 There is a small helper to export stuff to elasticsearch.
 
@@ -456,7 +478,15 @@ in `definition/query` or `definition/aggregation`.
 1. Do some changes or add a new notebook (and keep main 
     `requirements.txt` up to date).
 
-2. Execute: 
+2. For some example notebooks some data needs to be exported to elasticsearch. 
+   Clone the [pandas repository](https://github.com/pandas-dev/pandas) somewhere and run:
+   ```shell
+   python examples/gitlogs.py pandas /path/to/pandas-repo/
+   # pull and export car accident data
+   python examples/accidents_export.py
+   ```
+
+3. Execute: 
    ```shell script
    python run_doc_notebooks.py --execute
    ``` 
@@ -469,7 +499,7 @@ in `definition/query` or `definition/aggregation`.
    purposes it can be omitted in which case the current notebook state is
    rendered. 
    
-3. Run
+4. Run
    ```shell script
    cd docs/
    pip install -r requirements.txt
@@ -480,7 +510,6 @@ in `definition/query` or `definition/aggregation`.
 
 Before committing changes run 
 ```shell script
-pip install pre-commit
 pre-commit install
 ```
 This will install a pre-commit hook from 

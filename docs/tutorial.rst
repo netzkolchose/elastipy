@@ -1,4 +1,4 @@
-don't be plastic, elastipy!
+don’t be plastic, elastipy!
 ===========================
 
 Hi there, this tutorial is actually a `jupyter
@@ -223,7 +223,7 @@ query itself or by applying the ``|`` operator to the query classes in
     }
 
 
-Better execute the search now before the body get's too complicated:
+Better execute the search now before the body get’s too complicated:
 
 .. code:: python3
 
@@ -234,7 +234,7 @@ Better execute the search now before the body get's too complicated:
 .. parsed-literal::
 
     {
-      "took": 8,
+      "took": 1,
       "timed_out": false,
       "_shards": {
         "total": 1,
@@ -251,8 +251,7 @@ Better execute the search now before the body get's too complicated:
         "hits": [
           {
             "_index": "elastipy-example-shapes",
-            "_type": "_doc",
-            "_id": "1Lf0jHcBB26LJVfaIvox",
+            "_id": "aH1kppoBLqnXesFXttOe",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -262,8 +261,7 @@ Better execute the search now before the body get's too complicated:
           },
           {
             "_index": "elastipy-example-shapes",
-            "_type": "_doc",
-            "_id": "FLf0jHcBB26LJVfaIvsx",
+            "_id": "qH1kppoBLqnXesFXttOe",
             "_score": 2.1868048,
             "_source": {
               "shape": "triangle",
@@ -273,8 +271,7 @@ Better execute the search now before the body get's too complicated:
           },
           {
             "_index": "elastipy-example-shapes",
-            "_type": "_doc",
-            "_id": "OLf0jHcBB26LJVfaIvsx",
+            "_id": "zH1kppoBLqnXesFXttOe",
             "_score": 2.1868048,
             "_source": {
               "shape": "square",
@@ -427,7 +424,7 @@ auto-generated, but can be explicitly stated:
     }
 
 
-Let's look at the result from elasticsearch:
+Let’s look at the result from elasticsearch:
 
 .. code:: python3
 
@@ -437,7 +434,7 @@ Let's look at the result from elasticsearch:
 .. parsed-literal::
 
     {
-      "took": 2,
+      "took": 1,
       "timed_out": false,
       "_shards": {
         "total": 1,
@@ -475,7 +472,7 @@ Let's look at the result from elasticsearch:
 valuable access
 ~~~~~~~~~~~~~~~
 
-Because we kept the ``agg`` variable, we can use it's interface to
+Because we kept the ``agg`` variable, we can use it’s interface to
 access the values more conveniently:
 
 .. code:: python3
@@ -811,10 +808,11 @@ The methods ``dict_rows()``, ``rows()``, ``to_pandas()`` and
 branch. In this example the branch looks like this:
 
 -  shapes
--  colors
 
-   -  area
-   -  area-avg
+   -  colors
+
+      -  area
+      -  area-avg
 
 .. code:: python3
 
@@ -838,7 +836,7 @@ column contains the same value multiple times. This is because each
 ``colors`` aggregation bucket splits the ``shapes`` bucket into multiple
 results, without changing the overall count of the shapes, of course.
 
-It's possible to move the keys of sub-aggregations into new columns with
+It’s possible to move the keys of sub-aggregations into new columns with
 the ``flat`` parameter. Below we basically say: Drop the ``colors`` and
 ``colors.doc_count`` columns and instead create a column for each
 encountered color key. The names of following sub-aggregations and
@@ -892,7 +890,7 @@ Now what is this method with the awesome name ``to_matrix``?
 It produces a heatmap! At least in two dimensions. In this example we
 have two dimensions from the **bucket** aggregations ``shapes`` and
 ``colors``. ``to_matrix()`` will produce a matrix with any number of
-dimensions, but if it's one or two, we can also convert it to a
+dimensions, but if it’s one or two, we can also convert it to a
 ``DataFrame``:
 
 .. code:: python3

@@ -16,14 +16,14 @@ and call:
 
 .. code:: bash
 
-    python gitlogs.py <project-name> path/to/git-repo
+   python gitlogs.py <project-name> path/to/git-repo
 
 If you are ``cloning`` a repository and are just interested in commits
 you can somewhat limit the size on disk with:
 
 .. code:: bash
 
-    git clone <repo-url> --no-checkout
+   git clone <repo-url> --no-checkout
 
 Replace the ``<project-name>`` with the name of the project and change
 the value below in the ``notebook``:
@@ -177,7 +177,7 @@ number of authors per year
 
 .. parsed-literal::
 
-    2504 authors at all
+    3956 authors at all
 
 
 

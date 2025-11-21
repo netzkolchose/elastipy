@@ -45,7 +45,7 @@ class Connections:
         return Elasticsearch(**params)
 
     def _default_parameters(self) -> dict:
-        protocol = decouple.config("ELASTIPY_PROTOCOL", default="http")
+        scheme = decouple.config("ELASTIPY_SCHEME", default="http")
         host = decouple.config("ELASTIPY_HOST", default="localhost")
         port = decouple.config("ELASTIPY_PORT", default=9200, cast=int)
         user = decouple.config("ELASTIPY_USER", default=None)
@@ -62,7 +62,7 @@ class Connections:
 
         else:
             params = {
-                "hosts": f"{protocol}://{host}:{port}",
+                "hosts": f"{scheme}://{host}:{port}",
                 "request_timeout": timeout,
                 "verify_certs": decouple.config("ELASTIPY_VERIFY_CERTS", default=True, cast=bool),
                 "ssl_show_warn": decouple.config("ELASTIPY_SSL_SHOW_WARN", default=True, cast=bool),
