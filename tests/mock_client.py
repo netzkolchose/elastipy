@@ -74,7 +74,7 @@ if VERSION[0] == 7:
             self._mapping = kwargs["body"]
 
 
-elif VERSION[0] == 8:
+elif VERSION[0] in (8, 9):
 
     class MockElasticsearch:
 

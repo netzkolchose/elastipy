@@ -165,27 +165,20 @@ class Exporter:
 
     def delete_index(self) -> bool:
         """
-        Try to delete the index. Ignore if not found.
+        Try to delete the index/indices. Ignore if not found.
+        Supports wildcards in index name
 
         :return: ``bool``
-            True if deleted, False otherwise.
-
-            If the index name contains a wildcard ``*``,
-            True is always returned.
+            True if at least one index was deleted, False otherwise.
         """
-        from .aggregation.helper import wildcard_match
-
         name = self.index_name()
-        try:
-            self.client.indices.delete(index=name)
-            self._index_updated.pop(self.index_name(), None)
-            if "*" in name:
-                for key in list(self._index_updated):
-                    if wildcard_match(key, name):
-                        self._index_updated.pop(key)
-            return True
-        except NotFoundError:
+        indices = self.client.indices.get(index=name, expand_wildcards="all")
+        if not indices:
             return False
+        for matched_name in indices.keys():
+            self.client.indices.delete(index=matched_name)
+            self._index_updated.pop(matched_name, None)
+        return True
 
     def export_list(
             self,

@@ -1,5 +1,9 @@
 # history / changes
 
+## ??? (2025/02)
+
+- add geo queries and aggregations
+
 ## ??? (2022/03)
 
 - support for elasticsearch 8.0.0

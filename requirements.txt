@@ -1,6 +1,8 @@
 elasticsearch>=7.10.1
 PyYAML>=6.0.2
 mistletoe>=1.4.0
+python-decouple>=3.8
+
 tqdm>=4.67.1
 pandas>=2.0.3
 jupyter>=1.0.0

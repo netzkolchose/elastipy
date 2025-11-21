@@ -1,4 +1,4 @@
-## elastipy
+## Elastipy
 
 A python wrapper to make elasticsearch queries and aggregations more fun.
 
@@ -18,7 +18,7 @@ this library provides:
   (also supporting [pandas](https://github.com/pandas-dev/pandas))
 
 
-#### contents
+#### Contents
 
 - [installation](#installation)
 - [requirements](#requirements)
@@ -32,7 +32,7 @@ this library provides:
 
 ---
 
-### installation
+### Installation
 
 To install elastipy using the elasticsearch 8+ backend:
 
@@ -48,7 +48,7 @@ pip install elastipy
 ``` 
 
 
-#### requirements
+#### Requirements
 
 One thing is, of course, to [install elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html).
 
@@ -72,8 +72,8 @@ from elastipy import Search
 
 # Use an explicit Elasticsearch client (or compatible class)
 client = Elasticsearch(
-    hosts=[{"host": "localhost", "port": 9200}], 
-    http_auth=("user", "pwd")
+    hosts="http://localhost:9200", 
+    basic_auth=("user", "pwd")
 )
 
 # create a Search using the specified client
@@ -83,7 +83,7 @@ s = Search(index="bla", client=client)
 s = s.client(client)
 ```
 
-Check the Elasticsearch [API reference](https://elasticsearch-py.readthedocs.io/en/v7.10.1/api.html#elasticsearch) for all the parameters.
+Check the Elasticsearch [API reference](https://elasticsearch-py.readthedocs.io/en/latest/api/elasticsearch.html) for all the parameters.
 
 We can also set a default client at the program start:  
 
@@ -94,7 +94,7 @@ from elastipy import connections
 connections.set("default", client)
 
 # .. or as parameters, they get converted to an Elasticsearch client
-connections.set("default", {"hosts": [{"host": "localhost", "port": 9200}]})
+connections.set("default", {"hosts": "http://localhost:1234"})
 
 # get a client
 connections.get("default")
@@ -419,7 +419,7 @@ They are prefixed with **elastipy---unittest-**
 To check the coverage of the tests add `-c` or `-m` flags.
 `-m` will add the missing line numbers to the summary. 
 
-### development
+### Development
 
 The methods for **queries** and **aggregations** as well as the **query 
 classes** are auto-generated from [yaml files](definition). 
@@ -435,7 +435,7 @@ in `definition/query` or `definition/aggregation`.
     follow the nesting in the sidebar of the official 
     [documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html). 
     The three directories below `aggregation/` actually define the
-    aggregation type `bucket`, `metric` or `pipeline`. 
+    aggregation types `bucket`, `metric` or `pipeline`. 
 
 2. Create the python code via 
    ```shell script
