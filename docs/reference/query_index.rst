@@ -25,3 +25,7 @@
   - `term <#elastipy.Search.term>`__
   - `terms <#elastipy.Search.terms>`__
 
+- vector
+
+  - `knn <#elastipy.Search.knn>`__
+

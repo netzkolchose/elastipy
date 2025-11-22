@@ -37,27 +37,28 @@ class TestOrdersAggregationsPandas(TestCase):
         df = agg.to_pandas()
         self.assertEqual(pd.Timestamp, type(df["date"][0]))
 
-    def test_df_index(self):
+        df = agg.to_pandas(convert_datetime=False)
+        self.assertEqual(str, type(df["date"][0]))
+
+    def test_df_include(self):
         s = self.search()
-        agg = s\
+        agg = s \
             .agg_date_histogram("date", calendar_interval="1d") \
             .agg_terms("sku", field="sku") \
-            .agg_terms("channel", field="channel") \
             .agg_terms("country", field="country") \
             .metric_sum("quantity", field="quantity")
 
         s.execute()
 
-        df = agg.to_pandas(index=True)
-        self.assertEqual(pd.Timestamp, type(df.index[0]))
-        self.assertIn("date", df)
+        self.assertEqual(
+            ["date", "date.doc_count", "quantity"],
+            list(agg.to_pandas(include="*a*").keys())
+        )
 
-        df = agg.to_pandas(to_index=True)
-        self.assertEqual(pd.Timestamp, type(df.index[0]))
-        self.assertNotIn("date", df)
-
-        with self.assertRaises(ValueError):
-            agg.to_pandas(index=True, to_index=True)
+        self.assertEqual(
+            ["date.doc_count", "sku", "sku.doc_count", "country", "country.doc_count"],
+            list(agg.to_pandas(include=["sku", "*o*"]).keys())
+        )
 
     def test_df_exclude(self):
         s = self.search()
@@ -69,10 +70,28 @@ class TestOrdersAggregationsPandas(TestCase):
 
         s.execute()
 
-        df = agg.to_pandas(exclude="*y")
         self.assertEqual(
             ["date", "date.doc_count", "sku", "sku.doc_count", "country.doc_count"],
-            list(df.keys())
+            list(agg.to_pandas(exclude="*y").keys())
+        )
+        self.assertEqual(
+            ["date", "date.doc_count", "sku.doc_count", "country.doc_count"],
+            list(agg.to_pandas(exclude=["*y", "sku"]).keys())
+        )
+
+    def test_df_include_exclude(self):
+        s = self.search()
+        agg = s \
+            .agg_date_histogram("date", calendar_interval="1d") \
+            .agg_terms("sku", field="sku") \
+            .agg_terms("country", field="country") \
+            .metric_sum("quantity", field="quantity")
+
+        s.execute()
+
+        self.assertEqual(
+            ["date.doc_count", "sku", "sku.doc_count"],
+            list(agg.to_pandas(include="*u*", exclude="*y*").keys())
         )
 
 

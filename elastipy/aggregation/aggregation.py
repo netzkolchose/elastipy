@@ -52,16 +52,6 @@ class Aggregation(ConverterMixin, AggregationInterface):
         return AggregationDump(self)
 
     @property
-    def plot(self):
-        """
-        Access to :link:`pandas plotting interface <PandasPlotWrapper>`.
-
-        :return: :link:`PandasPlotWrapper` instance
-        """
-        from ..plot.aggregation_plot_pd import PandasPlotWrapper
-        return PandasPlotWrapper(self)
-
-    @property
     def group(self) -> str:
         """
         Returns the name of the aggregation group.

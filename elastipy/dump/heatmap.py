@@ -188,7 +188,7 @@ class Heatmap:
             lines.append(line)
         return lines
 
-"""
+r"""
      x1 x2
    /-+--+-
    |

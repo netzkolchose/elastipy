@@ -1,3 +1,4 @@
+from .test_dense_vector import *
 from .test_dump import *
 from .test_exporter import *
 from .test_nested_orders_agg import *
@@ -8,5 +9,4 @@ from .test_orders_agg_pandas import *
 from .test_orders_agg_table import *
 from .test_orders_query import *
 from .test_orders_query_all import *
-from .test_plot import *
 from .test_text_highlight import *

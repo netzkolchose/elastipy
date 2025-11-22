@@ -51,7 +51,7 @@ class TestExporterMulti(TestExporter):
         yield data
 
 
-# here each replicated document get's it's own id
+# here each replicated document gets it's own id
 class TestExporterMultiWithId(TestExporterMulti):
     INDEX_NAME = "elastipy---unittest-exporter-multi-id"
 
@@ -59,6 +59,7 @@ class TestExporterMultiWithId(TestExporterMulti):
         return "%(id)s-%(number)s" % es_data
 
 
+# here each document's index is determined by the document.tag value
 class TestExporterIndexPrefix(TestExporter):
     INDEX_NAME = "elastipy---unittest-exporter-prefix*"
 

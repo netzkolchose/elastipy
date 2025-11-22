@@ -2,23 +2,28 @@ Overview
 ========
 
 
-configuration
+Configuration
 ~~~~~~~~~~~~~
 
 By default an
 `elasticsearch <https://www.elastic.co/guide/en/elasticsearch/reference/current/elasticsearch-intro.html>`__
-host is expected at ``localhost:9200``. There are currently two ways to
-specify a different connection.
+host is expected at ``localhost:9200``. There are three ways to specify
+a different connection.
+
+1. In code
+^^^^^^^^^^
 
 .. code:: python3
 
+    # official elasticsearch python client
     from elasticsearch import Elasticsearch
+    # Search class from elastipy
     from elastipy import Search
     
     # Use an explicit Elasticsearch client (or compatible class)
     client = Elasticsearch(
-        hosts=[{"host": "localhost", "port": 9200}], 
-        http_auth=("user", "pwd")
+        hosts="http://localhost:9200", 
+        basic_auth=("user", "password"),
     )
     
     # create a Search using the specified client
@@ -31,16 +36,18 @@ Check the Elasticsearch `API
 reference <https://elasticsearch-py.readthedocs.io/en/v7.10.1/api.html#elasticsearch>`__
 for all the parameters.
 
-We can also set a default client at the program start:
+2. At program start
+^^^^^^^^^^^^^^^^^^^
 
 .. code:: python3
 
     from elastipy import connections
     
+    # set the "default" connection 
     connections.set("default", client)
     
     # .. or as parameters, they get converted to an Elasticsearch client
-    connections.set("default", {"hosts": [{"host": "localhost", "port": 9200}]})
+    connections.set("default", {"hosts": "https://localhost:9200"})
     
     # get a client
     connections.get("default")
@@ -50,7 +57,7 @@ We can also set a default client at the program start:
 
 .. parsed-literal::
 
-    <Elasticsearch([{'host': 'localhost', 'port': 9200}])>
+    <Elasticsearch(['https://localhost:9200'])>
 
 
 
@@ -58,8 +65,9 @@ Different connections can be specified with the *alias* name:
 
 .. code:: python3
 
-    connections.set("special", {"hosts": [{"host": "special", "port": 1234}]})
+    connections.set("special", {"hosts": "http://special.host:1234"})
     
+    # Search's `client` parameter understands the alias names
     s = Search(client="special")
     s.get_client()
 
@@ -68,11 +76,31 @@ Different connections can be specified with the *alias* name:
 
 .. parsed-literal::
 
-    <Elasticsearch([{'host': 'special', 'port': 1234}])>
+    <Elasticsearch(['http://special.host:1234'])>
 
 
 
-aggregations
+3. Via .env file or environment variables
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``default`` connection, when not specified differently, is
+determined using
+`python-decouple <https://github.com/HBNetwork/python-decouple>`__. You
+can set environment variables or place a ``.env`` file somewhere. The
+default settings:
+
+::
+
+   ELASTIPY_SCHEME=https
+   ELASTIPY_HOST=localhost
+   ELASTIPY_PORT=9200
+   ELASTIPY_USER=user
+   ELASTIPY_PASSWORD=password
+   ELASTIPY_VERIFY_CERTS=True
+   ELASTIPY_SSL_SHOW_WARN=True
+   ELASTIPY_TIMEOUT=30
+
+Aggregations
 ~~~~~~~~~~~~
 
 More details can be found in the
@@ -142,7 +170,7 @@ Above example as a one-liner:
 
 
 
-nested aggregations and metrics
+Nested aggregations and metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python3
@@ -163,7 +191,7 @@ and the metrics are siblings nested inside ``rare_terms``.
 
 ``keys()``, ``values()``, ``items()`` and ``to_dict()`` all operate on
 the current aggregation. For bucket aggregations they typically show the
-``doc_count`` value.'
+``doc_count`` value.’
 
 .. code:: python3
 
@@ -219,7 +247,7 @@ the whole aggregation branch:
     dinner   │ 200                │ i can't reach the spoon │ 2 ████████████████████ │ 109.5 ████   │ 133.0 ████▉ 
 
 
-queries
+Queries
 ~~~~~~~
 
 .. code:: python3
@@ -263,7 +291,7 @@ queries
 
 
 
-exporting
+Exporting
 ~~~~~~~~~
 
 There is a small helper to export stuff to elasticsearch.
@@ -356,5 +384,5 @@ If we are tired enough we can call:
 
 
 
-This will actually delete all sub-indices because there's this wildcard
+This will actually delete all sub-indices because there’s this wildcard
 ``*`` in the ``INDEX_NAME``.

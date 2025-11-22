@@ -2,6 +2,13 @@ import re
 from copy import copy, deepcopy
 from typing import Mapping, Any, Optional, Tuple
 
+import numpy
+
+try:
+    import numpy as _numpy
+except ImportError:
+    _numpy = None
+
 from .generated_interface import QueryInterface
 
 
@@ -110,13 +117,16 @@ class Query(QueryInterface):
         return factory(name, **params)
 
     def _map_parameters(self, params: Mapping) -> dict:
-        return {
-            key: self._map_parameter(key, value)
-            for key, value in params.items()
-            if self._parameters.get(key, {}).get("required") or value != self._parameters.get(key, {}).get("default")
-        }
+        mapped_params = {}
+        for key, value in params.items():
+            value = self._map_parameter(key, value)
+            if self._parameters.get(key, {}).get("required") or value != self._parameters.get(key, {}).get("default"):
+                mapped_params[key] = value
+        return mapped_params
 
     def _map_parameter(self, name: str, value: Any) -> Any:
+        if _numpy is not None and isinstance(value, numpy.ndarray):
+            value = value.tolist()
         return value
 
 

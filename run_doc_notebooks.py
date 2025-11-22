@@ -37,6 +37,7 @@ DOCS_DIR = "docs"
 HIDDEN_CELLS = [
     r"^# hidden.*",
     r"^<AxesSubplot.*>$",
+    r"^<Axes:.*>$",
 ]
 RUN_BUT_HIDDEN_CELLS = [
     r"^# run-but-hidden",
@@ -108,7 +109,7 @@ def rename_lexer(filename, old, new):
 def render_tutorial():
     # delete the shapes index if it is present
     try:
-        connections.get().indices.delete("elastipy-example-shapes")
+        connections.get().indices.delete(index="elastipy-example-shapes")
     except NotFoundError:
         pass
 
@@ -141,7 +142,7 @@ def render_quickref():
             quickref = fp.read().strip() + "\n\n"
 
         # put between these two lines in README.md
-        README_START = "### configuration"
+        README_START = "### Configuration"
         README_END = "**More examples can be found [here](examples).**"
 
         with open("README.md") as fp:
@@ -194,3 +195,4 @@ if __name__ == "__main__":
     render_tutorial()
     render_gitlogs_example()
     render_plotting_maps_example()
+

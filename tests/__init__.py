@@ -4,6 +4,7 @@ from .test_doc_ext import *
 from .test_doc_helper import *
 from .test_exporter import *
 from .test_generator import *
+from .test_geo_conv import *
 from .test_heatmap import *
 from .test_json import *
 from .test_query_body import *

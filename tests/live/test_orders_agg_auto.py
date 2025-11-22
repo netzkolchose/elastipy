@@ -216,7 +216,6 @@ class TestOrdersAggregationsAuto(TestCase):
                     list(agg.dict_rows())
 
             except BaseException as e:
-
                 match = re.match(r".*unable to parse BaseAggregationBuilder with name \[(.*)\].*", str(e))
                 if match:
                     warnings.warn(f"aggregation '{match.groups()[0]}' not supported by elasticsearch backend")
@@ -256,15 +255,14 @@ class TestOrdersAggregationsAuto(TestCase):
                 print("AGGREGATIONS", search._aggregations)
                 raise
 
-        if not_working:
-            print("## Aggregations that failed in elasticsearch:")
-            count = 0
-            for key, agg_types_set in not_working.items():
-                print(f"{key}: {len(agg_types_set)}")
-                count += len(agg_types_set)
-                #for agg_types in agg_types_set:
-                #    print("  ", "->".join(agg_types))
-            print("sum:", count)
+        print("\n## Aggregations that failed in elasticsearch:")
+        count = 0
+        for key, agg_types_set in not_working.items():
+            print(f"{key}: {len(agg_types_set)}")
+            count += len(agg_types_set)
+            #for agg_types in agg_types_set:
+            #    print("  ", "->".join(agg_types))
+        print("all:", count)
 
 
 if __name__ == "__main__":

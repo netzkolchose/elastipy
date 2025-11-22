@@ -6,8 +6,8 @@ from definition import generator
 
 def generate_file(filename, text):
     with open(filename, "w") as fp:
-        fp.write(text)
-    print(f"written {len(text)//1024}kb to {filename}")
+        size = fp.write(text)
+    print(f"written {size//1024}kb to {filename}")
 
 
 if __name__ == "__main__":

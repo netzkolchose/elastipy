@@ -1,9 +1,21 @@
 import os
 import json
-from unittest import TestCase as TestCaseOrg
+import unittest
+from typing import Union, Tuple
+
+from elasticsearch import VERSION
 
 
-class TestCase(TestCaseOrg):
+def requires_elasticsearch(version: Union[int, Tuple[int, int, int]]):
+    """Decorator to skip tests for specific elasticsearch versions"""
+    return unittest.skipIf(
+        (isinstance(version, int) and VERSION[0] < version)
+        or (isinstance(version, tuple) and VERSION < version),
+        f"Test requires elasticsearch v{version}"
+    )
+
+
+class TestCase(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

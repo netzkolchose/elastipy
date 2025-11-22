@@ -5,6 +5,7 @@ cache/
 docs/_*/
 .idea/
 
+.env
 env/
 env8/
 build/

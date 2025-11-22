@@ -52,6 +52,7 @@ else:
         python_requires='>=3.8, <4',
         install_requires=[
             'elasticsearch>=7.10.1',
+            'python-decouple>=3',
         ],
         classifiers=[
             'Development Status :: 3 - Alpha',
@@ -67,6 +68,8 @@ else:
             'Programming Language :: Python :: 3.8',
             'Programming Language :: Python :: 3.9',
             'Programming Language :: Python :: 3.10',
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.12',
             'Topic :: Software Development :: Libraries :: Python Modules',
             'Topic :: Database :: Front-Ends',
             'Topic :: Scientific/Engineering :: Information Analysis',
