@@ -2,7 +2,7 @@
 
 A python wrapper to make elasticsearch queries and aggregations more fun.
 
-Tested with python 3.6 and 3.10 and elasticsearch 7 and 8.
+Tested with python 3.6 - 3.12 and elasticsearch 7 - 9.
 
 [![test](https://github.com/netzkolchose/elastipy/actions/workflows/tests.yml/badge.svg)](https://github.com/netzkolchose/elastipy/actions/workflows/tests.yml)
 [![Coverage Status](https://coveralls.io/repos/github/netzkolchose/elastipy/badge.svg?branch=development)](https://coveralls.io/github/netzkolchose/elastipy?branch=development)
@@ -14,21 +14,42 @@ Learn more at [elastipy.readthedocs.io](https://elastipy.readthedocs.io/en/lates
 In comparison to [elasticsearch-dsl](https://github.com/elastic/elasticsearch-dsl-py)
 this library provides:
 - typing and IDE-based auto-completion for search and aggregation parameters.
-- some convenient data access to responses of nested bucketed aggregations and metrics
-  (also supporting [pandas](https://github.com/pandas-dev/pandas))
+- convenient data access to responses of nested bucketed aggregations and metrics, supporting [pandas](https://github.com/pandas-dev/pandas).
 
+In a nutshell:
+```python
+from elastipy import Search
+(
+    Search(index="elastipy-example-shapes")     # create query object
+    .range("area", gte=5)                       # add a few filters
+    .terms("color", ["red", "green"])
+    .agg_terms("shapes", field="shape")         # aggregate over a field
+    .agg_terms("colors", field="color")         # sub-aggregate over another field
+    .metric_sum("area", field="area")           # add some metrics
+    .metric_avg("average area", field="area")
+    .execute()                                  # run the whole query
+    .df()                                       # convert result to pandas.Dataframe
+)
+```
+
+|    | shapes   |   shapes.doc_count | colors   |   colors.doc_count |    area |   average area |
+|---:|:---------|-------------------:|:---------|-------------------:|--------:|---------------:|
+|  0 | square   |                576 | green    |                297 | 1809.49 |        6.09256 |
+|  1 | square   |                576 | red      |                279 | 1677.16 |        6.01134 |
+|  2 | triangle |                441 | green    |                246 | 1477.52 |        6.00618 |
+|  3 | triangle |                441 | red      |                195 | 1212.51 |        6.21802 |
 
 #### Contents
 
-- [installation](#installation)
-- [requirements](#requirements)
-- quickref
-    - [aggregations](#aggregations)
-    - [metrics](#nested-aggregations-and-metrics)
-    - [query](#queries)
-    - [exporting](#exporting)
-- [testing](#testing)
-- [development](#development)
+- [Installation](#installation)
+- [Requirements](#requirements)
+- Quickref
+    - [Aggregations](#aggregations)
+    - [Metrics](#nested-aggregations-and-metrics)
+    - [Queries](#queries)
+    - [Exporting](#exporting)
+- [Testing](#testing)
+- [Development](#development)
 
 ---
 
@@ -506,7 +527,10 @@ in `definition/query` or `definition/aggregation`.
    make clean && make html
    ```
    and inspect the results in 
-   [docs/_build/html/index.html](docs/_build/html/index.html).
+   [docs/_build/html/index.html](docs/_build/html/index.html), e.g. by:
+   ```shell
+   python -m http.server -d _build/html/
+   ```
 
 Before committing changes run 
 ```shell script

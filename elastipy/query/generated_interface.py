@@ -390,10 +390,10 @@ class QueryInterface(QueryInterfaceBase):
         <https://www.elastic.co/docs/reference/query-languages/query-dsl/query-dsl-knn-query>`__
 
         :param field: ``str``
-            The name of the vector field to search against. Must be a
-            ```dense_vector`` field with indexing enabled
+            The name of the vector field to search against. Must be a `dense_vector
+            field with indexing enabled
             <https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/dense-vector#index-vectors-knn-search>`__,
-            or a ```semantic_text`` field
+            or a `semantic_text field
             <https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/semantic-text>`__
             with a compatible dense vector inference model.
 
@@ -411,7 +411,7 @@ class QueryInterface(QueryInterfaceBase):
             <https://www.elastic.co/docs/solutions/search/vector/knn#knn-semantic-search>`__
             to learn more.
 
-            If all queried fields are of type ```semantic_text``
+            If all queried fields are of type `semantic_text
             <https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/semantic-text>`__,
             the inference ID associated with the ``semantic_text`` field may be
             inferred.
@@ -448,10 +448,10 @@ class QueryInterface(QueryInterfaceBase):
 
         :param similarity: ``Optional[float]``
             The minimum similarity required for a document to be considered a match.
-            The similarity value calculated relates to the raw ```similarity``
+            The similarity value calculated relates to the raw `similarity
             <https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/dense-vector#dense-vector-similarity>`__
             used. Not the document score. The matched documents are then scored
-            according to ```similarity``
+            according to `similarity
             <https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/dense-vector#dense-vector-similarity>`__
             and the provided ``boost`` is applied.
 

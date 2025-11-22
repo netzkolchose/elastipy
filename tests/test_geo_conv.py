@@ -31,7 +31,7 @@ class TestGeoConv(unittest.TestCase):
         self.assertCoordsEqual((-157.5, -67.5), geo_conv.geohash_to_lon_lat("0"))
         self.assertCoordsEqual((-112.5, -67.5), geo_conv.geohash_to_lon_lat("1"))
         self.assertCoordsEqual((89.0112, 25.3784), geo_conv.geohash_to_lon_lat("tux23"))
-        
+
     def test_geohash_lat_lon(self):
         self.assertCoordsEqual((-67.5, -157.5), geo_conv.geohash_to_lat_lon("0"))
         self.assertCoordsEqual((-67.5, -112.5), geo_conv.geohash_to_lat_lon("1"))

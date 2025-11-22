@@ -21,7 +21,7 @@ import sphinx_rtd_theme
 # -- Project information -----------------------------------------------------
 
 project = 'elastipy'
-copyright = '2021, netzkolchose.de'
+copyright = '2021-25, netzkolchose.de'
 author = 'netzkolchose.de'
 
 

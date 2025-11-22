@@ -7,7 +7,7 @@ parameters:
     type: str
     required: True
     doc: |
-      The name of the vector field to search against. Must be a [`dense_vector` field with indexing enabled](https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/dense-vector#index-vectors-knn-search), or a [`semantic_text` field](https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/semantic-text) with a compatible dense vector inference model.
+      The name of the vector field to search against. Must be a [dense_vector field with indexing enabled](https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/dense-vector#index-vectors-knn-search), or a [semantic_text field](https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/semantic-text) with a compatible dense vector inference model.
   query_vector:
     type: Union[str, Sequence[int], Sequence[float]]
     doc: |
@@ -17,7 +17,7 @@ parameters:
     doc: |
       Query vector builder. A configuration object indicating how to build a query_vector before executing the request. You must provide either a query_vector_builder or query_vector, but not both. Refer to [Perform semantic search](https://www.elastic.co/docs/solutions/search/vector/knn#knn-semantic-search) to learn more.
       
-      If all queried fields are of type [`semantic_text`](https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/semantic-text), the inference ID associated with the `semantic_text` field may be inferred.
+      If all queried fields are of type [semantic_text](https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/semantic-text), the inference ID associated with the `semantic_text` field may be inferred.
   k:
     type: int
     doc: |
@@ -40,7 +40,7 @@ parameters:
   similarity:
     type: float
     doc: |
-      The minimum similarity required for a document to be considered a match. The similarity value calculated relates to the raw [`similarity`](https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/dense-vector#dense-vector-similarity) used. Not the document score. The matched documents are then scored according to [`similarity`](https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/dense-vector#dense-vector-similarity) and the provided `boost` is applied.
+      The minimum similarity required for a document to be considered a match. The similarity value calculated relates to the raw [similarity](https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/dense-vector#dense-vector-similarity) used. Not the document score. The matched documents are then scored according to [similarity](https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/dense-vector#dense-vector-similarity) and the provided `boost` is applied.
   boost:
     type: float
     doc: |

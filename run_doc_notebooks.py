@@ -195,3 +195,4 @@ if __name__ == "__main__":
     render_tutorial()
     render_gitlogs_example()
     render_plotting_maps_example()
+
